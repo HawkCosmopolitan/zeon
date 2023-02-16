@@ -1,0 +1,6 @@
+{
+    "NETWORK": 0,
+    "SECURITY": 1,
+    "STORAGE": 2,
+    "MEMORY": 3
+}
