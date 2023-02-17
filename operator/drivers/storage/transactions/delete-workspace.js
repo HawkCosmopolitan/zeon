@@ -1,6 +1,15 @@
 
 const mongoose = require('mongoose');
 let { Workspace } = require('../schemas/schemas');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Workspace === undefined) {
@@ -14,10 +23,10 @@ module.exports.dbDeleteWorkspace = async ({ wsId }, userId, roomId, rights) => {
   session.startTransaction();
   try {
     let success = false;
-    let workspace = await Workspace.findOne({ id: wsId }).session(session).exec();
+    let workspace = await WorkspaceFactory.instance().find({ id: wsId }, session);
     if (workspace !== null) {
       if (rights.deleteWorkspace) {
-        await Workspace.deleteOne({ id: wsId }).session(session).exec();
+        await WorkspaceFactory.instance().remove({ id: wsId }, session);
         await session.commitTransaction();
         success = true;
       } else {

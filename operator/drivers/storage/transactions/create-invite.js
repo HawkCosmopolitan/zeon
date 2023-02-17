@@ -4,6 +4,14 @@ let { Tower, Room, User, RoomInvite } = require('../schemas/schemas');
 let { isIdEmpty } = require('../../../global-utils/numbers');
 let { isInviteTitleInvalid, isInviteTextInvalid } = require('../../../global-utils/strings');
 const updates = require('../../../constants/updates.json');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Tower === undefined) {
@@ -43,23 +51,21 @@ module.exports.dbCreateInvite = async ({ roomId, targetUserId, title, text }, us
   let invite;
   try {
     let success = false;
-    invite = await RoomInvite.findOne({ userId: targetUserId, roomId: roomId }).session(session).exec();
+    invite = await InviteFactory.instance().find({ userId: targetUserId, roomId: roomId }, session);
     if (invite === null) {
-      let room = await Room.findOne({ id: roomId }).session(session).exec();
+      let room = await RoomFactory.instance().find({ id: roomId }, session);
       if (room !== null) {
-        let tower = await Tower.findOne({ id: room.towerId }).session(session).exec();
+        let tower = await TowerFactory.instance().find({ id: room.towerId }, session);
         if (tower.secret.adminIds.includes(userId) || room.secret.adminIds.includes(userId)) {
-          let user = await User.findOne({ id: targetUserId }).session(session).exec();
+          let user = await UserFactory.instance().find({ id: targetUserId }, session);
           if (user !== null) {
-            invite = await RoomInvite.create([{
+            invite = await InviteFactory.instance().create({
+              id: makeUniqueId(),
               userId: targetUserId,
               roomId: roomId,
               title: title,
               text: text
-            }], { session });
-            invite = invite[0];
-            await RoomInvite.updateOne({ _id: invite._id }, { id: invite._id.toHexString() }).session(session);
-            invite = await RoomInvite.findOne({ id: invite._id.toHexString() }).session(session).exec();
+            }, session);
             success = true;
             await session.commitTransaction();
           } else {

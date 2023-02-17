@@ -9,6 +9,16 @@ const { readUserStorageData } = require('../../network/socket/events/storage');
 const { readUserDocumentsData } = require('../../network/socket/events/file');
 const { readUserBlogsData } = require('../../network/socket/events/blog');
 const { getUser } = require('../../network/socket/pool');
+const SessionFactory = require('../factories/session-factory');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
     if (Pending === undefined) {
@@ -45,25 +55,23 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
     let email = inputData['https://internal.cosmopole.cloud/email'];
     let pending, userSession, user;
     try {
-        pending = await Pending.findOne({ email: email }).session(session).exec();
+        pending = await PendingFactory.instance().find({ email: email }, session);
         if (pending !== null) {
-            user = await User.findOne({ id: pending.userId }).session(session).exec();
+            user = await UserFactory.instance().find({ id: pending.userId }, session);
             if (user !== null) {
-                userSession = await Session.create([{
+                userSession = await SessionFactory.instance().create({
+                    id: makeUniqueId(),
                     token: uuidv4(),
                     userId: user.id
-                }], { session: session });
-                userSession = userSession[0];
-                await Session.updateOne({ _id: userSession._id }, { id: userSession._id.toHexString() }).session(session);
-                userSession = await Session.findOne({ id: userSession._id.toHexString() }).session(session).exec();
-                await User.updateOne({ id: user.id }, { $push: { sessionIds: userSession.id } });
-                user = await User.findOne({ id: user._id.toHexString() }).session(session).exec();
-                let memberships = await Member.find({ userId: user.id }).session(session).exec();
-                let towers = await Tower.find({ 'id': { $in: memberships.map(m => m.towerId) } }).session(session).exec();
-                let rooms = await Room.find({ 'id': { $in: memberships.map(m => m.roomId) } }).session(session).exec();
-                let allMemberships = await Member.find({ roomId: { $in: rooms.map(r => r.id) } }).session(session).exec();
-                let workspaces = await Workspace.find({ 'roomId': { $in: rooms.map(r => r.id) } }).session(session).exec();
-                let interactions = await Interaction.find({ $or: [{ user1Id: user.id }, { user2Id: user.id }] }).session(session).exec();
+                }, session);
+                await UserFactory.instance().update({ id: user.id }, { $push: { sessionIds: userSession.id } }, session);
+                user = await UserFactory.instance().findOne({ id: user._id.toHexString() }, session);
+                let memberships = await MemberFactory.instance().findGroup({ userId: user.id }, session);
+                let towers = await TowerFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.towerId) } }, session);
+                let rooms = await RoomFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.roomId) } }, session);
+                let allMemberships = await MemberFactory.instance().findGroup({ roomId: { $in: rooms.map(r => r.id) } }, session);
+                let workspaces = await WorkspaceFactory.instance().findGroup({ 'roomId': { $in: rooms.map(r => r.id) } }, session);
+                let interactions = await InteractionFactory.instance().findGroup({ $or: [{ user1Id: user.id }, { user2Id: user.id }] }, session);
                 towers.forEach(tower => {
                     if (tower.secret.isContact) {
                         let user1Id = tower.secret.adminIds[0];
@@ -73,9 +81,9 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
                         tower.contact = getUser(target);
                     }
                 });
-                let storageData = await readUserStorageData(user.id);
-                let documentsData = await readUserDocumentsData(user.id);
-                let blogsData = await readUserBlogsData(user.id);
+                //let storageData = await readUserStorageData(user.id);
+                //let documentsData = await readUserDocumentsData(user.id);
+                //let blogsData = await readUserBlogsData(user.id);
                 await session.commitTransaction();
                 session.endSession();
                 return {
@@ -88,13 +96,13 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
                     myMemberships: memberships,
                     allMemberships: allMemberships,
                     interactions: interactions,
-                    filespaces: storageData.filespaces,
-                    disks: storageData.disks,
-                    folders: storageData.folders,
-                    files: storageData.files,
-                    documents: documentsData.documents,
-                    blogs: blogsData.blogs,
-                    posts: blogsData.posts
+                    filespaces: [],//storageData.filespaces,
+                    disks: [],//storageData.disks,
+                    folders: [],//storageData.folders,
+                    files: [],//storageData.files,
+                    documents: [],//documentsData.documents,
+                    blogs: [],//blogsData.blogs,
+                    posts: []// blogsData.posts
                 };
             } else {
                 await session.commitTransaction();

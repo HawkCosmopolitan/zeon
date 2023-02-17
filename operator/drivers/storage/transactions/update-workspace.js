@@ -2,6 +2,15 @@
 const mongoose = require('mongoose');
 const { isWorkspaceTitleInvalid } = require('../../../global-utils/strings');
 let { Workspace } = require('../schemas/schemas');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Workspace === undefined) {
@@ -20,10 +29,10 @@ module.exports.dbUpdateWorkspace = async ({ wsId, title }, userId, roomId, right
   let workspace;
   try {
     let success = false;
-    workspace = await Workspace.findOne({ id: wsId, roomId: roomId }).session(session).exec();
+    workspace = await WorkspaceFactory.instance().find({ id: wsId, roomId: roomId }, session);
     if (workspace !== null) {
       if (rights.updateWorkspace) {
-        await Workspace.updateOne({ id: wsId }, { title: title }).session(session).exec();
+        await WorkspaceFactory.instance().update({ id: wsId }, { title: title }, session);
         await session.commitTransaction();
         success = true;
       } else {

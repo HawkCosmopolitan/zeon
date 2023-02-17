@@ -3,6 +3,15 @@ const mongoose = require('mongoose');
 let { Tower, Room } = require('../schemas/schemas');
 const { isEmpty, isNameFieldInvalid } = require('../../../global-utils/strings');
 const defaultAvatars = require('../../../constants/avatars.json');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Tower === undefined) {
@@ -27,14 +36,14 @@ module.exports.dbUpdateTower = async ({ towerId, title, avatarId, isPublic }, us
   session.startTransaction();
   try {
     let success = false;
-    let tower = await Tower.findOne({id: towerId}).session(session).exec();
+    let tower = await TowerFactory.instance().find({id: towerId}, session);
     if (tower !== null) {
       if (tower.secret.adminIds.includes(userId)) {
-        await Tower.updateOne({id: tower.id}, {
+        await TowerFactory.instance().update({id: tower.id}, {
           title: title,
           avatarId: isEmpty(avatarId) ? defaultAvatars.EMPTY_TOWER_AVATAR_ID : avatarId,
           isPublic: isPublic
-        }).session(session);
+        }, session);
         success = true;
         await session.commitTransaction();
       } else {

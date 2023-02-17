@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 let { Tower, Room, RoomInvite } = require('../schemas/schemas');
 let { isIdEmpty } = require('../../../global-utils/numbers');
 const updates = require('../../../constants/updates.json');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
 
 const checkImports = () => {
   if (Tower === undefined) {
@@ -27,13 +32,13 @@ module.exports.dbCancelInvite = async ({ inviteId }, userId) => {
   let targetUserId;
   try {
     let success = false;
-    let invite = await RoomInvite.findOne({ id: inviteId }).session(session).exec();
+    let invite = await InviteFactory.instance().find({ id: inviteId }, session);
     if (invite !== null) {
       targetUserId = invite.userId;
-      let room = await Room.findOne({ id: invite.roomId }).session(session).exec();
-      let tower = await Tower.findOne({ id: room.towerId }).session(session).exec();
+      let room = await RoomFactory.instance().find({ id: invite.roomId }, session);
+      let tower = await TowerFactory.instance().find({ id: room.towerId }, session);
       if (tower.secret.adminIds.includes(userId) || room.secret.adminIds.includes(userId)) {
-        await RoomInvite.deleteOne({ id: invite.id }).session(session);
+        await InviteFactory.instance().remove({ id: invite.id }, session);
         success = true;
         await session.commitTransaction();
       } else {

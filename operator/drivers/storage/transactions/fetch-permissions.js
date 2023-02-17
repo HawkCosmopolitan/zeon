@@ -1,6 +1,15 @@
 
 const mongoose = require('mongoose');
 let { Member, Room, Tower } = require('../schemas/schemas');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Member === undefined) {
@@ -21,11 +30,11 @@ module.exports.dbFetchPermissions = async ({ roomId, targetUserId }, userId) => 
   try {
     let success = false;
     let permissions = undefined;
-    let room = await Room.findOne({ id: roomId }).session(session).exec();
-    let tower = await Tower.findOne({ id: room.towerId }).session(session).exec();
+    let room = await RoomFactory.instance().find({ id: roomId }, session);
+    let tower = await TowerFactory.instance().find({ id: room.towerId }, session);
     if (room !== null) {
       if (room.secret.adminIds.includes(userId) && !tower.secret.adminIds.includes(targetUserId) && !room.secret.adminIds.includes(targetUserId)) {
-        let member = await Member.findOne({ userId: targetUserId, roomId: roomId }).session(session).exec();
+        let member = await MemberFactory.instance().find({ userId: targetUserId, roomId: roomId }, session);
         if (member !== null) {
           permissions = member.secret?.permissions ? member.secret.permissions : {};
           await session.commitTransaction();
@@ -37,7 +46,7 @@ module.exports.dbFetchPermissions = async ({ roomId, targetUserId }, userId) => 
         }
       } else {
         if (tower.secret.adminIds.includes(userId) && !tower.secret.adminIds.includes(targetUserId)) {
-          let member = await Member.findOne({ userId: targetUserId, roomId: roomId }).session(session).exec();
+          let member = await MemberFactory.instance().find({ userId: targetUserId, roomId: roomId }, session);
           if (member !== null) {
             permissions = member.secret.permissions ? member.secret.permissions : {};
             await session.commitTransaction();

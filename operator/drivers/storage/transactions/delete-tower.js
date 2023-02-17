@@ -3,6 +3,15 @@ const mongoose = require('mongoose');
 let { Tower, Room } = require('../schemas/schemas');
 let { isEmpty, isNameFieldInvalid } = require('../../../global-utils/strings');
 let defaultAvatars = require('../../../constants/avatars.json');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Tower === undefined) {
@@ -19,10 +28,10 @@ module.exports.dbDeleteTower = async ({ towerId }, userId) => {
   session.startTransaction();
   try {
     let success = false;
-    let tower = await Tower.findOne({ id: towerId }).session(session).exec();
+    let tower = await TowerFactory.instance().find({ id: towerId }, session);
     if (tower !== null) {
       if (tower.secret.adminIds.includes(userId)) {
-        await Tower.deleteOne({ id: tower.id }).session(session);
+        await TowerFactory.instance().remove({ id: tower.id }, session);
         success = true;
         await session.commitTransaction();
       } else {

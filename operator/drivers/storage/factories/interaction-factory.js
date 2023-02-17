@@ -1,13 +1,13 @@
 
-class UserFactory {
+class InteractionFactory {
     static inst;
     static initialize() {
-        return new UserFactory();
+        return new InteractionFactory();
     }
     static instance() {
-        return UserFactory.inst;
+        return InteractionFactory.inst;
     }
-    ModelName = 'User';
+    ModelName = 'Interaction';
     Model;
     constructor() {
         this.Model = require('../schemas/schemas')[this.ModelName];
@@ -52,4 +52,4 @@ class UserFactory {
     }
 }
 
-module.exports = UserFactory;
+module.exports = InteractionFactory;

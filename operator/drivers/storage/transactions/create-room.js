@@ -6,6 +6,14 @@ const defaultAvatars = require('../../../constants/avatars.json');
 const permissions = require('../../../constants/permissions.json');
 const updates = require('../../../constants/updates.json');
 const { secureObject, secureAdmins } = require('../../../global-utils/filter');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Tower === undefined) {
@@ -37,17 +45,12 @@ module.exports.dbCreateRoom = async ({ towerId, title, avatarId, isPublic, floor
   let room, member, member2, workspace;
   try {
     let success = false;
-    let tower = await Tower.findOne({ id: towerId }).session(session).exec();
+    let tower = await TowerFactory.instance().find({ id: towerId }, session);
     if (tower !== null) {
       if (tower.secret.adminIds.includes(userId)) {
-        workspace = await Workspace.create([{
-          title: 'main workspace',
-          roomId: ''
-        }], { session });
-        workspace = workspace[0];
-        await Workspace.updateOne({ _id: workspace._id }, { id: workspace._id.toHexString() }).session(session);
-        workspace = await Workspace.findOne({ id: workspace._id.toHexString() }).session(session).exec();
-        room = await Room.create([{
+        let workspaceGenedId = makeUniqueId();
+        room = await RoomFactory.instance().create({
+          id: makeUniqueId(),
           title: title,
           avatarId: isEmpty(avatarId) ? defaultAvatars.EMPTY_ROOM_AVATAR_ID : avatarId,
           towerId: towerId,
@@ -57,37 +60,34 @@ module.exports.dbCreateRoom = async ({ towerId, title, avatarId, isPublic, floor
             adminIds: [
               userId
             ],
-            defaultWorkspaceId: workspace.id
+            defaultWorkspaceId: workspaceGenedId
           }
-        }], { session });
-        room = room[0];
-        await Room.updateOne({ _id: room._id }, { id: room._id.toHexString() }).session(session);
-        room = await Room.findOne({ id: room._id.toHexString() }).session(session).exec();
-        member = await Member.create([{
+        }, session);
+        workspace = await WorkspaceFactory.instance().create({
+          id: workspaceGenedId,
+          title: 'main workspace',
+          roomId: room.id
+        }, session);
+        member = await MemberFactory.instance().create({
+          id: makeUniqueId(),
           userId: userId,
           roomId: room.id,
           towerId: tower.id,
           secret: {
             permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
           }
-        }], { session });
-        member = member[0];
-        await Member.updateOne({ _id: member._id }, { id: member._id.toHexString() }).session(session);
+        }, session);
         if (tower.secret.isContact) {
-          member2 = await Member.create([{
+          member2 = await MemberFactory.instance().create({
+            id: makeUniqueId(),
             userId: tower.secret.adminIds[0] === userId ? tower.secret.adminIds[1] : tower.secret.adminIds[0],
             roomId: room.id,
             towerId: tower.id,
             secret: {
               permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
             }
-          }], { session });
-          member2 = member2[0];
-          await Member.updateOne({ _id: member2._id }, { id: member2._id.toHexString() }).session(session);
-          member2 = await Member.findOne({ id: member2._id.toHexString() }).session(session).exec();
+          }, session);
         }
-        await Workspace.updateOne({ _id: workspace._id }, { roomId: room.id }).session(session);
-        workspace = await Workspace.findOne({ id: workspace._id.toHexString() }).session(session).exec();
         success = true;
         await session.commitTransaction();
       } else {

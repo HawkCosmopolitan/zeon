@@ -12,6 +12,16 @@ const {
     v4: uuidv4,
 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const SessionFactory = require('../factories/session-factory');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
     if (Pending === undefined) {
@@ -59,91 +69,82 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
     let email = inputData['https://internal.cosmopole.cloud/email'];
     let pending, user, userSession, tower, room, workspace, member, defaultMembership;
     try {
-        pending = await Pending.findOne({ email: email }).session(session).exec();
+        pending = await PendingFactory.instance().find({ email: email }, Session);
         if (pending === null) {
-            userSession = await Session.create([{
+            let userGenedId = makeUniqueId();
+            userSession = await SessionFactory.instance().create([{
+                id: makeUniqueId(),
                 token: uuidv4(),
-            }], { session: session });
-            userSession = userSession[0];
-            user = await User.create([{
+                userId: userGenedId,
+            }], session);
+            let towerGenedId = makeUniqueId();
+            let roomGenedId = makeUniqueId();
+            user = await UserFactory.instance().create({
+                id: userGenedId,
                 firstName: firstName,
                 lastName: lastName,
                 secret: {
                     email: email,
-                    sessionIds: [userSession._id.toHexString()]
+                    homeId: towerGenedId,
+                    sessionIds: [userSession.id]
                 }
-            }], { session: session });
-            user = user[0];
-            workspace = await Workspace.create([{
-                title: 'main workspace',
-                roomId: ''
-            }], { session });
-            workspace = workspace[0];
-            room = await Room.create([{
-                title: 'hall',
-                avatarId: defaultAvatars.HALL_DEFAULT_AVATAR_ID,
-                isPublic: false,
-                floor: 'hall',
-                secret: {
-                    adminIds: [
-                        user._id.toHexString()
-                    ],
-                    defaultWorkspaceId: workspace._id.toHexString()
-                }
-            }], { session });
-            room = room[0];
-            tower = await Tower.create([{
+            }, session);
+            let workspaceGenedId = makeUniqueId();
+            tower = await TowerFactory.instance().create({
+                id: towerGenedId,
                 title: `${firstName}'s home`,
                 avatarId: defaultAvatars.EMPTY_TOWER_AVATAR_ID,
                 isPublic: false,
                 secret: {
                     adminIds: [
-                        user._id.toHexString()
+                        userGenedId
                     ]
                 }
-            }], { session });
-            tower = tower[0];
-            member = await Member.create([{
+            }, session);
+            room = await RoomFactory.instance().create({
+                id: roomGenedId,
+                title: 'hall',
+                avatarId: defaultAvatars.HALL_DEFAULT_AVATAR_ID,
+                isPublic: false,
+                floor: 'hall',
+                towerId: towerGenedId,
+                secret: {
+                    adminIds: [
+                        userGenedId
+                    ],
+                    defaultWorkspaceId: workspaceGenedId
+                }
+            }, session);
+            workspace = await WorkspaceFactory.instance().create({
+                id: workspaceGenedId,
+                title: 'main workspace',
+                roomId: roomGenedId
+            }, session);
+            member = await MemberFactory.instance().create({
+                id: makeUniqueId(),
                 userId: user._id.toHexString(),
                 roomId: room._id.toHexString(),
                 towerId: tower._id.toHexString(),
                 secret: {
                     permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
                 }
-            }], { session });
-            member = member[0];
-            await User.updateOne({ _id: user._id }, { id: user._id.toHexString(), secret: { homeId: tower._id.toHexString() } }).session(session);
-            user = await User.findOne({ id: user._id.toHexString() }).session(session).exec();
-            await Session.updateOne({ _id: userSession._id }, { id: userSession._id.toHexString(), userId: user.id }).session(session);
-            userSession = await Session.findOne({ id: userSession._id.toHexString() }).session(session).exec();
-            await Tower.updateOne({ _id: tower._id }, { id: tower._id.toHexString() }).session(session);
-            tower = await Tower.findOne({ id: tower._id.toHexString() }).session(session).exec();
-            await Room.updateOne({ _id: room._id }, { id: room._id.toHexString(), towerId: tower.id }).session(session);
-            room = await Room.findOne({ id: room._id.toHexString() }).session(session).exec();
-            await Member.updateOne({ _id: member._id }, { id: member._id.toHexString() }).session(session);
-            member = await Member.findOne({ id: member._id.toHexString() }).session(session).exec();
-            await Workspace.updateOne({ _id: workspace._id }, { id: workspace._id.toHexString(), roomId: room.id }).session(session);
-            workspace = await Workspace.findOne({ id: workspace._id.toHexString() }).session(session).exec();
-
-            defaultMembership = await Member.create([{
+            }, session);
+            defaultMembership = await MemberFactory.instance().create({
+                id: makeUniqueId(),
                 userId: user.id,
                 roomId: centralTowerHall.id,
                 towerId: centralTower.id,
                 secret: {
                     permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
                 }
-            }], { session });
-            defaultMembership = defaultMembership[0];
-            await Member.updateOne({ _id: defaultMembership._id }, { id: defaultMembership._id.toHexString() }).session(session);
-            defaultMembership = await Member.findOne({ id: defaultMembership._id.toHexString() }).session(session).exec();
-            let workspaces = await Workspace.find({ 'roomId': { $in: [centralTowerHall.id] } }).session(session).exec();
-            let storageData = await readUserStorageData(user.id, session);
-            let documentsData = await readUserDocumentsData(user.id, session);
-            let blogsData = await readUserBlogsData(user.id, session);
-
-            pending = await Pending.create([{
-                email: email, userId: user.id
-            }], { session });
+            }, session);
+            let workspaces = await WorkspaceFactory.instance().findGroup({ roomId: { $in: [centralTowerHall.id] } }, session);
+            //let storageData = await readUserStorageData(user.id, session);
+            //let documentsData = await readUserDocumentsData(user.id, session);
+            //let blogsData = await readUserBlogsData(user.id, session);
+            pending = await PendingFactory.instance().create({
+                id: makeUniqueId(), email: email, userId: userGenedId
+            }, session);
             await session.commitTransaction();
             session.endSession();
             return {
@@ -157,13 +158,13 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
                 defaultMembership,
                 centralTower,
                 centralTowerHall,
-                filespaces: storageData.filespaces,
-                disks: storageData.disks,
-                folders: storageData.folders,
-                files: storageData.files,
-                documents: documentsData.documents,
-                blogs: blogsData.blogs,
-                posts: blogsData.posts,
+                filespaces: [],//storageData.filespaces,
+                disks: [],//storageData.disks,
+                folders: [],//storageData.folders,
+                files: [],//storageData.files,
+                documents: [],//documentsData.documents,
+                blogs: [],//blogsData.blogs,
+                posts: [],//blogsData.posts,
                 workspaces: workspaces
             };
         } else {

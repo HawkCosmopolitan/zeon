@@ -2,6 +2,15 @@
 const mongoose = require('mongoose');
 let { RoomInvite } = require('../schemas/schemas');
 let { isIdEmpty } = require('../../../global-utils/numbers');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (RoomInvite === undefined) {
@@ -19,9 +28,9 @@ module.exports.dbDeclineInvite = async ({ inviteId }, userId) => {
   session.startTransaction();
   try {
     let success = false;
-    let invite = await RoomInvite.findOne({ id: inviteId, userId: userId }).session(session).exec();
+    let invite = await InviteFactory.instance().find({ id: inviteId, userId: userId }, session);
     if (invite !== null) {
-      await RoomInvite.deleteOne({ id: invite.id }).session(session);
+      await InviteFactory.instance().delete({ id: invite.id }, session);
       success = true;
       await session.commitTransaction();
     } else {
