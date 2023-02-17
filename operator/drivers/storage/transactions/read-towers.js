@@ -2,6 +2,15 @@
 const mongoose = require('mongoose');
 const { isReadCountEmpty, isReadCountInvalid, isIdEmpty } = require('../../../global-utils/numbers');
 let { Member, User } = require('../schemas/schemas');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Member === undefined) {
@@ -16,34 +25,25 @@ module.exports.dbReadTowers = async ({ query, offset, count, mine }, userId) => 
   const session = await mongoose.startSession();
   session.startTransaction();
   checkImports();
-  let cursor;
+  let data;
   try {
-    let collection = mongoose.connection.db.collection('Tower');
     if (mine) {
-      let members = await Member.find({ userId: userId }).session(session).exec();
+      let members = await MemberFactory.instance().findGroup({ userId: userId }, session);
       if (offset === undefined && count === undefined) {
-        cursor = collection.find({
+        data = await TowerFactory.instance().read(0, 100, {
           $or: [
             { title: { '$regex': query, '$options': 'i' }, id: { $in: members.map(m => m.towerId) } },
             { description: { '$regex': query, '$options': 'i' }, id: { $in: members.map(m => m.towerId) } }
           ]
         });
-      } else if ((await collection.count()) - offset >= 0) {
-        cursor = collection.find({
-          isPublic: true,
-          $or: [
-            { title: { '$regex': query, '$options': 'i' }, id: { $in: members.map(m => m.towerId) } },
-            { description: { '$regex': query, '$options': 'i' }, id: { $in: members.map(m => m.towerId) } }
-          ]
-        }).skip(offset).limit(count);
       } else {
-        cursor = collection.find({
+        data = await TowerFactory.instance().read(offset, count, {
           isPublic: true,
           $or: [
             { title: { '$regex': query, '$options': 'i' }, id: { $in: members.map(m => m.towerId) } },
             { description: { '$regex': query, '$options': 'i' }, id: { $in: members.map(m => m.towerId) } }
           ]
-        }).skip(0).limit(count);
+        });
       }
     } else {
       if (isReadCountEmpty(count)) {
@@ -61,34 +61,26 @@ module.exports.dbReadTowers = async ({ query, offset, count, mine }, userId) => 
         return { success: false };
       }
       if (offset === undefined && count === undefined) {
-        cursor = collection.find({
+        data = await TowerFactory.instance().read(0, 100, {
           isPublic: true,
           $or: [
             { title: { '$regex': query, '$options': 'i' } },
             { description: { '$regex': query, '$options': 'i' } }
           ]
         });
-      } else if ((await collection.count()) - offset >= 0) {
-        cursor = collection.find({
-          isPublic: true,
-          $or: [
-            { title: { '$regex': query, '$options': 'i' } },
-            { description: { '$regex': query, '$options': 'i' } }
-          ]
-        }).skip(offset).limit(count);
       } else {
-        cursor = collection.find({
+        data = await TowerFactory.instance().read(offset, count, {
           isPublic: true,
           $or: [
             { title: { '$regex': query, '$options': 'i' } },
             { description: { '$regex': query, '$options': 'i' } }
           ]
-        }).skip(0).limit(count);
+        });
       }
     }
     await session.commitTransaction();
     session.endSession();
-    let towers = await cursor.toArray();
+    let towers = data;
     let contactUserIds = [];
     towers.forEach(tower => {
       if (tower.secret.isContact) {
@@ -99,7 +91,7 @@ module.exports.dbReadTowers = async ({ query, offset, count, mine }, userId) => 
         tower.contactId = target;
       }
     });
-    let people = await User.find({'id': { $in: contactUserIds}}).exec();
+    let people = await UserFactory.instance().findGroup({'id': { $in: contactUserIds}}, session);
     let peopleDict = {};
     people.forEach(person => {
       peopleDict[person.id] = person;

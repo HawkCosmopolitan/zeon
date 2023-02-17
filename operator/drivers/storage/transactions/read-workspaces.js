@@ -1,6 +1,15 @@
 
 const mongoose = require('mongoose');
 const { isReadCountEmpty, isReadCountInvalid } = require('../../../global-utils/numbers');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 module.exports.dbReadWorkspaces = async ({ query, offset, count }, userId, roomId) => {
   if (isReadCountEmpty(count)) {
@@ -13,29 +22,17 @@ module.exports.dbReadWorkspaces = async ({ query, offset, count }, userId, roomI
   }
   const session = await mongoose.startSession();
   session.startTransaction();
-  let cursor;
   try {
-    let collection = mongoose.connection.db.collection('Workspace');
-    if ((await collection.count()) - offset >= 0) {
-      cursor = collection.find({
-        roomId: roomId,
-        $or: [
-          { title: { '$regex': query, '$options': 'i' } },
-          { description: { '$regex': query, '$options': 'i' } }
-        ]
-      }).skip(offset).limit(count);
-    } else {
-      cursor = collection.find({
-        roomId: roomId,
-        $or: [
-          { title: { '$regex': query, '$options': 'i' } },
-          { description: { '$regex': query, '$options': 'i' } }
-        ]
-      }).skip(0).limit(count);
-    }
+    let data = await WorkspaceFactory.instance().read(offset, count, {
+      roomId: roomId,
+      $or: [
+        { title: { '$regex': query, '$options': 'i' } },
+        { description: { '$regex': query, '$options': 'i' } }
+      ]
+    });
     await session.commitTransaction();
     session.endSession();
-    return { success: true, workspaces: await cursor.toArray() };
+    return { success: true, workspaces: data };
   } catch (error) {
     console.error(error);
     console.error('abort transaction');

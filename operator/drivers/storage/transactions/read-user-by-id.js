@@ -12,15 +12,10 @@ const checkImports = () => {
 
 module.exports.dbReadUserById = async ({ targetUserId }, userId) => {
   checkImports();
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     return { success: true, user: secureObject(getUser(targetUserId), 'secret') };
   } catch (error) {
     console.error(error);
-    console.error('abort transaction');
-    await session.abortTransaction();
-    session.endSession();
     return { success: false };
   }
 }

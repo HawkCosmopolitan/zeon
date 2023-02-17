@@ -2,6 +2,15 @@
 const mongoose = require('mongoose');
 let { Room, Member, RoomInvite, Tower } = require('../schemas/schemas');
 const { secureObject, secureAdmins } = require('../../../global-utils/filter');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Member === undefined) {
@@ -24,16 +33,16 @@ module.exports.dbReadRoomById = async ({ roomId }, userId) => {
   session.startTransaction();
   let success = false;
   try {
-    let room = await Room.findOne({ id: roomId }).session(session).exec();
+    let room = await RoomFactory.instance().find({ id: roomId }, session);
     if (room !== null) {
       if (room.isPublic) {
         success = true;
       } else {
-        let member = await Member.find({ userId: userId, roomId: roomId }).session(session).exec();
+        let member = await MemberFactory.instance().find({ userId: userId, roomId: roomId }, session);
         if (member !== null) {
           success = true;
         } else {
-          let invite = await RoomInvite.findOne({ userId: userId, roomId: roomId }).session(session).exec();
+          let invite = await InviteFactory.instance().find({ userId: userId, roomId: roomId }, session);
           if (invite !== null) {
             success = true;
           }
@@ -42,7 +51,7 @@ module.exports.dbReadRoomById = async ({ roomId }, userId) => {
     }
     let tower;
     if (success) {
-      tower = await Tower.findOne({ id: room.towerId }).session(session).exec();
+      tower = await TowerFactory.instance().find({ id: room.towerId }, session);
     }
     await session.commitTransaction();
     session.endSession();

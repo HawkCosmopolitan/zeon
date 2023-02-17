@@ -1,26 +1,26 @@
 
 const mongoose = require('mongoose');
+const PendingFactory = require('../factories/pending-factory');
+const InviteFactory = require('../factories/invite-factory');
+const RoomFactory = require('../factories/room-factory');
+const TowerFactory = require('../factories/tower-factory');
+const WorkspaceFactory = require('../factories/workspace-factory');
+const MemberFactory = require('../factories/member-factory');
+const UserFactory = require('../factories/user-factory');
+const InteractionFactory = require('../factories/user-factory');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 module.exports.dbReadInteractions = async ({ }, userId) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    let cursor;
     try {
-        let collection = mongoose.connection.db.collection('Interaction');
-        cursor = collection.find({
+        let data = await InteractionFactory.instance().read(0, 100, {
             $or: [
                 { user1Id: userId },
                 { user2Id: userId }
             ]
         });
-        await session.commitTransaction();
-        session.endSession();
-        return { success: true, interactions: await cursor.toArray() };
+        return { success: true, interactions: data };
     } catch (error) {
         console.error(error);
-        console.error('abort transaction');
-        await session.abortTransaction();
-        session.endSession();
         return { success: false };
     }
 }

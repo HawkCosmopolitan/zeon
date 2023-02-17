@@ -40,6 +40,7 @@ class InviteFactory {
                 cursor = collection.find({}).skip(0).limit(count);
             }
         }
+        return await cursor.toArray();
     }
     async find(query, session) {
         return await this.Model.findOne(query).session(session).exec();
