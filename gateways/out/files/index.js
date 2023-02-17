@@ -21,25 +21,6 @@ const proxy = httpProxy.createProxyServer({
 
 async function main() {
   setupDatabase();
-  app.post('/file/upload', async (req, res, next) => {
-    const { success, user, room, isMember, rights } = await authRoom(req, res);
-    if (success && rights.uploadFile) {
-      req.headers.userid = user.id;
-      req.headers.roomid = room.id;
-      req.headers.ismember = (isMember ? 'true' : 'false');
-      req.headers.size = req.headers.size;
-      req.headers.filetype = req.headers.filetype;
-      req.headers.extension = req.headers.extension;
-      req.headers.ispublic = req.headers.ispublic;
-      if (req.headers.documentid) {
-        req.headers.documentid = req.headers.documentid;
-      }
-      if (req.headers.endfileupload) {
-        req.headers.endfileupload = req.headers.endfileupload;
-      }
-      proxy.web(req, res, { target: 'http://' + addresses.FILE_SERVICE + ':' + addresses.FILE_SERVICE_PORT }, e => { console.log(e); });
-    }
-  });
   app.get('/file/download', async (req, res, next) => {
     const { success, user, room, isMember } = await authRoom(req, res);
     if (success) {
