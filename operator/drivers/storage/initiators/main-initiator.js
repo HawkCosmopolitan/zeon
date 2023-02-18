@@ -1,29 +1,18 @@
-const { putUser, join, putRoom, indexWorkspace } = require('../../network/socket/pool');
+
+const MemoryDriver = require('../../memory');
 const { connectMongoClient } = require('../drivers/main-driver');
 const { defineSchemas } = require('../schemas/schemas');
-const { runUpdater, setupUserUpdater } = require('../update-engine/update-engine');
-const { createTower } = require('../transactions/create-tower');
 
 module.exports.setupDatabase = async () => {
     connectMongoClient();
     defineSchemas();
     const { User, Member, Room, Workspace, Tower } = require('../schemas/schemas');
-    let rooms = await Room.find({}).exec();
-    rooms.forEach(room => putRoom(room));
-    let users = await User.find({}).exec();
-    users.forEach(async user => {
-        putUser(user);
-        let memberships = await Member.find({ userId: user.id }).exec();
-        memberships.forEach(membership => {
-            join(user.id, membership.roomId);
-        });
-        setupUserUpdater(user.id);
+    let memberships = await Member.find({}).exec();
+    memberships.forEach(m => {
+        MemoryDriver.instance().save(`${m.roomId}_${m.userId}`, JSON.stringify(m.secret.permissions));
     });
     let workspaces = await Workspace.find({}).exec();
     if (workspaces.length > 0) {
-        workspaces.forEach(workspace => {
-            indexWorkspace(workspace);
-        });
         module.exports.centralTower = await Tower.findOne({ id: 'CENTRAL_TOWER' }).exec();
         module.exports.centralTowerHall = await Room.findOne({ towerId: 'CENTRAL_TOWER' }).exec();
     } else {
@@ -62,10 +51,7 @@ module.exports.setupDatabase = async () => {
         await Workspace.updateOne({ _id: workspace._id }, { id: workspace._id.toHexString(), roomId: room.id });
         workspace = await Workspace.findOne({ id: workspace._id.toHexString() }).exec();
 
-        putRoom(room);
-
         module.exports.centralTower = tower;
         module.exports.centralTowerHall = room;
     }
-    runUpdater();
 }
