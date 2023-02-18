@@ -20,8 +20,35 @@ class MemoryDriver {
         return MemoryDriver.inst;
     }
     redisClient;
+    save(key, value, callback) {
+        this.redisClient.hmset(key,
+            'value', value
+            , function (err, reply) {
+                if (err) {
+                    console.log(err);
+                }
+                if (callback) callback();
+            });
+    }
+    fetch(key, callback) {
+        this.redisClient.hgetall(key, function (err, obj) {
+            if (err) {
+                console.log(err);
+                if (callback) callback(undefined);
+                return;
+            }
+            if (!obj) {
+                console.log('key not found');
+                if (callback) callback(undefined);
+                return;
+            }
+            if (callback) callback(obj.value);
+        });
+    }
     constructor() {
         MemoryDriver.inst = this;
+        this.save = this.save.bind(this);
+        this.fetch = this.fetch.bind(this);
         this.redisClient = redis.createClient({
             host: 'localhost',
             port: ports.REDIS_PORT
@@ -37,7 +64,6 @@ class MemoryDriver {
             extended: true
         }));
         app.use(bodyParser.json());
-
         app.use(session({
             name: secrets.SESS_NAME,
             resave: false,
@@ -47,37 +73,10 @@ class MemoryDriver {
             cookie: {
                 maxAge: 1000 * 60 * 60 * 2,
                 sameSite: true,
-                secure: IN_PROD
+                secure: true
             }
         }));
         app.listen(ports.REDIS_SESSION_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PORT}`) });
-        redisClient.hmset(email,
-            'first_name', firstName,
-            'last_name', lastName,
-            'email', email,
-            'password', password
-            , function (err, reply) {
-                if (err) {
-                    console.log(err);
-                }
-
-            });
-        redisClient.hgetall(email, function (err, obj) {
-            if (!obj) {
-                return res.send({
-                    message: "Invalid email"
-                })
-            }
-            if (obj.password !== password) {
-                return res.send({
-                    message: "Invalid  password"
-                })
-            }
-
-            req.session.email = obj.email;
-            return res.redirect('/home');
-
-        });
     }
 }
 

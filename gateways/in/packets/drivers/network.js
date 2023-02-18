@@ -1,4 +1,11 @@
 
+const bodyParser = require('body-parser');
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+const ports = require('../../../../constants/ports.json');
+const { attachRouter } = require('./router');
+
 class NetworkDriver {
     static inst;
     static initialize() {
@@ -8,9 +15,35 @@ class NetworkDriver {
         return NetworkDriver.inst;
     }
     socketServer;
+    app;
+    httpServer;
+    socketManager = {
+        sockets: {},
+        addSocketToDictionary: (key, socket) => {
+            this.sockets[key] = socket;
+        },
+        removeSocketFromDictionary: (key) => {
+            delete this.sockets[key];
+        }
+    }
     constructor() {
         NetworkDriver.inst = this;
-        this.socketServer = io();
+        this.app = express();
+        this.app.use(cors());
+        this.app.use(bodyParser.json());
+        this.httpServer = http.createServer(this.app);
+        this.httpServer.listen(ports.PACKETS_IN_GATEWAY_PORT, () => {
+            console.log(`listening on *:${ports.PACKETS_IN_GATEWAY_PORT}`);
+        });
+        this.socketServer = require("socket.io")(this.httpServer, {
+            cors: {
+                origin: "*"
+            }
+        });
+        this.socketServer.on('connection', (socket) => {
+            console.log('a socket connected');
+            attachRouter(socket, this.socketManager);
+        });
     }
 }
 
