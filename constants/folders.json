@@ -1,0 +1,6 @@
+{
+    "FILES": "database/data/files",
+    "PREVIEWS": "database/data/previews",
+    "TEMP": "database/data/temp",
+    "PDF_PAGES": "database/data/pdf-pages"
+}

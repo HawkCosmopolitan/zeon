@@ -1,13 +1,11 @@
 
 const mongoose = require('mongoose');
 let { Tower, Room, Member, Workspace, User, Interaction } = require('../schemas/schemas');
-let { isEmpty } = require('../../../global-utils/strings');
-let defaultAvatars = require('../../../constants/avatars.json');
-const permissions = require('../../../constants/permissions.json');
-const updates = require('../../../constants/updates.json');
-const { createServiceMessage, readMessages } = require('../../network/socket/events/messenger');
-const { secureObject, secureAdmins } = require('../../../global-utils/filter');
-const { getUser } = require('../../network/socket/pool');
+let { isEmpty } = require('../../../../shared/utils/strings');
+let defaultAvatars = require('../../../../constants/avatars.json');
+const permissions = require('../../../../constants/permissions.json');
+const updates = require('../../../../constants/updates.json');
+const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');

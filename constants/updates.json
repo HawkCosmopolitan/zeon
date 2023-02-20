@@ -1,0 +1,11 @@
+{
+    "NEW_MESSAGE": "new_message",
+    "NEW_INTERACTION": "new_interaction",
+    "MESSAGE_SEEN": "message_seen",
+    "NEW_INVITE": "new_invite",
+    "INVITE_CANCELLED": "invite_cancelled",
+    "USER_JOINED_ROOM": "user_joined_room",
+    "NEW_WORKSPACE": "new_workspace",
+    "NEW_ROOM": "roomCreated",
+    "PERMISSIONS_MODIFIED": "permissions_modified"
+}

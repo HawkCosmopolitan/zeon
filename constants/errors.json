@@ -1,0 +1,8 @@
+{
+    "AUTHENTICATION_FAILED": "session authentication failed",
+    "DATABASE_ERROR": "an error occured at database level",
+    "ACCESS_DENIED": "user does not have access to this space",
+    "WORKER_NOT_EXIST": "user does not have access to this space",
+    "WORKSPACE_NOT_EXIST": "user does not have access to this workspace",
+    "ROOM_NOT_EXIST": "user does not have access to this room"
+}

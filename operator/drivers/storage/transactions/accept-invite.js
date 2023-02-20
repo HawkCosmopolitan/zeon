@@ -1,15 +1,10 @@
 
 const mongoose = require('mongoose');
 let { RoomInvite, Member, Room, Tower, Workspace } = require('../schemas/schemas');
-let { isIdEmpty } = require('../../../global-utils/numbers');
-const permissions = require('../../../constants/permissions.json');
-const { readMessages, createServiceMessage } = require('../../network/socket/events/messenger');
-const updates = require('../../../constants/updates.json');
-const { getUser } = require('../../network/socket/pool');
-const { readUserStorageDataByRoomIds } = require('../../network/socket/events/storage');
-const { readUserBlogsDataByRoomIds } = require('../../network/socket/events/blog');
-const { readUserDocumentsDataByRoomIds } = require('../../network/socket/events/file');
-const { secureObject, secureAdmins } = require('../../../global-utils/filter');
+let { isIdEmpty } = require('../../../../shared/utils/numbers');
+const permissions = require('../../../../constants/permissions.json');
+const updates = require('../../../../constants/updates.json');
+const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');

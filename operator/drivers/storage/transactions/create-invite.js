@@ -1,9 +1,9 @@
 
 const mongoose = require('mongoose');
 let { Tower, Room, User, RoomInvite } = require('../schemas/schemas');
-let { isIdEmpty } = require('../../../global-utils/numbers');
-let { isInviteTitleInvalid, isInviteTextInvalid } = require('../../../global-utils/strings');
-const updates = require('../../../constants/updates.json');
+let { isIdEmpty } = require('../../../../shared/utils/numbers');
+let { isInviteTitleInvalid, isInviteTextInvalid } = require('../../../../shared/utils/strings');
+const updates = require('../../../../constants/updates.json');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');

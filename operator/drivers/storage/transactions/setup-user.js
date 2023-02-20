@@ -1,13 +1,10 @@
 
 const mongoose = require('mongoose');
 let { Pending, User, Session, Tower, Room, Member, Workspace } = require('../schemas/schemas');
-let { isEmpty, isNameFieldInvalid } = require('../../../global-utils/strings');
-let defaultAvatars = require('../../../constants/avatars.json');
-let permissions = require('../../../constants/permissions.json');
+let { isEmpty, isNameFieldInvalid } = require('../../../../shared/utils/strings');
+let defaultAvatars = require('../../../../constants/avatars.json');
+let permissions = require('../../../../constants/permissions.json');
 let { centralTower, centralTowerHall } = require('../initiators/main-initiator');
-const { readUserStorageData } = require('../../network/socket/events/storage');
-const { readUserDocumentsData } = require('../../network/socket/events/file');
-const { readUserBlogsData } = require('../../network/socket/events/blog');
 const {
     v4: uuidv4,
 } = require('uuid');

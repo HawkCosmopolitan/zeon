@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 let { Member, Room, Tower } = require('../schemas/schemas');
-const updates = require('../../../constants/updates.json');
+const updates = require('../../../../constants/updates.json');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');

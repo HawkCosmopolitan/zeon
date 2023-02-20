@@ -4,7 +4,7 @@ let { Pending } = require('../schemas/schemas');
 const { 
   v4: uuidv4,
 } = require('uuid');
-let { isEmpty } = require('../../../global-utils/strings');
+let { isEmpty } = require('../../../../shared/utils/strings');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');

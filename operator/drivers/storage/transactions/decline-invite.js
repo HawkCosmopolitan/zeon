@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 let { RoomInvite } = require('../schemas/schemas');
-let { isIdEmpty } = require('../../../global-utils/numbers');
+let { isIdEmpty } = require('../../../../shared/utils/numbers');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
