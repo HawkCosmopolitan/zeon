@@ -9,7 +9,6 @@ const { secureObject, secureAdmins } = require('../../../../shared/utils/filter'
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
-const WorkspaceFactory = require('../factories/workspace-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/user-factory');
@@ -44,7 +43,7 @@ module.exports.dbCreateInteraction = async ({ peerId }, userId, callback) => {
     checkImports();
     const session = await mongoose.startSession();
     session.startTransaction();
-    let tower, room, member1, member2, workspace, interaction, user, me;
+    let tower, room, member1, member2, interaction, user, me;
     try {
         user = (await UserFactory.instance().find({ id: peerId }, session)).toObject();
         if (user !== null) {
@@ -53,7 +52,6 @@ module.exports.dbCreateInteraction = async ({ peerId }, userId, callback) => {
                 interaction = await InteractionFactory.instance().find({ user2Id: userId, user1Id: peerId }, session);
             }
             if (interaction === null) {
-                let workspaceGenedId = makeUniqueId();
                 tower = await TowerFactory.instance().create({
                     id: makeUniqueId(),
                     title: '-',
@@ -77,14 +75,8 @@ module.exports.dbCreateInteraction = async ({ peerId }, userId, callback) => {
                         adminIds: [
                             userId,
                             peerId
-                        ],
-                        defaultWorkspaceId: workspaceGenedId
+                        ]
                     }
-                }, session);
-                workspace = await WorkspaceFactory.instance().create({
-                    id: workspaceGenedId,
-                    title: 'main workspace',
-                    roomId: room.id
                 }, session);
                 member1 = await MemberFactory.instance().create({
                     id: makeUniqueId(),
@@ -114,35 +106,27 @@ module.exports.dbCreateInteraction = async ({ peerId }, userId, callback) => {
                 me = (await UserFactory.instance().find({ id: userId })).toObject();
                 await session.commitTransaction();
                 session.endSession();
-                //createServiceMessage({ roomId: room.id, workspaceId: workspace.id, text: 'room created.' }, async response => {
-                //    if (response.status === 1) {
-                //        let serviceMessage = response.message;
-                        callback({
-                            noAction: false,
-                            success: true,
-                            update: {
-                                type: updates.NEW_INTERACTION,
-                                tower,
-                                room,
-                                member1,
-                                member2,
-                                workspace,
-                                interaction,
-                                contact: secureObject(me, 'secret'),
-                                userId: peerId,
-                                messages: []//[serviceMessage]
-                            },
-                            tower,
-                            room,
-                            member1,
-                            member2,
-                            workspace,
-                            interaction,
-                            contact: secureObject(user, 'secret'),
-                            messages: []//[serviceMessage],
-                        });
-                //    }
-                //});
+                callback({
+                    noAction: false,
+                    success: true,
+                    update: {
+                        type: updates.NEW_INTERACTION,
+                        tower,
+                        room,
+                        member1,
+                        member2,
+                        interaction,
+                        contact: secureObject(me, 'secret'),
+                        userId: peerId,
+                        messages: []//[serviceMessage]
+                    },
+                    tower,
+                    room,
+                    member1,
+                    member2,
+                    interaction,
+                    contact: secureObject(user, 'secret')
+                });
             } else {
                 await session.abortTransaction();
                 session.endSession();
@@ -150,39 +134,29 @@ module.exports.dbCreateInteraction = async ({ peerId }, userId, callback) => {
                 room = await RoomFactory.instance().find({ id: interaction.roomId }, session);
                 member1 = await MemberFactory.instance().find({ roomId: room.id, userId: interaction.user1Id }, session);
                 member2 = await MemberFactory.instance().find({ roomId: room.id, userId: interaction.user2Id }, session);
-                workspace = await WorkspaceFactory.instance().find({ roomId: room.id });
                 user = (await UserFactory.instance().find({ id: peerId }, session)).toObject();
                 me = (await UserFactory.instance().find({ id: userId }, session)).toObject();
-                //readMessages({ userId: userId, roomId: room.id, workspaceId: workspace.id }, async response => {
-                //    if (response.status === 1) {
-                //        let messages = response.messages;
-                        callback({
-                            noAction: true,
-                            success: true,
-                            existed: true,
-                            update: {
-                                type: updates.NEW_INTERACTION,
-                                tower,
-                                room,
-                                member1,
-                                member2,
-                                workspace,
-                                interaction, 
-                                contact: secureObject(me, 'secret'),
-                                userId: peerId,
-                                messages: []//JSON.parse(messages)
-                            },
-                            tower,
-                            room,
-                            member1,
-                            member2,
-                            workspace,
-                            interaction,
-                            contact: secureObject(user, 'secret'),
-                            messages: []//JSON.parse(messages)
-                        });
-                //    }
-                //});
+                callback({
+                    noAction: true,
+                    success: true,
+                    existed: true,
+                    update: {
+                        type: updates.NEW_INTERACTION,
+                        tower,
+                        room,
+                        member1,
+                        member2,
+                        interaction,
+                        contact: secureObject(me, 'secret'),
+                        userId: peerId
+                    },
+                    tower,
+                    room,
+                    member1,
+                    member2,
+                    interaction,
+                    contact: secureObject(user, 'secret'),
+                });
             }
         } else {
             console.error('peer does not exist');

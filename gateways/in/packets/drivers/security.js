@@ -9,8 +9,8 @@ class SecurityDriver {
     static instance() {
         return SecurityDriver.inst;
     }
-    teleport(workspaceId, callback) {
-        MemoryDriver.instance().fetch(`rights:${workspaceId}`, rights => {
+    teleport(userId, roomId, callback) {
+        MemoryDriver.instance().fetch(`rights:${roomId}/${userId}`, rights => {
             if (rights) callback(JSON.parse(rights));
         });
     }

@@ -10,7 +10,6 @@ const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
-const WorkspaceFactory = require('../factories/workspace-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/user-factory');
@@ -66,7 +65,6 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
                 let towers = await TowerFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.towerId) } }, session);
                 let rooms = await RoomFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.roomId) } }, session);
                 let allMemberships = await MemberFactory.instance().findGroup({ roomId: { $in: rooms.map(r => r.id) } }, session);
-                let workspaces = await WorkspaceFactory.instance().findGroup({ 'roomId': { $in: rooms.map(r => r.id) } }, session);
                 let interactions = await InteractionFactory.instance().findGroup({ $or: [{ user1Id: user.id }, { user2Id: user.id }] }, session);
                 towers.forEach(tower => {
                     if (tower.secret.isContact) {
@@ -77,9 +75,6 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
                         tower.contact = getUser(target);
                     }
                 });
-                //let storageData = await readUserStorageData(user.id);
-                //let documentsData = await readUserDocumentsData(user.id);
-                //let blogsData = await readUserBlogsData(user.id);
                 await session.commitTransaction();
                 session.endSession();
                 return {
@@ -88,17 +83,9 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
                     user: user,
                     towers: towers,
                     rooms: rooms,
-                    workspaces: workspaces,
                     myMemberships: memberships,
                     allMemberships: allMemberships,
-                    interactions: interactions,
-                    filespaces: [],//storageData.filespaces,
-                    disks: [],//storageData.disks,
-                    folders: [],//storageData.folders,
-                    files: [],//storageData.files,
-                    documents: [],//documentsData.documents,
-                    blogs: [],//blogsData.blogs,
-                    posts: []// blogsData.posts
+                    interactions: interactions
                 };
             } else {
                 await session.commitTransaction();

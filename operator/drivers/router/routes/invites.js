@@ -36,9 +36,7 @@ module.exports.attachInviteEvents = (socket) => {
                 member,
                 tower,
                 room,
-                workspace,
                 rooms,
-                workspaces,
                 memberships,
                 filespaces,
                 disks,
@@ -51,15 +49,12 @@ module.exports.attachInviteEvents = (socket) => {
                 if (success) {
                     putRoom(room);
                     join(socket.user.id, room.id);
-                    indexWorkspace(workspace);
                     replySocketReq(socket, data, {
                         status: 1,
                         member,
                         tower,
                         room,
-                        workspace,
                         rooms,
-                        workspaces,
                         memberships,
                         filespaces,
                         disks,

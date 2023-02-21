@@ -9,7 +9,6 @@ const { secureObject, secureAdmins } = require('../../../../shared/utils/filter'
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
-const WorkspaceFactory = require('../factories/workspace-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/user-factory');
@@ -42,13 +41,12 @@ module.exports.dbCreateRoom = async ({ towerId, title, avatarId, isPublic, floor
   checkImports();
   const session = await mongoose.startSession();
   session.startTransaction();
-  let room, member, member2, workspace;
+  let room, member, member2;
   try {
     let success = false;
     let tower = await TowerFactory.instance().find({ id: towerId }, session);
     if (tower !== null) {
       if (tower.secret.adminIds.includes(userId)) {
-        let workspaceGenedId = makeUniqueId();
         room = await RoomFactory.instance().create({
           id: makeUniqueId(),
           title: title,
@@ -59,14 +57,8 @@ module.exports.dbCreateRoom = async ({ towerId, title, avatarId, isPublic, floor
           secret: {
             adminIds: [
               userId
-            ],
-            defaultWorkspaceId: workspaceGenedId
+            ]
           }
-        }, session);
-        workspace = await WorkspaceFactory.instance().create({
-          id: workspaceGenedId,
-          title: 'main workspace',
-          roomId: room.id
         }, session);
         member = await MemberFactory.instance().create({
           id: makeUniqueId(),
@@ -103,8 +95,8 @@ module.exports.dbCreateRoom = async ({ towerId, title, avatarId, isPublic, floor
     session.endSession();
     if (success) {
       return {
-        success: true, room: room, member: member, member2: member2, workspace: workspace,
-        update: { type: updates.NEW_ROOM, workspace: workspace, room: secureAdmins(room, ''), towerId: towerId, exceptions: [userId] }
+        success: true, room: room, member: member, member2: member2,
+        update: { type: updates.NEW_ROOM, room: secureAdmins(room, ''), towerId: towerId, exceptions: [userId] }
       };
     } else {
       return { success: false };

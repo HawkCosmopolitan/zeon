@@ -10,16 +10,15 @@ module.exports.attachInteractionEvents = (socket) => {
     socket.on('createInteraction', async (data) => {
         if (socket.user !== undefined) {
             dbCreateInteraction(data, socket.user.id,
-                ({ noAction, success, tower, room, member1, member2, workspace, interaction, contact, messages, update }) => {
+                ({ noAction, success, tower, room, member1, member2, interaction, contact, messages, update }) => {
                     if (success) {
                         putRoom(room);
                         join(socket.user.id, room.id);
                         join(data.peerId, room.id);
-                        indexWorkspace(workspace);
                         for (let i = 0; i < messages.length; i++) {
                             messages[i].time = Number(messages[i].time);
                         }
-                        replySocketReq(socket, data, { status: noAction ? 3 : 1, tower, room, member1, member2, workspace, interaction, contact, messages });
+                        replySocketReq(socket, data, { status: noAction ? 3 : 1, tower, room, member1, member2, interaction, contact, messages });
                         handleUpdate(update);
                     } else {
                         replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });

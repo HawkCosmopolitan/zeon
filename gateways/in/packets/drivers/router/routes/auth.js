@@ -1,5 +1,6 @@
 
 let MemoryDriver = require('../../memory');
+let SecurityDriver = require('../../security');
 
 module.exports = {
     authenticate: (socket, { token }, socketManager) => {
@@ -9,6 +10,11 @@ module.exports = {
                 socketManager.addSocketToDictionary(socket.userId, socket);
                 console.log(`user logged in with socket id : ${socket.id}`);
             }
+        })
+    },
+    teleport: (socket, { workspaceId }, socketManager) => {
+        SecurityDriver.instance().teleport(workspaceId, rights => {
+            socket.rights = rights;
         })
     }
 }

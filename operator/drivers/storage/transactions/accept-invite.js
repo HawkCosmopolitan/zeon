@@ -8,7 +8,6 @@ const { secureObject, secureAdmins } = require('../../../../shared/utils/filter'
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
-const WorkspaceFactory = require('../factories/workspace-factory');
 const MemberFactory = require('../factories/member-factory');
 const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
@@ -38,18 +37,14 @@ module.exports.dbAcceptInvite = async ({ inviteId }, userId, callback) => {
   checkImports();
   const session = await mongoose.startSession();
   session.startTransaction();
-  let member, room, tower, workspace, rooms, workspaces, towerStorages, towerSocial, memberships, documentsData;
+  let member, room, tower, rooms, memberships;
   try {
     let success = false;
     let invite = await InviteFactory.instance().find({ id: inviteId, userId: userId });
     if (invite !== null) {
-      //towerStorages = await readUserStorageDataByRoomIds(rooms.map(room => room.id));
-      //towerSocial = await readUserBlogsDataByRoomIds(rooms.map(room => room.id));
-      //documentsData = await readUserDocumentsDataByRoomIds(rooms.map(room => room.id));
       room = await RoomFactory.instance().find({ id: invite.roomId }, session);
       Promise.all([
         (async () => { tower = await TowerFactory.instance().find({ id: room.towerId }, session); }),
-        (async () => { workspace = await WorkspaceFactory.instance().find({ roomId: room.id }, session); }),
         (async () => {
           member = await MemberFactory.instance().create({
             id: makeUniqueId(),
@@ -64,7 +59,6 @@ module.exports.dbAcceptInvite = async ({ inviteId }, userId, callback) => {
         (async () => { await InviteFactory.instance().remove({ id: invite.id }, session); }),
         (async () => {
           rooms = await RoomFactory.instance().find({ towerId: tower.id }, session);
-          workspaces = await WorkspaceFactory.instance().findGroup({ roomId: { $in: rooms.map(room => room.id) } }, session);
         }),
         (async () => { memberships = await MemberFactory.instance().findGroup({ roomId: invite.roomId }, session); })
       ]);
@@ -77,33 +71,20 @@ module.exports.dbAcceptInvite = async ({ inviteId }, userId, callback) => {
     }
     session.endSession();
     if (success) {
-      //createServiceMessage({ roomId: room.id, workspaceId: workspace.id, text: 'user joined room.' }, ({ message }) => {
-      //message.time = Number(message.time);
       callback({
         success: true,
         member: member,
         rooms: rooms.map(r => secureAdmins(r, userId)),
-        workspaces,
         tower,
         room,
-        workspace,
         memberships,
-        documents: [],//documentsData?.documents,
-        filespaces: [],//towerStorages?.filespaces,
-        disks: [],//towerStorages?.disks,
-        folders: [],//towerStorages?.folders,
-        files: [],//towerStorages?.files,
-        blogs: [],//towerSocial?.blogs,
-        posts: [],//towerSocial?.posts,
         update: {
           type: updates.USER_JOINED_ROOM,
           roomId: room.id,
           user: secureObject(getUser(member.userId), 'secret'),
-          message: {},//message,
           member: member
         }
       });
-      //});
     } else {
       callback({ success: false });
     }

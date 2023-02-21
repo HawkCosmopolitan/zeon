@@ -7,7 +7,7 @@ const errors = require('../../../../constants/errors.json');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {
-        let { success, session, user, towers, rooms, workspaces, myMemberships, allMemberships, filespaces, disks, folders, files, documents, blogs, posts, interactions } = await dbVerifyUser(data);
+        let { success, session, user, towers, rooms, myMemberships, allMemberships, filespaces, disks, folders, files, documents, blogs, posts, interactions } = await dbVerifyUser(data);
         if (success) {
             replySocketReq(socket, data, {
                 status: 1,
@@ -15,7 +15,7 @@ module.exports.attachAuthEvents = (socket) => {
                 user: user !== null ? user : undefined,
                 towers: towers,
                 rooms: rooms,
-                workspaces: workspaces,
+                workspaces: [],
                 myMemberships: myMemberships,
                 allMemberships: allMemberships,
                 filespaces: filespaces,
@@ -39,7 +39,6 @@ module.exports.attachAuthEvents = (socket) => {
             tower,
             room,
             member,
-            workspace,
             defaultMembership,
             centralTower,
             centralTowerHall,
@@ -50,7 +49,6 @@ module.exports.attachAuthEvents = (socket) => {
             documents,
             blogs,
             posts,
-            workspaces
         } = await dbSetupUser(data);
         if (success) {
             putRoom(room);
@@ -66,7 +64,6 @@ module.exports.attachAuthEvents = (socket) => {
                 tower,
                 room,
                 member,
-                workspace,
                 defaultMembership,
                 centralTower,
                 centralTowerHall,
@@ -76,8 +73,7 @@ module.exports.attachAuthEvents = (socket) => {
                 files,
                 documents,
                 blogs,
-                posts,
-                workspaces
+                posts
             });
         } else {
             replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });

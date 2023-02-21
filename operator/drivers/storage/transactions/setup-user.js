@@ -14,7 +14,6 @@ const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
-const WorkspaceFactory = require('../factories/workspace-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/user-factory');
@@ -64,7 +63,7 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
     session.startTransaction();
     const inputData = JSON.parse(Buffer.from(auth0AccessToken.split('.')[1], 'base64').toString());
     let email = inputData['https://internal.cosmopole.cloud/email'];
-    let pending, user, userSession, tower, room, workspace, member, defaultMembership;
+    let pending, user, userSession, tower, room, member, defaultMembership;
     try {
         pending = await PendingFactory.instance().find({ email: email }, Session);
         if (pending === null) {
@@ -86,7 +85,6 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
                     sessionIds: [userSession.id]
                 }
             }, session);
-            let workspaceGenedId = makeUniqueId();
             tower = await TowerFactory.instance().create({
                 id: towerGenedId,
                 title: `${firstName}'s home`,
@@ -108,14 +106,8 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
                 secret: {
                     adminIds: [
                         userGenedId
-                    ],
-                    defaultWorkspaceId: workspaceGenedId
+                    ]
                 }
-            }, session);
-            workspace = await WorkspaceFactory.instance().create({
-                id: workspaceGenedId,
-                title: 'main workspace',
-                roomId: roomGenedId
             }, session);
             member = await MemberFactory.instance().create({
                 id: makeUniqueId(),
@@ -135,10 +127,6 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
                     permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
                 }
             }, session);
-            let workspaces = await WorkspaceFactory.instance().findGroup({ roomId: { $in: [centralTowerHall.id] } }, session);
-            //let storageData = await readUserStorageData(user.id, session);
-            //let documentsData = await readUserDocumentsData(user.id, session);
-            //let blogsData = await readUserBlogsData(user.id, session);
             pending = await PendingFactory.instance().create({
                 id: makeUniqueId(), email: email, userId: userGenedId
             }, session);
@@ -151,18 +139,9 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
                 tower,
                 room,
                 member,
-                workspace,
                 defaultMembership,
                 centralTower,
-                centralTowerHall,
-                filespaces: [],//storageData.filespaces,
-                disks: [],//storageData.disks,
-                folders: [],//storageData.folders,
-                files: [],//storageData.files,
-                documents: [],//documentsData.documents,
-                blogs: [],//blogsData.blogs,
-                posts: [],//blogsData.posts,
-                workspaces: workspaces
+                centralTowerHall
             };
         } else {
             await session.abortTransaction();

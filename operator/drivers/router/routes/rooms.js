@@ -12,15 +12,14 @@ const { dbReadRoomById } = require('../../storage/transactions/read-room-by-id')
 module.exports.attachRoomEvents = (socket) => {
     socket.on('createRoom', async (data) => {
         if (socket.user !== undefined) {
-            let { success, room, member, member2, workspace, update } = await dbCreateRoom(data, socket.user.id);
+            let { success, room, member, member2, update } = await dbCreateRoom(data, socket.user.id);
             if (success) {
                 putRoom(room);
                 join(member.userId, room.id);
                 if (member2) {
                     join(member2.userId, room.id);
                 }
-                indexWorkspace(workspace);
-                replySocketReq(socket, data, { status: 1, room: room, member: member, member2: member2, workspace: workspace });
+                replySocketReq(socket, data, { status: 1, room: room, member: member, member2: member2 });
                 handleUpdate(update);
             } else {
                 replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });

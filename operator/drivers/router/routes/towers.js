@@ -11,12 +11,12 @@ const errors = require('../../../../constants/errors.json');
 module.exports.attachTowerEvents = (socket) => {
     socket.on('createTower', async (data) => {
         if (socket.user !== undefined) {
-            let { success, tower, room, member, workspace } = await dbCreateTower(data, socket.user.id);
+            let { success, tower, room, member } = await dbCreateTower(data, socket.user.id);
             if (success) {
                 putRoom(room);
                 join(socket.user.id, room.id);
                 indexWorkspace(workspace);
-                replySocketReq(socket, data, { status: 1, tower: tower, room: room, member: member, workspace: workspace });
+                replySocketReq(socket, data, { status: 1, tower: tower, room: room, member: member });
             } else {
                 replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
             }

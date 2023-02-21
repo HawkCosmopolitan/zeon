@@ -7,7 +7,6 @@ const permissions = require('../../../../constants/permissions.json');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
-const WorkspaceFactory = require('../factories/workspace-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/user-factory');
@@ -40,9 +39,8 @@ module.exports.createTower = async ({ title, avatarId, isPublic }, userId) => {
   checkImports();
   const session = await mongoose.startSession();
   session.startTransaction();
-  let tower, room, member, workspace;
+  let tower, room, member;
   try {
-    let workspaceGenedId = makeUniqueId();
     tower = await TowerFactory.instance().create({
       id: makeUniqueId(),
       title: title,
@@ -62,14 +60,8 @@ module.exports.createTower = async ({ title, avatarId, isPublic }, userId) => {
       secret: {
         adminIds: [
           userId
-        ],
-        defaultWorkspaceId: workspaceGenedId
+        ]
       }
-    }, session);
-    workspace = await WorkspaceFactory.instance().create({
-      id: workspaceGenedId,
-      title: 'main workspace',
-      roomId: room.id
     }, session);
     if (userId) {
       member = await MemberFactory.instance().create({
@@ -84,7 +76,7 @@ module.exports.createTower = async ({ title, avatarId, isPublic }, userId) => {
     }
     await session.commitTransaction();
     session.endSession();
-    return { success: true, tower: tower, room: room, member: member, workspace: workspace };
+    return { success: true, tower: tower, room: room, member: member };
   } catch (error) {
     console.error(error);
     console.error('abort transaction');

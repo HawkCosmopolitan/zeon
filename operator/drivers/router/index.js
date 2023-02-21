@@ -6,7 +6,6 @@ let permissions = require('./routes/permissions');
 let rooms = require('./routes/rooms');
 let towers = require('./routes/towers');
 let users = require('./routes/users');
-let workspaces = require('./routes/workspaces');
 
 module.exports = {
     attachRouter: (socket) => {
@@ -17,6 +16,5 @@ module.exports = {
         rooms.attachRoomEvents(socket);
         towers.attachTowerEvents(socket);
         users.attachUserEvents(socket);
-        workspaces.attachWorkspaceEvents(socket);
     }
 }
