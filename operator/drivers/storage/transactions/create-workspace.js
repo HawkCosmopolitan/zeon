@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
-const { isEmpty, isWorkspaceTitleInvalid } = require('../../../global-utils/strings');
-const updates = require('../../../constants/updates.json');
+const { isEmpty, isWorkspaceTitleInvalid } = require('../../../../shared/utils/strings');
+const updates = require('../../../../constants/updates.json');
 let { Workspace } = require('../schemas/schemas');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');

@@ -1,11 +1,10 @@
 
 const { replySocketReq } = require('../utils');
 
-const { dbReadUsers } = require('../../../database/transactions/read-users');
-const { dbReadUserById } = require('../../../database/transactions/read-user-by-id');
+const { dbReadUsers } = require('../../storage/transactions/read-users');
+const { dbReadUserById } = require('../../storage/transactions/read-user-by-id');
 
 const errors = require('../../../../constants/errors.json');
-const { getUser, isUserOnline, lastSeen } = require('../pool');
 
 module.exports.attachUserEvents = (socket) => {
     socket.on('readUsers', async (data) => {

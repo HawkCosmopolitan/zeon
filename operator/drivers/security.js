@@ -7,18 +7,6 @@ class SecurityDriver {
     static instance() {
         return SecurityDriver.inst;
     }
-    tryAccessTower() {
-        
-    }
-    tryAccessRoom() {
-
-    }
-    tryAccessWorkspace() {
-
-    }
-    tryAccessSpace() {
-
-    }
     constructor() {
         SecurityDriver.inst = this;
     }

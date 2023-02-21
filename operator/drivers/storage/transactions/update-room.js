@@ -1,8 +1,8 @@
 
 const mongoose = require('mongoose');
 let { Tower, Room } = require('../schemas/schemas');
-let { isEmpty, isNameFieldInvalid } = require('../../../global-utils/strings');
-let defaultAvatars = require('../../../constants/avatars.json');
+let { isEmpty, isNameFieldInvalid } = require('../../../../shared/utils/strings');
+let defaultAvatars = require('../../../../constants/avatars.json');
 const SessionFactory = require('../factories/session-factory');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');

@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
-const { isReadCountEmpty, isReadCountInvalid, isIdEmpty } = require('../../../global-utils/numbers');
-const { secureObject, secureAdmins } = require('../../../global-utils/filter');
+const { isReadCountEmpty, isReadCountInvalid, isIdEmpty } = require('../../../../shared/utils/numbers');
+const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');

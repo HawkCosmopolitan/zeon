@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 let { Room, Member, RoomInvite, Tower } = require('../schemas/schemas');
-const { secureObject, secureAdmins } = require('../../../global-utils/filter');
+const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');

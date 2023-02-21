@@ -1,14 +1,12 @@
 
-const { openedAuth } = require('../../../utils/auth');
 const { replySocketReq } = require('../utils');
 
-const { dbCreateTower } = require('../../../database/transactions/create-tower');
-const { dbReadTowers } = require('../../../database/transactions/read-towers');
-const { dbUpdateTower } = require('../../../database/transactions/update-tower');
-const { dbDeleteTower } = require('../../../database/transactions/delete-tower');
+const { dbCreateTower } = require('../../storage/transactions/create-tower');
+const { dbReadTowers } = require('../../storage/transactions/read-towers');
+const { dbUpdateTower } = require('../../storage/transactions/update-tower');
+const { dbDeleteTower } = require('../../storage/transactions/delete-tower');
 
 const errors = require('../../../../constants/errors.json');
-const { join, putRoom, indexWorkspace } = require('../pool');
 
 module.exports.attachTowerEvents = (socket) => {
     socket.on('createTower', async (data) => {

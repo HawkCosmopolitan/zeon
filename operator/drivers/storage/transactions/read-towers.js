@@ -1,6 +1,6 @@
 
 const mongoose = require('mongoose');
-const { isReadCountEmpty, isReadCountInvalid, isIdEmpty } = require('../../../global-utils/numbers');
+const { isReadCountEmpty, isReadCountInvalid, isIdEmpty } = require('../../../../shared/utils/numbers');
 let { Member, User } = require('../schemas/schemas');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
