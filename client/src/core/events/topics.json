@@ -1,0 +1,89 @@
+{
+    "REGISTERED": "register",
+    "VERIFIED": "verified",
+    "SETUP_DONE": "setup_done",
+
+    "AUTHENTICATED": "authenticated",
+    "ENTERED_TOWER": "entered_tower",
+    "ENTERED_ROOM": "entered_room",
+    "ENTERED_WORKSPACE": "entered_workspace",
+
+    "MESSAGE_CREATION_PENDING": "message_creation_pending",
+    "MESSAGE_CREATED": "message_created",
+
+    "BLOG_CREATION_PENDING": "blog_creation_pending",
+    "BLOG_CREATED": "blog_created",
+    "POST_CREATION_PENDING": "post_creation_pending",
+    "POST_CREATED": "post_created",
+    "SECTION_CREATION_PENDING": "section_creation_pending",
+    "SECTION_CREATED": "section_created",
+
+    "BLOG_UPDATE_PENDING": "blog_update_pending",
+    "BLOG_UPDATED": "blog_updated",
+    "POST_UPDATE_PENDING": "post_update_pending",
+    "POST_UPDATED": "post_updated",
+    "SECTION_UPDATE_PENDING": "section_update_pending",
+    "SECTION_UPDATED": "section_updated",
+
+    "BLOG_DELETE_PENDING": "blog_delete_pending",
+    "BLOG_DELETED": "blog_deleted",
+    "POST_DELETE_PENDING": "post_delete_pending",
+    "POST_DELETED": "post_deleted",
+    "SECTION_DELETE_PENDING": "section_delete_pending",
+    "SECTION_DELETED": "section_deleted",
+
+    "TOWER_CREATION_PENDING": "tower_creation_pending",
+    "TOWER_CREATED": "tower_created",
+    "ROOM_CREATION_PENDING": "room_creation_pending",
+    "ROOM_CREATED": "room_created",
+    "WORKSPACE_CREATION_PENDING": "workspace_creation_pending",
+    "WORKSPACE_CREATED": "workspace_created",
+
+    "TOWER_UPDATE_PENDING": "tower_update_pending",
+    "TOWER_UPDATED": "tower_updated",
+    "ROOM_UPDATE_PENDING": "room_update_pending",
+    "ROOM_UPDATED": "room_updated",
+    "WORKSPACE_UPDATE_PENDING": "workspace_update_pending",
+    "WORKSPACE_UPDATED": "workspace_updated",
+
+    "TOWER_DELETE_PENDING": "tower_deleted_pending",
+    "TOWER_DELETED": "tower_deleted",
+    "ROOM_DELETE_PENDING": "room_delete_pending",
+    "ROOM_DELETED": "room_deleted",
+    "WORKSPACE_DELETE_PENDING": "workspace_delete_pending",
+    "WORKSPACE_DELETED": "workspace_deleted",
+
+    "FILESPACE_CREATION_PENDING": "filespace_creation_pending",
+    "FILESPACE_CREATED": "filespace_created",
+    "FILESPACE_UPDATE_PENDING": "filespace_update_pending",
+    "FILESPACE_UPDATED": "filespace_updated",
+    "FILESPACE_DELETE_PENDING": "filespace_delete_pending",
+    "FILESPACE_DELETED": "filespace_deleted",
+
+    "DISK_CREATION_PENDING": "disk_creation_pending",
+    "DISK_CREATED": "disk_created",
+    "DISK_UPDATE_PENDING": "disk_update_pending",
+    "DISK_UPDATED": "disk_updated",
+    "DISK_DELETE_PENDING": "disk_delete_pending",
+    "DISK_DELETED": "disk_deleted",
+    
+    "FOLDER_CREATION_PENDING": "folder_creation_pending",
+    "FOLDER_CREATED": "folder_created",
+    "FOLDER_UPDATE_PENDING": "folder_update_pending",
+    "FOLDER_UPDATED": "folder_updated",
+    "FOLDER_DELETE_PENDING": "folder_delete_pending",
+    "FOLDER_DELETED": "folder_deleted",
+
+    "TOWERS_SIGNALED": "towers_signaled",
+    "ROOMS_SIGNALED": "rooms_signaled",
+    "WORKSPACES_SIGNALED": "workspaces_signaled",
+
+    "BLOCK_CREATED": "block_created",
+    "BLOCK_DELETED": "block_deleted",
+
+    "INTERACTION_CREATED": "interaction_created",
+
+    "FILE_TRANSFER_DONE": "file_transfer_done",
+
+    "DB_LOADED": "db_loaded"
+}

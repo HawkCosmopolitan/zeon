@@ -51,8 +51,10 @@ module.exports.attachAuthEvents = (socket) => {
             posts,
         } = await dbSetupUser(data);
         if (success) {
-            MemoryDriver.instance().save(`rights:${room.id}/${user.id}`, JSON.stringify(member.secret.permissions));
-            MemoryDriver.instance().save(`rights:${centralTowerHall.id}/${user.id}`, JSON.stringify(member.secret.permissions));
+            Promise.all([
+                MemoryDriver.instance().save(`rights:${room.id}/${user.id}`, JSON.stringify(member.secret.permissions)),
+                MemoryDriver.instance().save(`rights:${centralTowerHall.id}/${user.id}`, JSON.stringify(member.secret.permissions)) 
+            ]);
             socket.reply(data.replyTo, {
                 status: 1,
                 session,

@@ -12,7 +12,7 @@ module.exports.attachTowerEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, tower, room, member } = await dbCreateTower(data, socket.user.id);
             if (success) {
-                MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions));
+                await MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions));
                 socket.reply(data.replyTo, { status: 1, tower: tower, room: room, member: member });
             } else {
                 socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });

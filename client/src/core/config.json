@@ -1,0 +1,6 @@
+{
+    "APIGATEWAY": "https://socket.internal.cosmopole.cloud",
+    "FILEGATEWAY": "https://files.internal.cosmopole.cloud",
+    "CALL_PEERER": "peer.internal.cosmopole.cloud",
+    "WEB_APP": "https://internal.cosmopole.cloud"
+}

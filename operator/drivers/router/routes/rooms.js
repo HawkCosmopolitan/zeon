@@ -13,9 +13,9 @@ module.exports.attachRoomEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, room, member, member2, update } = await dbCreateRoom(data, socket.user.id);
             if (success) {
-                MemoryDriver.instance().save(`rights:${room.id}/${member.userId}`, JSON.stringify(member.secret.permissions));
+                await MemoryDriver.instance().save(`rights:${room.id}/${member.userId}`, JSON.stringify(member.secret.permissions));
                 if (member2) {
-                    MemoryDriver.instance().save(`rights:${room.id}/${member2.userId}`, JSON.stringify(member2.secret.permissions));
+                    await MemoryDriver.instance().save(`rights:${room.id}/${member2.userId}`, JSON.stringify(member2.secret.permissions));
                     join(member2.userId, room.id);
                 }
                 socket.reply(data.replyTo, { status: 1, room: room, member: member, member2: member2 });

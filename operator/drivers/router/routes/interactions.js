@@ -12,8 +12,10 @@ module.exports.attachInteractionEvents = (socket) => {
                 ({ noAction, success, tower, room, member1, member2, interaction, contact, messages, update }) => {
                     if (success) {
                         putRoom(room);
-                        MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions));
-                        MemoryDriver.instance().save(`rights:${room.id}/${data.peerId}`, JSON.stringify(member2.secret.permissions));
+                        Promise.all([
+                            MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions)),
+                            MemoryDriver.instance().save(`rights:${room.id}/${data.peerId}`, JSON.stringify(member2.secret.permissions))
+                        ]);
                         for (let i = 0; i < messages.length; i++) {
                             messages[i].time = Number(messages[i].time);
                         }

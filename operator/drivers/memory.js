@@ -21,7 +21,7 @@ class MemoryDriver {
     }
     redisClient;
     save(key, value) {
-        new Promise(resolve => {
+        return new Promise(resolve => {
             this.redisClient.hmset(key,
                 'value', value
                 , function (err, reply) {
