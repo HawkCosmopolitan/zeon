@@ -1,10 +1,9 @@
 
-const { replySocketReq } = require('../utils');
-
 const { dbCreateTower } = require('../../storage/transactions/create-tower');
 const { dbReadTowers } = require('../../storage/transactions/read-towers');
 const { dbUpdateTower } = require('../../storage/transactions/update-tower');
 const { dbDeleteTower } = require('../../storage/transactions/delete-tower');
+let MemoryDriver = require('../../memory');
 
 const errors = require('../../../../constants/errors.json');
 
@@ -13,12 +12,10 @@ module.exports.attachTowerEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, tower, room, member } = await dbCreateTower(data, socket.user.id);
             if (success) {
-                putRoom(room);
-                join(socket.user.id, room.id);
-                indexWorkspace(workspace);
-                replySocketReq(socket, data, { status: 1, tower: tower, room: room, member: member });
+                MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions));
+                socket.reply(data.replyTo, { status: 1, tower: tower, room: room, member: member });
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });
@@ -26,9 +23,9 @@ module.exports.attachTowerEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, towers } = await dbReadTowers(data, socket.user.id, socket.roomId);
             if (success) {
-                replySocketReq(socket, data, { status: 1, towers: towers });
+                socket.reply(data.replyTo, { status: 1, towers: towers });
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });
@@ -36,9 +33,9 @@ module.exports.attachTowerEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success } = await dbUpdateTower(data, socket.user.id);
             if (success) {
-                replySocketReq(socket, data, { status: 1 });
+                socket.reply(data.replyTo, { status: 1 });
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });
@@ -46,9 +43,9 @@ module.exports.attachTowerEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success } = await dbDeleteTower(data, socket.user.id);
             if (success) {
-                replySocketReq(socket, data, { status: 1 });
+                socket.reply(data.replyTo, { status: 1 });
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });

@@ -33,7 +33,10 @@ class NetworkDriver {
         });
         this.socketServer.on('connection', (socket) => {
             console.log('a socket connected');
-            attachRouter(socket);
+            attachRouter({
+                on: (key, callback) => socket.on(key, callback),
+                reply: (requiestId, answer) => socket.emit('response', { replyTo: requiestId, ...answer })
+            });
         });
     }
 }

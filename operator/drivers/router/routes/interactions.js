@@ -1,10 +1,9 @@
 
-const { replySocketReq, handleUpdate } = require('../utils');
-
 const { dbReadInteractions } = require('../../storage/transactions/read-interactions');
 const { dbCreateInteraction } = require('../../storage/transactions/create-interaction');
 
 const errors = require('../../../../constants/errors.json');
+let MemoryDriver = require('../../memory');
 
 module.exports.attachInteractionEvents = (socket) => {
     socket.on('createInteraction', async (data) => {
@@ -13,15 +12,15 @@ module.exports.attachInteractionEvents = (socket) => {
                 ({ noAction, success, tower, room, member1, member2, interaction, contact, messages, update }) => {
                     if (success) {
                         putRoom(room);
-                        join(socket.user.id, room.id);
-                        join(data.peerId, room.id);
+                        MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions));
+                        MemoryDriver.instance().save(`rights:${room.id}/${data.peerId}`, JSON.stringify(member2.secret.permissions));
                         for (let i = 0; i < messages.length; i++) {
                             messages[i].time = Number(messages[i].time);
                         }
-                        replySocketReq(socket, data, { status: noAction ? 3 : 1, tower, room, member1, member2, interaction, contact, messages });
+                        socket.reply(data.replyTo, { status: noAction ? 3 : 1, tower, room, member1, member2, interaction, contact, messages });
                         handleUpdate(update);
                     } else {
-                        replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                        socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
                     }
                 });
         }
@@ -30,10 +29,10 @@ module.exports.attachInteractionEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, interactions, update } = await dbReadInteractions(data, socket.user.id, socket.roomId);
             if (success) {
-                replySocketReq(socket, data, { status: 1, interactions: interactions });
+                replySocketReq(data.replyTo, { status: 1, interactions: interactions });
                 handleUpdate(update);
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                replySocketReq(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });

@@ -1,6 +1,4 @@
 
-const { replySocketReq } = require('../utils');
-
 const { dbReadUsers } = require('../../storage/transactions/read-users');
 const { dbReadUserById } = require('../../storage/transactions/read-user-by-id');
 
@@ -11,9 +9,9 @@ module.exports.attachUserEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, users } = await dbReadUsers(data, socket.user.id, socket.roomId);
             if (success) {
-                replySocketReq(socket, data, { status: 1, users: users });
+                socket.reply(data.replyTo, { status: 1, users: users });
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });
@@ -22,12 +20,12 @@ module.exports.attachUserEvents = (socket) => {
         if (user) {
             let onlineState = isUserOnline(user.id);
             if (!onlineState) {
-                replySocketReq(socket, data, { status: 1, user: user, onlineState: false, lastSeen: lastSeen(user.id) });
+                socket.reply(data.replyTo, { status: 1, user: user, onlineState: false, lastSeen: lastSeen(user.id) });
             } else {
-                replySocketReq(socket, data, { status: 1, user: user, onlineState: true });
+                socket.reply(data.replyTo, { status: 1, user: user, onlineState: true });
             }
         } else {
-            replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

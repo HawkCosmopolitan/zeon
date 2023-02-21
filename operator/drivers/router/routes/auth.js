@@ -2,14 +2,14 @@
 const { dbCreateUser } = require('../../storage/transactions/create-user');
 const { dbVerifyUser } = require('../../storage/transactions/verify-user');
 const { dbSetupUser } = require('../../storage/transactions/setup-user');
-const { replySocketReq } = require('../utils');
 const errors = require('../../../../constants/errors.json');
+const MemoryDriver = require('../../memory');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {
         let { success, session, user, towers, rooms, myMemberships, allMemberships, filespaces, disks, folders, files, documents, blogs, posts, interactions } = await dbVerifyUser(data);
         if (success) {
-            replySocketReq(socket, data, {
+            socket.reply(data.replyTo, {
                 status: 1,
                 session: session !== null ? session : undefined,
                 user: user !== null ? user : undefined,
@@ -28,7 +28,7 @@ module.exports.attachAuthEvents = (socket) => {
                 interactions: interactions
             });
         } else {
-            replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('setupUser', async (data) => {
@@ -51,13 +51,9 @@ module.exports.attachAuthEvents = (socket) => {
             posts,
         } = await dbSetupUser(data);
         if (success) {
-            putRoom(room);
-            putUser(user);
-            join(user.id, room.id);
-            join(user.id, centralTowerHall.id);
-            indexWorkspace(workspace);
-            setupUserUpdater(user.id);
-            replySocketReq(socket, data, {
+            MemoryDriver.instance().save(`rights:${room.id}/${user.id}`, JSON.stringify(member.secret.permissions));
+            MemoryDriver.instance().save(`rights:${centralTowerHall.id}/${user.id}`, JSON.stringify(member.secret.permissions));
+            socket.reply(data.replyTo, {
                 status: 1,
                 session,
                 user,
@@ -76,7 +72,7 @@ module.exports.attachAuthEvents = (socket) => {
                 posts
             });
         } else {
-            replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

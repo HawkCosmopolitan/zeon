@@ -20,15 +20,17 @@ class MemoryDriver {
         return MemoryDriver.inst;
     }
     redisClient;
-    save(key, value, callback) {
-        this.redisClient.hmset(key,
-            'value', value
-            , function (err, reply) {
-                if (err) {
-                    console.log(err);
-                }
-                if (callback) callback();
-            });
+    save(key, value) {
+        new Promise(resolve => {
+            this.redisClient.hmset(key,
+                'value', value
+                , function (err, reply) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    resolve();
+                });
+        });
     }
     fetch(key, callback) {
         this.redisClient.hgetall(key, function (err, obj) {
