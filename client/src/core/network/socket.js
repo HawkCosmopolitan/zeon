@@ -1,7 +1,7 @@
 
 import io from 'socket.io-client';
 import { publish } from '../bus/index';
-import { authenticate, enterRoom, enterRoomAndWorkspace, enterTower, enterWorkspace } from '../callables/auth';
+import { authenticate, enterRoom, enterRoomAndWorkspace, enterTower, enterWorkspace } from '../api/auth';
 import topics from '../events/topics.json';
 import { setIsAuthed } from '../setup';
 import { fetchCurrentRoomId, fetchCurrentWorkspaceId, fetchSessionToken, saveCurrentRoomId, saveCurrentWorkspaceId } from '../storage/auth';
@@ -9,7 +9,7 @@ import { fetchMyHomeId } from '../storage/me';
 import { dbFindFirstRoomOfTower } from '../storage/spaces';
 import { attachUpdateListeners } from './updates';
 import { dbFetchUnsentMessages } from '../storage/messenger';
-import { resendMessage } from '../callables/messenger';
+import { resendMessage } from '../api/messenger';
 import config from '../config.json';
 import { roomsDict, roomsDictById, towersDictById, workspacesDict } from '../memory';
 import updates from '../network/updates.json';

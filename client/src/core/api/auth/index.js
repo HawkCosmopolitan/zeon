@@ -2,7 +2,7 @@ import PubSub, { unsubscribe } from 'pubsub-js';
 import { isTopTag } from '../../../App';
 import { publish, subscribe } from '../../bus';
 import topics from '../../events/topics.json';
-import { blocksDict, blogsDict, blogsDictById, centralHeader, disksDict, disksDictById, docsDictById, filespacesDict, filespacesDictById, foldersDictById, homeHeader, interactionsDict, me, membershipsDict, membershipsDictByTowerId, messagesDict, postsDict, postsDictById, roomsDict, roomsDictById, sampleImages, towersDictById, towersList, usersDict, workspacesDict, workspacesDictById } from '../../memory';
+import { blocksDict, blogsDict, blogsDictById, centralHeader, disksDict, disksDictById, docsDictById, filespacesDict, filespacesDictById, foldersDictById, homeHeader, interactionsDict, me, membershipsDict, membershipsDictByTowerId, Memory, messagesDict, postsDict, postsDictById, roomsDict, roomsDictById, sampleImages, towersDictById, towersList, usersDict, workspacesDict, workspacesDictById } from '../../memory';
 import { setWorkspaceAfterEnteringRoom, socket } from '../../network/socket';
 import { saveSessionToken, fetchSessionToken, saveEmail, fetchEmail, saveCurrentTowerId, saveCurrentRoomId, saveCurrentWorkspaceId } from '../../storage/auth';
 import { dbSaveBlog, dbSaveBlogAtOnce, dbSavePostAtOnce } from '../../storage/blog';
@@ -16,82 +16,38 @@ import { request } from '../../utils/requests';
 import { readDocById } from '../file';
 import { readMessages } from '../messenger';
 import { readUserById } from '../users';
+import { Storage } from '../../storage';
 
 export function verify(auth0AccessToken, callback) {
     request('verifyUser', { auth0AccessToken: auth0AccessToken }, res => {
         if (res.status === 1) {
             if (res.session !== undefined) {
-                let newColor = (Math.random() * 10).toString()[0];
-                res.user.avatarBackColor = newColor;
-                saveAvatarBackColor(newColor);
-                saveSessionToken(res.session.token);
-                saveMyUserId(res.user.id);
-                saveFirstName(res.user.firstName);
-                saveLastName(res.user.lastName);
-                saveMyHomeId(res.user.secret.homeId);
-                saveEmail(res.user.secret.email);
-
-                me.id = res.user.id;
-                me.firstName = res.user.firstName;
-                me.lastName = res.user.lastName;
-                me.homeId = res.user.secret.homeId;
-                me.email = res.user.secret.email;
-                me.avatarBackColor = newColor;
-
-                usersDict[me.id] = me;
-
+                
                 let towers = res.towers;
                 let rooms = res.rooms;
-                let workspaces = res.workspaces;
                 let myMemberships = res.myMemberships;
                 let allMemberships = res.allMemberships;
                 let interactions = res.interactions;
-                let filespaces = res.filespaces;
-                let disks = res.disks;
-                let folders = res.folders;
-                let files = res.files;
-                let documents = res.documents;
-                let blogs = res.blogs;
-                let posts = res.posts;
+                
+                let newColor = (Math.random() * 10).toString()[0];
+                res.user.avatarBackColor = newColor;
+                Storage.me.saveAvatarBackColor(newColor);
+                Storage.me.saveSessionToken(res.session.token);
+                Storage.me.saveMyUserId(res.user.id);
+                Storage.me.saveFirstName(res.user.firstName);
+                Storage.me.saveLastName(res.user.lastName);
+                Storage.me.saveMyHomeId(res.user.secret.homeId);
+                Storage.me.saveEmail(res.user.secret.email);
 
-                towers.forEach(tower => {
-                    if (!tower.headerId) {
-                        tower.headerId = sampleImages[Math.floor(Math.random() * sampleImages.length)];
-                    } else {
-                        if (tower.headerId === 'help') {
-                            tower.headerId = centralHeader;
-                        } else if (tower.id === me.homeId) {
-                            tower.headerId = homeHeader;
-                        }
-                    }
-                    dbSaveTowerAtOnce(tower);
-                    towersDictById[tower.id] = tower;
-                    towersList.push(tower);
-                    roomsDict[tower.id] = [];
-                });
+                let trx = Memory.startTrx();
 
-                rooms.forEach(room => {
-                    dbSaveRoomAtOnce(room);
-                    roomsDictById[room.id] = room;
-                    roomsDict[room.towerId].push(room);
-                    room.tower = towersDictById[room.towerId];
-                    workspacesDict[room.id] = [];
-                    filespacesDict[room.id] = [];
-                    blogsDict[room.id] = [];
-                    blocksDict[room.id] = [];
-                    membershipsDict[room.id] = {};
-                });
-
-                workspaces.forEach(workspace => {
-                    let newColor = (Math.random() * 10).toString()[0];
-                    workspace.avatarBackColor = newColor;
-                    dbSaveWorkspaceAtOnce(workspace);
-                    workspacesDictById[workspace.id] = workspace;
-                    workspacesDict[workspace.roomId].push(workspace);
-                    workspace.room = roomsDictById[workspace.roomId];
-                    workspace.tower = towersDictById[workspace.room.towerId];
-                    messagesDict[workspace.id] = [];
-                });
+                res.user.avatarBackColor = newColor;
+                trx.updateMe(res.user);
+                trx.addUser(Memory.data.me);
+                towers.forEach(tower => { Storage.spaces.dbSaveTowerAtOnce(tower); trx.addTower(tower); });
+                rooms.forEach(room => { Storage.spaces.dbSaveRoomAtOnce(room); trx.addRoom(room); });
+                
+                myMemberships.forEach(member => { Storage.spaces.dbSaveRoomAtOnce(member); trx.addRoom(member); });
 
                 myMemberships.forEach(member => {
                     dbSaveMemberAtOnce(member);
@@ -119,63 +75,6 @@ export function verify(auth0AccessToken, callback) {
                             towersDictById[roomsDictById[interaction.roomId]?.towerId].contact = user;
                         });
                     }
-                });
-
-                filespaces.forEach(filespace => {
-                    dbSaveFilespaceAtOnce(filespace);
-                    filespace.room = roomsDictById[filespace.roomId];
-                    filespace.tower = towersDictById[filespace.room.id];
-                    filespace.disks = [];
-                    filespacesDictById[filespace.id] = filespace;
-                    filespacesDict[filespace.roomId].push(filespace);
-                    disksDict[filespace.id] = [];
-                });
-
-                disks.forEach(disk => {
-                    dbSaveDiskAtOnce(disk);
-                    disk.filespace = filespacesDictById[disk.filespaceId];
-                    disksDictById[disk.id] = disk;
-                    disksDict[disk.filespaceId].push(disk);
-                });
-
-                folders.forEach(folder => {
-                    dbSaveFolderAtOnce(folder);
-                    folder.filespace = filespacesDictById[folder.filespaceId];
-                    foldersDictById[folder.id] = folder;
-                });
-
-                documents.forEach(doc => {
-                    doc.roomId = doc.roomIds[0];
-                    dbSaveDocument(doc);
-                    docsDictById[doc.id] = doc;
-                });
-
-                blogs.forEach(blog => {
-                    dbSaveBlogAtOnce(blog);
-                    blog.room = roomsDictById[blog.roomId];
-                    blogsDictById[blog.id] = blog;
-                    blogsDict[blog.roomId].push(blog);
-                    postsDict[blog.id] = [];
-                });
-
-                posts.forEach(post => {
-                    dbSavePostAtOnce(post);
-                    post.blog = blogsDictById[post.blogId];
-                    postsDictById[post.id] = post;
-                    postsDict[post.blogId].push(post);
-                });
-
-                // revision of folders ( more references )
-                folders.forEach(folder => {
-                    folder.folders = folder.folderIds.map(folderId => { return foldersDictById[folderId]; });
-                    folder.files = folder.fileIds.map(fileId => { return docsDictById[fileId]; });
-                });
-
-                // revision of disks ( more references )
-                disks.forEach(async disk => {
-                    disk.dataFolder = foldersDictById[disk.dataFolderId];
-                    disk.dataFolder.disk = disk;
-                    filespacesDictById[disk.filespaceId].disks.push(disk);
                 });
 
                 if (callback !== undefined) callback(res);

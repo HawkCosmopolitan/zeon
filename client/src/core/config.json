@@ -1,6 +1,8 @@
 {
-    "APIGATEWAY": "https://socket.internal.cosmopole.cloud",
-    "FILEGATEWAY": "https://files.internal.cosmopole.cloud",
-    "CALL_PEERER": "peer.internal.cosmopole.cloud",
-    "WEB_APP": "https://internal.cosmopole.cloud"
+    "WEB_APP": "http://localhost:3000",
+    "PACKET_GATEWAY": "http://localhost:3001",
+    "FILE_IN_GATEWAY": "http://localhost:3002",
+    "FILE_OUT_GATEWAY": "http://localhost:3003",
+    "UPDATE_GATEWAY": "http://localhost:3004",
+    "CALL_PEERER": "localhost:3005"
 }

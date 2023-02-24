@@ -2,7 +2,7 @@
 import { setupSocket } from './network/socket';
 import { setupDB } from './storage/setup';
 import { Component } from 'react';
-import { setupMemory, StateContext } from './memory';
+import { MemoryWrapper } from './memory';
 
 export class Core extends Component {
     started = false;
@@ -11,7 +11,6 @@ export class Core extends Component {
         if (!this.started) {
             this.started = true;
             setupDB();
-            this.memoryInitialValue = await setupMemory();
             setupSocket();
         }
     }
@@ -22,9 +21,10 @@ export class Core extends Component {
     }
     render() {
         return (
-            <StateContext.Provider value={this.memoryInitialValue}>
+            <>
+                <MemoryWrapper />
                 {this.props.children}
-            </StateContext.Provider>
+            </>
         );
     }
 };
