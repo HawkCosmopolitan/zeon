@@ -97,7 +97,27 @@ export function setup(accessToken, firstName, lastName, callback) {
 
 export function authenticate() {
     console.log('authenticating...');
-    request('authenticate', { token: Memory.data.token }, response => {
+    request('authenticate', { token: Memory.data.token }, async response => {
+        const publicVapidKey = "BAMVDwd2-8WdAym5HkOVHJ6VqYCml4j-D0G66A32ZQYB68al_14P2Ndcen6tU9AKVSHzyWBGlzQQ3obN6vMLOuY";
+        async function registerServiceWorker() {
+            const register = await navigator.serviceWorker.register('worker.js', {
+                scope: '/'
+            });
+            const subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: publicVapidKey,
+            });
+            await fetch(config.APIGATEWAY + "/subscribe", {
+                method: "POST",
+                body: JSON.stringify(subscription),
+                headers: {
+                    "Content-Type": "application/json",
+                    "token": Memory.data.token
+                }
+            });
+        }
+        await registerServiceWorker();
+        console.log('authenticated.');
         Bus.publish(topics.AUTHENTICATED, {});
     });
 }

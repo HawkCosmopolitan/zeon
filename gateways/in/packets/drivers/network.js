@@ -42,7 +42,10 @@ class NetworkDriver {
         });
         this.socketServer.on('connection', (socket) => {
             console.log('a socket connected');
-            attachRouter(socket, this.socketManager);
+            attachRouter({
+                on: (key, callback) => socket.on(key, callback),
+                reply: (requiestId, answer) => socket.emit('response', { replyTo: requiestId, ...answer })
+            }, this.socketManager);
         });
     }
 }

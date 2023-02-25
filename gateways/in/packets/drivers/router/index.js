@@ -10,6 +10,6 @@ module.exports = {
         }
     },
     attachRouter: (socket, socketManager) => {
-        attachRoute(socket, socketManager, auth);
+        this.attachRoute(socket, socketManager, auth);
     }
 }

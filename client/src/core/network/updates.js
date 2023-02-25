@@ -9,7 +9,6 @@ import { activeCalls, invitesDictById, me, membershipsDict, membershipsDictByTow
 import uiEvents from '../../config/ui-events.json';
 import { showToast, closeToast } from "../../App";
 import { Avatar, Typography } from "@mui/material";
-import { blue, green, purple, red, yellow } from "@mui/material/colors";
 import { readRoomById } from "../api/spaces";
 import formatDate from "../../utils/DateFormatter";
 

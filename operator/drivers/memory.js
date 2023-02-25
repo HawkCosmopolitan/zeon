@@ -78,7 +78,7 @@ class MemoryDriver {
                 secure: true
             }
         }));
-        app.listen(ports.REDIS_SESSION_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PORT}`) });
+        app.listen(ports.REDIS_SESSION_OPERATOR_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_OPERATOR_PORT}`) });
     }
 }
 
