@@ -31,7 +31,7 @@ export let uploadFile = async (tag, file, roomId, isPublic, callback) => {
         for (let chunk = 0; chunk < totalChunks + 1; chunk++) {
             let CHUNK = content.slice(chunk * CHUNK_SIZE, (chunk + 1) * CHUNK_SIZE);
             const size = CHUNK.length;
-            let response = await fetch(config.FILEGATEWAY + '/file/upload', {
+            let response = await fetch(config.FILE_IN_GATEWAY + '/file/upload', {
                 'method': 'POST',
                 'headers': {
                     'content-type': "application/octet-stream",
@@ -67,7 +67,7 @@ export let uploadFile = async (tag, file, roomId, isPublic, callback) => {
 export let downloadFile = (documentId, roomId, callback) => {
     dbFetchData(documentId).then(data => {
         if (data === null) {
-            fetch(`${config.FILEGATEWAY}/file/download`, {
+            fetch(`${config.FILE_OUT_GATEWAY}/file/download`, {
                 method: 'GET',
                 headers: {
                     'token': fetchSessionToken(),
@@ -91,13 +91,13 @@ export let downloadFile = (documentId, roomId, callback) => {
 }
 
 export let generatePreviewLink = (documentId, roomId) => {
-    return `${config.FILEGATEWAY}/file/preview?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`;
+    return `${config.FILE_OUT_GATEWAY}/file/preview?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`;
 }
 
 export let downloadPreview = (type, documentId, roomId, callback) => {
     dbFetchData(documentId).then(data => {
         if (data === null) {
-            fetch(`${config.FILEGATEWAY}/file/preview?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`)
+            fetch(`${config.FILE_OUT_GATEWAY}/file/preview?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`)
                 .then(temp => temp.blob())
                 .then(res => {
                     dbFetchDocById(documentId).then(doc => {
@@ -132,13 +132,13 @@ export let downloadPreview = (type, documentId, roomId, callback) => {
 }
 
 export let generateCoverLink = (documentId, roomId) => {
-    return `${config.FILEGATEWAY}/file/coverAudio?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`;
+    return `${config.FILE_OUT_GATEWAY}/file/coverAudio?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`;
 }
 
 export let downloadAudioCover = (documentId, roomId, callback) => {
     dbFetchData(`${documentId}_cover`).then(data => {
         if (data === null) {
-            fetch(`${config.FILEGATEWAY}/file/coverAudio`, {
+            fetch(`${config.FILE_OUT_GATEWAY}/file/coverAudio`, {
                 method: 'GET',
                 headers: {
                     'token': fetchSessionToken(),
@@ -164,7 +164,7 @@ export let downloadAudioCover = (documentId, roomId, callback) => {
 }
 
 export function generateFileLink(documentId, roomId) {
-    return `${config.FILEGATEWAY}/file/download-link?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`;
+    return `${config.FILE_OUT_GATEWAY}/file/download-link?token=${fetchSessionToken()}&roomid=${roomId}&documentid=${documentId}`;
 }
 
 export function readDocById(documentId, roomId, callback) {
