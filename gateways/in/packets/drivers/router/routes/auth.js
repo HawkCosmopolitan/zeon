@@ -3,7 +3,17 @@ let MemoryDriver = require('../../memory');
 let SecurityDriver = require('../../security');
 
 module.exports = {
-    authenticate: (socket, { token }, socketManager) => {
+    setupUser: (socket, data, socketManager) => {
+        socket.pass('setupUser', data, res => {
+            socket.reply(data.requestId, res);
+        });
+    },
+    verifyUser: (socket, data, socketManager) => {
+        socket.pass('verifyUser', data, res => {
+            socket.reply(data.requestId, res);
+        });
+    },
+    authenticate: (socket, { token, requestId }, socketManager) => {
         MemoryDriver.instance().fetch(`auth:${token}`, userId => {
             if (userId) {
                 socket.userId = userId;

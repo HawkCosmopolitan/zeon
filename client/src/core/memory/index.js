@@ -220,12 +220,12 @@ export let Memory = {
 };
 
 export function MemoryWrapper() {
-    const { state, setState } = useMemory();
+    const { state, modifyState } = useMemory();
     useEffect(() => {
         setupMemory().then(mem => {
-            setState(mem);
-            Memory.update = (newState) => setState(newState);
-            Memory.data = state;
+            modifyState(mem);
+            Memory.update = (newState) => modifyState(newState);
+            Memory.data = state();
         });
     }, []);
     return null;

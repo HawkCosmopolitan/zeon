@@ -6,8 +6,8 @@ import Bus from '../../events/bus';
 import { Memory } from '../../memory';
 import config from '../../config.json';
 
-export function verify(auth0AccessToken, callback) {
-    request('verifyUser', { auth0AccessToken: auth0AccessToken }, res => {
+export function verify(/*auth0AccessToken*/ email, callback) {
+    request('verifyUser', { /*auth0AccessToken: auth0AccessToken*/ email }, res => {
         if (res.status === 1) {
             if (res.session !== undefined) {
 
@@ -48,8 +48,8 @@ export function verify(auth0AccessToken, callback) {
     });
 }
 
-export function setup(accessToken, firstName, lastName, callback) {
-    request('setupUser', { auth0AccessToken: accessToken, firstName: firstName, lastName: lastName }, res => {
+export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
+    request('setupUser', { /*auth0AccessToken: accessToken,*/ email, firstName: firstName, lastName: lastName }, res => {
         if (res.status === 1) {
             if (res.session !== undefined) {
 
@@ -137,3 +137,12 @@ export function teleport(spaceId) {
         });
     }
 }
+
+let auth = {
+    verify,
+    setup,
+    authenticate,
+    teleport
+};
+
+export default auth;

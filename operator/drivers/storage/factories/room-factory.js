@@ -12,6 +12,7 @@ class RoomFactory {
     ModelName = 'Room';
     Model;
     constructor() {
+        RoomFactory.inst = this;
         this.Model = require('../schemas/schemas')[this.ModelName];
         this.create = this.create.bind(this);
         this.read = this.read.bind(this);
@@ -21,7 +22,7 @@ class RoomFactory {
         this.remove = this.remove.bind(this);
     }
     async create(initData, session) {
-        return await this.Model.create([initData], { session })[0];
+        return (await this.Model.create([initData], { session }))[0];
     }
     async read(offset, count, query) {
         let cursor;

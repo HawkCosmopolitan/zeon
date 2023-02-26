@@ -11,7 +11,7 @@ export let socket;
 
 export let setupSocket = () => {
     setTimeout(() => {
-        socket = io(config.APIGATEWAY);
+        socket = io(config.PACKET_GATEWAY);
         attachUpdateListeners();
         socket.on("connect", () => {
             authenticate();

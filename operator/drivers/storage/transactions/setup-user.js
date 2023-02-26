@@ -49,7 +49,7 @@ const checkImports = () => {
     }
 }
 
-module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) => {
+module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, lastName }) => {
     if (isEmpty(firstName)) {
         console.error('first name can not be empty');
         return { success: false };
@@ -61,18 +61,18 @@ module.exports.dbSetupUser = async ({ auth0AccessToken, firstName, lastName }) =
     checkImports();
     const session = await mongoose.startSession();
     session.startTransaction();
-    const inputData = JSON.parse(Buffer.from(auth0AccessToken.split('.')[1], 'base64').toString());
-    let email = inputData['https://internal.cosmopole.cloud/email'];
+    //const inputData = JSON.parse(Buffer.from(auth0AccessToken.split('.')[1], 'base64').toString());
+    //let email = inputData['https://internal.cosmopole.cloud/email'];
     let pending, user, userSession, tower, room, member, defaultMembership;
     try {
-        pending = await PendingFactory.instance().find({ email: email }, Session);
+        pending = await PendingFactory.instance().find({ email: email }, session);
         if (pending === null) {
             let userGenedId = makeUniqueId();
-            userSession = await SessionFactory.instance().create([{
+            userSession = await SessionFactory.instance().create({
                 id: makeUniqueId(),
                 token: uuidv4(),
                 userId: userGenedId,
-            }], session);
+            }, session);
             let towerGenedId = makeUniqueId();
             let roomGenedId = makeUniqueId();
             user = await UserFactory.instance().create({

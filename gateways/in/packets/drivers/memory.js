@@ -21,17 +21,11 @@ class MemoryDriver {
     }
     redisClient;
     save(key, value, callback) {
-        this.redisClient.hmset(key,
-            'value', value
-            , function (err, reply) {
-                if (err) {
-                    console.log(err);
-                }
-                if (callback) callback();
-            });
+        this.redisClient.set(key, value);
+        if (callback) callback();
     }
     fetch(key, callback) {
-        this.redisClient.hgetall(key, function (err, obj) {
+        this.redisClient.get(key).then(function (err, obj) {
             if (err) {
                 console.log(err);
                 if (callback) callback(undefined);
@@ -53,30 +47,32 @@ class MemoryDriver {
             host: 'localhost',
             port: ports.REDIS_PORT
         });
-        this.redisClient.on('error', function (err) {
-            console.log('Could not establish a connection with redis. ' + err);
+        this.redisClient.connect().then(() => {
+            this.redisClient.on('error', function (err) {
+                console.log('Could not establish a connection with redis. ' + err);
+            });
+            this.redisClient.on('connect', function (err) {
+                console.log('Connected to redis successfully');
+            });
+            const sessionStore = new redisStore({ client: this.redisClient });
+            app.use(bodyParser.urlencoded({
+                extended: true
+            }));
+            app.use(bodyParser.json());
+            app.use(session({
+                name: secrets.SESS_NAME,
+                resave: false,
+                saveUninitialized: false,
+                store: sessionStore,
+                secret: secrets.SESS_SECRET,
+                cookie: {
+                    maxAge: 1000 * 60 * 60 * 2,
+                    sameSite: true,
+                    secure: true
+                }
+            }));
+            app.listen(ports.REDIS_SESSION_PACKETS_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PACKETS_PORT}`) });
         });
-        this.redisClient.on('connect', function (err) {
-            console.log('Connected to redis successfully');
-        });
-        const sessionStore = new redisStore({ client: this.redisClient });
-        app.use(bodyParser.urlencoded({
-            extended: true
-        }));
-        app.use(bodyParser.json());
-        app.use(session({
-            name: secrets.SESS_NAME,
-            resave: false,
-            saveUninitialized: false,
-            store: sessionStore,
-            secret: secrets.SESS_SECRET,
-            cookie: {
-                maxAge: 1000 * 60 * 60 * 2,
-                sameSite: true,
-                secure: true
-            }
-        }));
-        app.listen(ports.REDIS_SESSION_PACKETS_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PACKETS_PORT}`) });
     }
 }
 

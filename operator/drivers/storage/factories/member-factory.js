@@ -12,6 +12,7 @@ class MemberFactory {
     ModelName = 'Member';
     Model;
     constructor() {
+        MemberFactory.inst = this;
         this.Model = require('../schemas/schemas')[this.ModelName];
         this.create = this.create.bind(this);
         this.read = this.read.bind(this);

@@ -7,7 +7,7 @@ const MemoryDriver = require('../../memory');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {
-        let { success, session, user, towers, rooms, myMemberships, allMemberships, filespaces, disks, folders, files, documents, blogs, posts, interactions } = await dbVerifyUser(data);
+        let { success, session, user, towers, rooms, myMemberships, allMemberships, interactions } = await dbVerifyUser(data);
         if (success) {
             socket.reply(data.replyTo, {
                 status: 1,
@@ -15,16 +15,8 @@ module.exports.attachAuthEvents = (socket) => {
                 user: user !== null ? user : undefined,
                 towers: towers,
                 rooms: rooms,
-                workspaces: [],
                 myMemberships: myMemberships,
                 allMemberships: allMemberships,
-                filespaces: filespaces,
-                disks: disks,
-                folders: folders,
-                files: files,
-                documents: documents,
-                blogs: blogs,
-                posts: posts,
                 interactions: interactions
             });
         } else {
@@ -32,6 +24,8 @@ module.exports.attachAuthEvents = (socket) => {
         }
     });
     socket.on('setupUser', async (data) => {
+        let r = await dbSetupUser(data);
+        console.log(r);
         let {
             success,
             session,
@@ -41,15 +35,8 @@ module.exports.attachAuthEvents = (socket) => {
             member,
             defaultMembership,
             centralTower,
-            centralTowerHall,
-            filespaces,
-            disks,
-            folders,
-            files,
-            documents,
-            blogs,
-            posts,
-        } = await dbSetupUser(data);
+            centralTowerHall
+        } = r;
         if (success) {
             Promise.all([
                 MemoryDriver.instance().save(`rights:${room.id}/${user.id}`, JSON.stringify(member.secret.permissions)),

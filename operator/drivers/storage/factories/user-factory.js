@@ -10,6 +10,7 @@ class UserFactory {
     ModelName = 'User';
     Model;
     constructor() {
+        UserFactory.inst = this;
         this.Model = require('../schemas/schemas')[this.ModelName];
         this.create = this.create.bind(this);
         this.read = this.read.bind(this);
@@ -19,7 +20,7 @@ class UserFactory {
         this.remove = this.remove.bind(this);
     }
     async create(initData, session) {
-        return await this.Model.create([initData], { session })[0];
+        return (await this.Model.create([initData], { session }))[0];
     }
     async read(offset, count, query) {
         let cursor;

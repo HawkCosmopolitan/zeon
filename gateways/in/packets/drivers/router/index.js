@@ -1,15 +1,17 @@
 
 let auth = require('./routes/auth');
 
+const attachRoute = (socket, socketManager, route) => {
+    for (let routeKey in route) {
+        socket.on(routeKey, data => {
+            route[routeKey](socket, data, socketManager);
+        });
+    }
+};
+
 module.exports = {
-    attachRoute: (socket, socketManager, route) => {
-        for (let routeKey in route) {
-            socket.on(routeKey, data => {
-                route[routeKey](socket, data, socketManager);
-            });
-        }
-    },
+    attachRoute: attachRoute,
     attachRouter: (socket, socketManager) => {
-        this.attachRoute(socket, socketManager, auth);
+        attachRoute(socket, socketManager, auth);
     }
 }

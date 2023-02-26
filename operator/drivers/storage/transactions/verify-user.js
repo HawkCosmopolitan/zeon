@@ -42,12 +42,12 @@ const checkImports = () => {
     }
 }
 
-module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
+module.exports.dbVerifyUser = async ({ /*auth0AccessToken*/ email }) => {
     checkImports();
     const session = await mongoose.startSession();
     session.startTransaction();
-    const inputData = JSON.parse(Buffer.from(auth0AccessToken.split('.')[1], 'base64').toString());
-    let email = inputData['https://internal.cosmopole.cloud/email'];
+    //const inputData = JSON.parse(Buffer.from(auth0AccessToken.split('.')[1], 'base64').toString());
+    //let email = inputData['https://internal.cosmopole.cloud/email'];
     let pending, userSession, user;
     try {
         pending = await PendingFactory.instance().find({ email: email }, session);
@@ -60,7 +60,7 @@ module.exports.dbVerifyUser = async ({ auth0AccessToken }) => {
                     userId: user.id
                 }, session);
                 await UserFactory.instance().update({ id: user.id }, { $push: { sessionIds: userSession.id } }, session);
-                user = await UserFactory.instance().findOne({ id: user._id.toHexString() }, session);
+                user = await UserFactory.instance().find({ id: user.id }, session);
                 let memberships = await MemberFactory.instance().findGroup({ userId: user.id }, session);
                 let towers = await TowerFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.towerId) } }, session);
                 let rooms = await RoomFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.roomId) } }, session);

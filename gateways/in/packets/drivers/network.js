@@ -5,6 +5,8 @@ const http = require('http');
 const cors = require('cors');
 const ports = require('../../../../constants/ports.json');
 const { attachRouter } = require('./router');
+const io = require('socket.io-client');
+const { request, setupResponseReceiver } = require('../utils/requests');
 
 class NetworkDriver {
     static inst;
@@ -42,9 +44,14 @@ class NetworkDriver {
         });
         this.socketServer.on('connection', (socket) => {
             console.log('a socket connected');
+            let remoteSocket = io(`http://localhost:${ports.OPERATOR_PORT}`);
+            socket.remoteSocket = remoteSocket;
+            socket.on('disconnect', () => socket.remoteSocket.close());
+            setupResponseReceiver(socket);
             attachRouter({
                 on: (key, callback) => socket.on(key, callback),
-                reply: (requiestId, answer) => socket.emit('response', { replyTo: requiestId, ...answer })
+                reply: (requestId, answer) => socket.emit('response', { replyTo: requestId, ...answer }),
+                pass: (key, data, callback) => request(socket.remoteSocket, key, data, callback)
             }, this.socketManager);
         });
     }
