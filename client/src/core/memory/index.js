@@ -101,7 +101,7 @@ export async function setupMemory() {
                     byPeerId: interactionsDict
                 },
                 activeCalls: {
-                    list: []
+                    bySpaceId: {}
                 }
             });
         });
@@ -182,6 +182,15 @@ export let Memory = {
                 this.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
                 return this;
             },
+            updateMembership: (member) => {
+                member.tower = this.temp.towers.byId[member.towerId];
+                member.room = this.temp.rooms.byId[member.roomId];
+                if (member.userId !== me.id) {
+                    this.temp.memberships.byTowerId[member.tower.id] = member;
+                }
+                this.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
+                return this;
+            },
             addInteraction: (interaction) => {
                 let peerId = (interaction.user1Id === me.id ? interaction.user2Id : interaction.user1Id);
                 this.temp.interactions.byPeerId[peerId] = interaction;
@@ -192,8 +201,21 @@ export let Memory = {
                 }
                 return this;
             },
+            addInvite: (invite) => {
+                invite.room = this.temp.rooms.byId[invite.roomId];
+                this.temp.invites.byId[invite.roomId] = invite;
+                return this;
+            },
             removeInvite: (roomId) => {
                 delete this.temp.invites.byId[roomId];
+                return this;
+            },
+            addActiveCall: (spaceId) => {
+                this.temp.activeCalls.byId[spaceId] = true;
+                return this;
+            },
+            removeActiveCall: (spaceId) => {
+                delete this.temp.activeCalls.byId[spaceId];
                 return this;
             }
         }
