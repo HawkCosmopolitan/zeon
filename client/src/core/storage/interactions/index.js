@@ -66,31 +66,6 @@ export async function dbFindInteractionByPeerId(peerId) {
     }
 }
 
-export function dbFindInteractionByWorkspaceId(workspaceId, callback) {
-    dbFindWorkspaceById(workspaceId).then(async ws => {
-        let roomId = ws.roomId;
-        dbFindRoomById(roomId).then(async room => {
-            dbFindTowerById(room.towerId).then(async tower => {
-                if (tower.secret.isContact) {
-                    let interactionRecord = (await db.find({
-                        selector: {
-                            type: { $eq: "interaction" },
-                            roomId: { $eq: roomId }
-                        }
-                    })).docs[0];
-                    let interaction = interactionRecord.data;
-                    let contactUserId = (interaction.user1Id === fetchMyUserId() ? interaction.user2Id : interaction.user1Id);
-                    dbFindUserById(contactUserId).then(contactUser => {
-                        callback(interaction, contactUser);
-                    });
-                } else {
-                    callback(null);
-                }
-            })
-        });
-    });
-}
-
 export async function dbUpdateInteractionById(interactionId, interaction) {
     let data = await db.find({
         selector: { type: { $eq: "interaction" }, id: { $eq: interactionId } },
@@ -115,3 +90,15 @@ export async function dbFetchInteractions() {
     });
     return data.docs.map(packet => packet.data);
 }
+
+let interactions = {
+    dbSaveInteraction,
+    dbUpdateInteraction,
+    dbSaveInteractionAtOnce,
+    dbSaveInteractionAtOnce,
+    dbFindInteractionById,
+    dbFindInteractionByPeerId,
+    dbUpdateInteractionById
+};
+
+export default interactions;

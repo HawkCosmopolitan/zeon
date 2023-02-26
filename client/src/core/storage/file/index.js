@@ -53,3 +53,13 @@ export async function dbFetchDocById(docId) {
         return null;
     }
 }
+
+let file = {
+    dbSaveDocument,
+    dbSavePreview,
+    dbUpdateDocument,
+    dbUpdatePreview,
+    dbFetchDocById
+};
+
+export default file;

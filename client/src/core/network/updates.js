@@ -34,7 +34,7 @@ export function attachUpdateListeners() {
             trx.addActiveCall(wArr[i]);
         }
         trx.commit();
-        publish(updates.ON_ACTIVE_CALLS_SYNC, data);
+        Bus.publish(updates.ON_ACTIVE_CALLS_SYNC, data);
     });
     socket.on('on-call-create', data => {
         Memory.startTrx().addActiveCall(data.spaceId).commit();

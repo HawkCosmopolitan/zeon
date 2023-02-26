@@ -26,3 +26,10 @@ export async function dbFetchData(docId) {
     }
     return data;
 }
+
+let data = {
+    dbSaveData,
+    dbFetchData
+};
+
+export default data;

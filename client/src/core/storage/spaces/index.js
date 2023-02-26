@@ -1,5 +1,5 @@
 
-import { me } from '../../memory';
+import { Memory } from '../../memory';
 import { db } from '../setup';
 
 export async function dbSaveTower(tower) {
@@ -306,7 +306,7 @@ export async function dbDeleteMemberById(memberId) {
 
 export async function dbFetchMMyMemberships() {
     let data = await db.find({
-        selector: { type: { $eq: "member" }, userId: { $eq: me.id } },
+        selector: { type: { $eq: "member" }, userId: { $eq: Memory.data.me.id } },
     });
     return data.docs.map(d => d.data);
 }
@@ -317,3 +317,15 @@ export async function dbFetchRoomMemberships(roomId) {
     });
     return data.docs.map(d => d.data);
 }
+
+let spaces = {
+    dbSaveTower, dbUpdateTower, dbSaveTowerAtOnce, dbFindTowerById, dbUpdateTowerById,
+    dbDeleteTowerById, dbFetchTowers, dbSaveRoomAtOnce, dbSaveRoom, dbUpdateRoom,
+    dbFindRoomById, dbFindFirstRoomOfTower, dbUpdateRoomById, dbDeleteRoomById,
+    dbFetchTowerRooms, dbSaveWorkspace, dbUpdateWorkspace, dbSaveWorkspaceAtOnce,
+    dbFindWorkspaceById, dbUpdateWorkspaceById, dbDeleteWorkspaceById, dbFetchRoomWorkspaces,
+    dbFindFirstWorkspaceOfRoom, dbSaveMember, dbUpdateMember, dbSaveMemberAtOnce,
+    dbUpdateMemberById, dbDeleteMemberById, dbFetchMMyMemberships, dbFetchRoomMemberships
+};
+
+export default spaces;

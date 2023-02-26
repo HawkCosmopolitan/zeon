@@ -1,4 +1,6 @@
 
+import PubSub from 'pubsub-js';
+
 let Bus = {
     publish: (topic, data) => {
         PubSub.publish(topic, data);

@@ -94,3 +94,16 @@ export async function dbFetchInvites() {
     });
     return data.docs.map(packet => packet.data);
 }
+
+let invites = {
+    dbSaveInvite,
+    dbUpdateInvite,
+    dbDeleteInviteById,
+    dbSaveInviteAtOnce,
+    dbFindInviteById,
+    dbFindInviteByInfo,
+    dbUpdateInviteById,
+    dbFetchInvites
+};
+
+export default invites;

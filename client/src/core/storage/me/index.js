@@ -46,3 +46,20 @@ export function saveAvatarBackColor(avatarBackColor) {
 export function fetchAvatarBackColor() {
     return localStorage.getItem('avatarBackColor');
 }
+
+let me = {
+    saveFirstName,
+    fetchFirstName,
+    saveLastName,
+    fetchLastName,
+    saveAvatarId,
+    fetchAvatarId,
+    saveMyUserId,
+    fetchMyUserId,
+    saveMyHomeId,
+    fetchMyHomeId,
+    saveAvatarBackColor,
+    fetchAvatarBackColor
+};
+
+export default me;

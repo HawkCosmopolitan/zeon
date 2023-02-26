@@ -1,11 +1,8 @@
 import PubSub from 'pubsub-js';
 import Bus from '../../events/bus';
 import topics from '../../events/topics.json';
-import { messagesDict, roomsDict, workspacesDict, workspacesDictById, towersList, membershipsDictByTowerId, towersDictById, roomsDictById, filespacesDict, blogsDict, sampleImages, membershipsDict, Memory } from '../../memory';
+import { Memory } from '../../memory';
 import { Storage } from '../../storage';
-import { fetchCurrentRoomId, fetchCurrentTowerId } from '../../storage/auth';
-import { fetchMyUserId } from '../../storage/me';
-import { dbSaveTower, dbSaveRoom, dbSaveWorkspace, dbUpdateTower, dbUpdateRoom, dbUpdateWorkspace, dbSaveMember, dbUpdateMember, dbFindTowerById, dbUpdateTowerById, dbFindRoomById, dbFindWorkspaceById, dbUpdateWorkspaceById, dbUpdateRoomById, dbDeleteTowerById, dbDeleteRoomById, dbDeleteWorkspaceById, dbFetchTowers, dbFetchTowerRooms, dbFetchRoomWorkspaces, dbSaveWorkspaceAtOnce } from '../../storage/spaces';
 import { request } from '../../utils/requests';
 
 export function createTower(title, avatarId, isPublic, callback) {
@@ -47,7 +44,7 @@ export function createRoom(title, avatarId, isPublic, towerId, floor, callback) 
     request('createRoom', { title, avatarId, isPublic, towerId, floor }, async res => {
         if (res.status === 1) {
 
-            Storage.spaces.dbSaveRoomAtOnce(room.id, rev, res.room);
+            Storage.spaces.dbSaveRoomAtOnce(res.room);
             Storage.spaces.dbSaveMemberAtOnce(res.member);
 
             let trx = Memory.startTrx();

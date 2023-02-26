@@ -1,9 +1,10 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { readUserById } from "../api/users";
 import { Storage } from "../storage";
 import { fetchSessionToken } from "../storage/auth";
 import { db } from "../storage/setup";
+import { useBetween } from 'use-between';
 
 export async function setupMemory() {
 
@@ -109,14 +110,10 @@ export async function setupMemory() {
 }
 
 const useMemoryInternal = () => {
-    const [count, setCount] = useState(0);
+    const [state, setState] = useState({});
     return {
-        state: () => {
-            count
-        },
-        modifyState: () => {
-            setCount
-        }
+        state: () => state,
+        modifyState: setState
     };
 };
 
@@ -175,9 +172,9 @@ export let Memory = {
             addMembership: (member) => {
                 member.tower = this.temp.towers.byId[member.towerId];
                 member.room = this.temp.rooms.byId[member.roomId];
-                if (member.userId !== me.id) {
+                if (member.userId !== this.temp.me.id) {
                     this.temp.memberships.byTowerId[member.tower.id] = member;
-                    readUserById(interaction.userId, user => { });
+                    readUserById(member.userId, user => { });
                 }
                 this.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
                 return this;
@@ -185,14 +182,14 @@ export let Memory = {
             updateMembership: (member) => {
                 member.tower = this.temp.towers.byId[member.towerId];
                 member.room = this.temp.rooms.byId[member.roomId];
-                if (member.userId !== me.id) {
+                if (member.userId !== this.temp.me.id) {
                     this.temp.memberships.byTowerId[member.tower.id] = member;
                 }
                 this.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
                 return this;
             },
             addInteraction: (interaction) => {
-                let peerId = (interaction.user1Id === me.id ? interaction.user2Id : interaction.user1Id);
+                let peerId = (interaction.user1Id === this.temp.me.id ? interaction.user2Id : interaction.user1Id);
                 this.temp.interactions.byPeerId[peerId] = interaction;
                 if (!this.temp.users.byId[peerId]) {
                     readUserById(peerId, (user, onlineState, lastSeen) => {

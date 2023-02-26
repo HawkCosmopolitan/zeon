@@ -71,3 +71,14 @@ export async function dbFetchUsers() {
     });
     return data.docs.map(packet => packet.data);
 }
+
+let users = {
+    dbSaveUser,
+    dbUpdateUser,
+    dbSaveUserAtOnce,
+    dbFindUserById,
+    dbUpdateUserById,
+    dbFetchUsers
+};
+
+export default users;

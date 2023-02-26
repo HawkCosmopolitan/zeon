@@ -4,6 +4,7 @@ import { request } from '../../utils/requests';
 import { Storage } from '../../storage';
 import Bus from '../../events/bus';
 import { Memory } from '../../memory';
+import config from '../../config.json';
 
 export function verify(auth0AccessToken, callback) {
     request('verifyUser', { auth0AccessToken: auth0AccessToken }, res => {
@@ -107,7 +108,7 @@ export function authenticate() {
                 userVisibleOnly: true,
                 applicationServerKey: publicVapidKey,
             });
-            await fetch(config.APIGATEWAY + "/subscribe", {
+            await fetch(config.PACKET_GATEWAY + "/subscribe", {
                 method: "POST",
                 body: JSON.stringify(subscription),
                 headers: {

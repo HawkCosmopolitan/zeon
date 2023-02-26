@@ -23,16 +23,6 @@ export function fetchCurrentRoomId() {
     return localStorage.getItem('currentRoomId');
 }
 
-export function saveCurrentWorkspaceId(workspaceId) {
-    localStorage.setItem('currentWorkspaceId', workspaceId);
-}
-
-export function fetchCurrentWorkspaceId() {
-    let cwi = localStorage.getItem('currentWorkspaceId');
-    if (cwi === null) return undefined;
-    return cwi;
-}
-
 export function saveCurrentTowerId(towerId) {
     localStorage.setItem('currentTowerId', towerId);
 }
@@ -40,3 +30,16 @@ export function saveCurrentTowerId(towerId) {
 export function fetchCurrentTowerId() {
     return localStorage.getItem('currentTowerId');
 }
+
+let auth = {
+    saveEmail,
+    fetchEmail,
+    saveSessionToken,
+    fetchSessionToken,
+    saveCurrentRoomId,
+    fetchCurrentRoomId,
+    saveCurrentTowerId,
+    fetchCurrentTowerId
+}
+
+export default auth;
