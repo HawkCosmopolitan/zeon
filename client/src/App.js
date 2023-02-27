@@ -1,24 +1,22 @@
-import { Component } from "react";
-import api from './core/api';
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    render() {
-        return (
-            <div>
-                Core of Zeon Client
-                <button onClick={() => {
-                    api.auth.verify('mohammadi_keyhan@outlook.com', res => {
-                        console.log(res);
-                        api.auth.setup('mohammadi_keyhan@outlook.com', 'kasper', 'ahmadi', res => {
-                            console.log(res);
-                        });
-                    });
-                }}>test !</button>
-            </div>
-        );
-    }
+import api from './core/api';
+import { Memory, useMemory } from "./core/memory";
+
+export default function App() {
+    let data = useMemory().state();
+    return (
+        <div>
+            {data.counter.value}
+            <button onClick={() => {
+                // api.auth.verify('mohammadi_keyhan@outlook.com', res => {
+                //     if (!res.user) {
+                //         api.auth.setup('mohammadi_keyhan@outlook.com', 'kasper', 'ahmadi', res => {
+
+                //         });
+                //     }
+                // });
+                Memory.startTrx().increase().commit();
+            }}>test !</button>
+        </div>
+    );
 }

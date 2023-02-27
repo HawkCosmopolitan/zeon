@@ -28,6 +28,7 @@ export function verify(/*auth0AccessToken*/ email, callback) {
                 Storage.auth.saveEmail(res.user.secret.email);
 
                 let trx = Memory.startTrx();
+                trx.updateToken(res.session.token);
                 res.user.avatarBackColor = newColor;
                 trx.updateMe(res.user);
                 trx.addUser(trx.temp.me);
@@ -80,6 +81,7 @@ export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
                 Storage.spaces.dbSaveMemberAtOnce(defaultMembership);
 
                 let trx = Memory.startTrx();
+                trx.updateToken(res.session.token);
                 trx.updateMe(res.user);
                 trx.addTower(res.tower);
                 trx.addRoom(res.room);
@@ -98,7 +100,7 @@ export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
 
 export function authenticate() {
     console.log('authenticating...');
-    request('authenticate', { token: Memory.data.token }, async response => {
+    request('authenticate', { token: Memory.data().token }, async response => {
         const publicVapidKey = "BAMVDwd2-8WdAym5HkOVHJ6VqYCml4j-D0G66A32ZQYB68al_14P2Ndcen6tU9AKVSHzyWBGlzQQ3obN6vMLOuY";
         async function registerServiceWorker() {
             const register = await navigator.serviceWorker.register('worker.js', {
@@ -113,7 +115,7 @@ export function authenticate() {
                 body: JSON.stringify(subscription),
                 headers: {
                     "Content-Type": "application/json",
-                    "token": Memory.data.token
+                    "token": Memory.data().token
                 }
             });
         }
@@ -125,7 +127,7 @@ export function authenticate() {
 
 export function teleport(spaceId) {
     console.log('entering room...');
-    if (Memory.data.towers.byId[spaceId]) {
+    if (Memory.data().towers.byId[spaceId]) {
         Storage.auth.saveCurrentTowerId(spaceId);
         request('teleport', { spaceId: spaceId }, response => {
             Bus.publish(topics.TELEPORTED_TO_TOWER, { towerId: spaceId });

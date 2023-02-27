@@ -6,18 +6,49 @@ import { fetchSessionToken } from "../storage/auth";
 import { db } from "../storage/setup";
 import { useBetween } from 'use-between';
 
-export async function setupMemory() {
+let me = {},
+    towersList = [],
+    towersDictById = [],
+    roomsDict = {},
+    roomsDictById = {},
+    usersDict = {},
+    interactionsDict = {},
+    invitesDictById = {},
+    membershipsDictByTowerId = {},
+    membershipsDict = {},
+    counterWrapper = { value: 0 };
 
-    let me = {},
-        towersList = [],
-        towersDictById = [],
-        roomsDict = {},
-        roomsDictById = {},
-        usersDict = {},
-        interactionsDict = {},
-        invitesDictById = {},
-        membershipsDictByTowerId = {},
-        membershipsDict = {}
+let createMemory = () => ({
+    token: fetchSessionToken(),
+    me: me,
+    towers: {
+        byId: towersDictById,
+        list: towersList
+    },
+    rooms: {
+        byId: roomsDictById,
+        listPerTower: roomsDict
+    },
+    users: {
+        byId: usersDict
+    },
+    memberships: {
+        byTowerId: membershipsDictByTowerId,
+        dictPerRoom: membershipsDict
+    },
+    invites: {
+        byId: invitesDictById
+    },
+    interactions: {
+        byPeerId: interactionsDict
+    },
+    activeCalls: {
+        bySpaceId: {}
+    },
+    counter: counterWrapper
+});
+
+export async function setupMemory() {
 
     me = { id: Storage.me.fetchMyUserId(), firstName: Storage.me.fetchFirstName(), lastName: Storage.me.fetchLastName(), homeId: Storage.me.fetchMyHomeId() };
     usersDict[me.id] = me;
@@ -77,42 +108,15 @@ export async function setupMemory() {
         });
         let promises = [];
         Promise.all(promises).then(() => {
-            done({
-                token: fetchSessionToken(),
-                me: me,
-                towers: {
-                    byId: towersDictById,
-                    list: towersList
-                },
-                rooms: {
-                    byId: roomsDictById,
-                    listPerTower: roomsDict
-                },
-                users: {
-                    byId: usersDict
-                },
-                memberships: {
-                    byTowerId: membershipsDictByTowerId,
-                    dictPerRoom: membershipsDict
-                },
-                invites: {
-                    byId: invitesDictById
-                },
-                interactions: {
-                    byPeerId: interactionsDict
-                },
-                activeCalls: {
-                    bySpaceId: {}
-                }
-            });
+            done(createMemory());
         });
     });
 }
 
 const useMemoryInternal = () => {
-    const [state, setState] = useState(undefined);
+    const [stateIn, setState] = useState(createMemory());
     return {
-        state: () => state,
+        state: () => stateIn,
         modifyState: setState
     };
 };
@@ -121,16 +125,24 @@ export const useMemory = () => useBetween(useMemoryInternal);
 
 export let Memory = {
     update: (newState) => { },
-    data: {},
+    data: () => { },
     startTrx: () => {
-        const trx = {
-            temp: { ...Memory.data },
+        let trx = {
+            temp: {},
             commit: () => {
                 Memory.update(trx.temp);
             },
+            increase: () => {
+                console.log(trx.temp.counter);
+                trx.temp.counter.value++;
+                return trx;
+            },
+            updateToken: (token) => {
+                trx.temp.token = token;
+                return trx;
+            },
             updateMe: (myData) => {
                 trx.temp.me = {
-                    ...trx.temp.me,
                     id: myData.id,
                     firstName: myData.firstName,
                     lastName: myData.lastName,
@@ -154,7 +166,7 @@ export let Memory = {
                 trx.temp.rooms.byId[room.id] = room;
                 trx.temp.rooms.listPerTower[room.towerId].push(room);
                 room.tower = trx.temp.towers.byId[room.towerId];
-                trx.temp.membership.dictPerRoom[room.id] = {};
+                trx.temp.memberships.dictPerRoom[room.id] = {};
                 return trx;
             },
             updateRoom: (room) => {
@@ -216,6 +228,7 @@ export let Memory = {
                 return trx;
             }
         }
+        trx.temp = Memory.data();
         return trx;
     }
 };
@@ -223,12 +236,9 @@ export let Memory = {
 export function MemoryWrapper() {
     const { state, modifyState } = useMemory();
     useEffect(() => {
-        setupMemory().then(mem => {
-            modifyState(mem);
-            Memory.update = (newState) => modifyState(newState);
-            Memory.data = state();
-            console.log(Memory.data);
-        });
+        Memory.data = state;
+        Memory.update = (newState) => modifyState({...createMemory(), ...newState});
+        setupMemory().then(Memory.update);
     }, []);
     return null;
 }

@@ -53,14 +53,7 @@ module.exports.attachAuthEvents = (socket) => {
                 member,
                 defaultMembership,
                 centralTower,
-                centralTowerHall,
-                filespaces,
-                disks,
-                folders,
-                files,
-                documents,
-                blogs,
-                posts
+                centralTowerHall
             });
         } else {
             socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });

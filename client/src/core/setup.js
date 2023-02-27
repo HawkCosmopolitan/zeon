@@ -17,6 +17,8 @@ export class Core extends Component {
     constructor(props) {
         super(props);
         this.loadCore = this.loadCore.bind(this);
+    }
+    componentDidMount() {
         this.loadCore();
     }
     render() {

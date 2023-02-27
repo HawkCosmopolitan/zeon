@@ -111,9 +111,9 @@ module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, la
             }, session);
             member = await MemberFactory.instance().create({
                 id: makeUniqueId(),
-                userId: user._id.toHexString(),
-                roomId: room._id.toHexString(),
-                towerId: tower._id.toHexString(),
+                userId: user.id,
+                roomId: room.id,
+                towerId: tower.id,
                 secret: {
                     permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
                 }
