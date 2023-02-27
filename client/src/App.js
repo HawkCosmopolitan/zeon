@@ -13,6 +13,9 @@ export default class App extends Component {
                 <button onClick={() => {
                     api.auth.verify('mohammadi_keyhan@outlook.com', res => {
                         console.log(res);
+                        api.auth.setup('mohammadi_keyhan@outlook.com', 'kasper', 'ahmadi', res => {
+                            console.log(res);
+                        });
                     });
                 }}>test !</button>
             </div>

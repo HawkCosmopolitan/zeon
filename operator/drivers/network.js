@@ -35,7 +35,7 @@ class NetworkDriver {
             console.log('a socket connected');
             attachRouter({
                 on: (key, callback) => socket.on(key, callback),
-                reply: (requestId, answer) => socket.emit('response', { replyTo: requestId, ...answer })
+                reply: (requestId, answer) => socket.emit('response', { replyToInternal: requestId, ...answer })
             });
         });
     }

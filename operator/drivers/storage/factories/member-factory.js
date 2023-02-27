@@ -1,6 +1,4 @@
 
-let Member;
-
 class MemberFactory {
     static inst;
     static initialize() {
@@ -22,7 +20,7 @@ class MemberFactory {
         this.remove = this.remove.bind(this);
     }
     async create(initData, session) {
-        return await this.Model.create([initData], { session })[0];
+        return (await this.Model.create([initData], { session }))[0];
     }
     async read(offset, count, query) {
         let cursor;

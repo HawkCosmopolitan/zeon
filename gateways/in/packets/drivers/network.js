@@ -47,7 +47,7 @@ class NetworkDriver {
             let remoteSocket = io(`http://localhost:${ports.OPERATOR_PORT}`);
             socket.remoteSocket = remoteSocket;
             socket.on('disconnect', () => socket.remoteSocket.close());
-            setupResponseReceiver(socket);
+            setupResponseReceiver(socket.remoteSocket);
             attachRouter({
                 on: (key, callback) => socket.on(key, callback),
                 reply: (requestId, answer) => socket.emit('response', { replyTo: requestId, ...answer }),

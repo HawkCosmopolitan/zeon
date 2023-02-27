@@ -7,9 +7,11 @@ const MemoryDriver = require('../../memory');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {
-        let { success, session, user, towers, rooms, myMemberships, allMemberships, interactions } = await dbVerifyUser(data);
+        let r = await dbVerifyUser(data);
+        console.log(r);
+        let { success, session, user, towers, rooms, myMemberships, allMemberships, interactions } = r;
         if (success) {
-            socket.reply(data.replyTo, {
+            socket.reply(data.replyToInternal, {
                 status: 1,
                 session: session !== null ? session : undefined,
                 user: user !== null ? user : undefined,
@@ -20,7 +22,7 @@ module.exports.attachAuthEvents = (socket) => {
                 interactions: interactions
             });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('setupUser', async (data) => {
@@ -42,7 +44,7 @@ module.exports.attachAuthEvents = (socket) => {
                 MemoryDriver.instance().save(`rights:${room.id}/${user.id}`, JSON.stringify(member.secret.permissions)),
                 MemoryDriver.instance().save(`rights:${centralTowerHall.id}/${user.id}`, JSON.stringify(member.secret.permissions)) 
             ]);
-            socket.reply(data.replyTo, {
+            socket.reply(data.replyToInternal, {
                 status: 1,
                 session,
                 user,
@@ -61,7 +63,7 @@ module.exports.attachAuthEvents = (socket) => {
                 posts
             });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

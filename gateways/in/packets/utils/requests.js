@@ -19,18 +19,17 @@ module.exports = {
     setupResponseReceiver: (socket) => {
         socket.on('response', data => {
             console.info(data);
-            let callback = requestDictionary[data.replyTo];
-            if (callback !== undefined) {
+            let callback = requestDictionary[data.replyToInternal];
+            if (callback) {
                 callback(data);
-                delete requestDictionary[data.replyTo];
+                delete requestDictionary[data.replyToInternal];
             }
         });
     },
     request: (socket, topic, data, callback) => {
-        data.replyTo = makeUniqueId();
-        requestDictionary[data.replyTo] = callback;
+        data.replyToInternal = makeUniqueId();
+        requestDictionary[data.replyToInternal] = callback;
         requestQueue.push({ socket, topic, data });
         triggerQueue();
     }
 }
-

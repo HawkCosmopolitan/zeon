@@ -110,7 +110,7 @@ export async function setupMemory() {
 }
 
 const useMemoryInternal = () => {
-    const [state, setState] = useState({});
+    const [state, setState] = useState(undefined);
     return {
         state: () => state,
         modifyState: setState
@@ -123,14 +123,14 @@ export let Memory = {
     update: (newState) => { },
     data: {},
     startTrx: () => {
-        return {
-            temp: { ...this.data },
+        const trx = {
+            temp: { ...Memory.data },
             commit: () => {
-                Memory.update(this.temp);
+                Memory.update(trx.temp);
             },
             updateMe: (myData) => {
-                this.temp.me = {
-                    ...this.temp.me,
+                trx.temp.me = {
+                    ...trx.temp.me,
                     id: myData.id,
                     firstName: myData.firstName,
                     lastName: myData.lastName,
@@ -138,84 +138,85 @@ export let Memory = {
                     email: myData.secret.email,
                     avatarBackColor: myData.avatarBackColor
                 };
-                return this;
+                return trx;
             },
             addTower: (tower) => {
-                this.temp.towers.byId[tower.id] = tower;
-                this.temp.towers.list.push(tower);
-                this.temp.rooms.listPerTower[tower.id] = [];
-                return this;
+                trx.temp.towers.byId[tower.id] = tower;
+                trx.temp.towers.list.push(tower);
+                trx.temp.rooms.listPerTower[tower.id] = [];
+                return trx;
             },
             updateTower: (tower) => {
-                this.temp.towers.byId[tower.id] = tower;
-                return this;
+                trx.temp.towers.byId[tower.id] = tower;
+                return trx;
             },
             addRoom: (room) => {
-                this.temp.rooms.byId[room.id] = room;
-                this.temp.rooms.listPerTower[room.towerId].push(room);
-                room.tower = this.temp.towers.byId[room.towerId];
-                this.temp.membership.dictPerRoom[room.id] = {};
-                return this;
+                trx.temp.rooms.byId[room.id] = room;
+                trx.temp.rooms.listPerTower[room.towerId].push(room);
+                room.tower = trx.temp.towers.byId[room.towerId];
+                trx.temp.membership.dictPerRoom[room.id] = {};
+                return trx;
             },
             updateRoom: (room) => {
-                this.temp.rooms.byId[room.id] = room;
-                return this;
+                trx.temp.rooms.byId[room.id] = room;
+                return trx;
             },
             addUser: (user) => {
-                this.temp.users[user.id] = user;
-                return this;
+                trx.temp.users.byId[user.id] = user;
+                return trx;
             },
             updateUser: (user) => {
-                this.temp.users[user.id] = user;
-                return this;
+                trx.temp.users.byId[user.id] = user;
+                return trx;
             },
             addMembership: (member) => {
-                member.tower = this.temp.towers.byId[member.towerId];
-                member.room = this.temp.rooms.byId[member.roomId];
-                if (member.userId !== this.temp.me.id) {
-                    this.temp.memberships.byTowerId[member.tower.id] = member;
+                member.tower = trx.temp.towers.byId[member.towerId];
+                member.room = trx.temp.rooms.byId[member.roomId];
+                if (member.userId !== trx.temp.me.id) {
+                    trx.temp.memberships.byTowerId[member.tower.id] = member;
                     readUserById(member.userId, user => { });
                 }
-                this.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
-                return this;
+                trx.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
+                return trx;
             },
             updateMembership: (member) => {
-                member.tower = this.temp.towers.byId[member.towerId];
-                member.room = this.temp.rooms.byId[member.roomId];
-                if (member.userId !== this.temp.me.id) {
-                    this.temp.memberships.byTowerId[member.tower.id] = member;
+                member.tower = trx.temp.towers.byId[member.towerId];
+                member.room = trx.temp.rooms.byId[member.roomId];
+                if (member.userId !== trx.temp.me.id) {
+                    trx.temp.memberships.byTowerId[member.tower.id] = member;
                 }
-                this.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
-                return this;
+                trx.temp.memberships.dictPerRoom[member.roomId][member.userId] = member;
+                return trx;
             },
             addInteraction: (interaction) => {
-                let peerId = (interaction.user1Id === this.temp.me.id ? interaction.user2Id : interaction.user1Id);
-                this.temp.interactions.byPeerId[peerId] = interaction;
-                if (!this.temp.users.byId[peerId]) {
+                let peerId = (interaction.user1Id === trx.temp.me.id ? interaction.user2Id : interaction.user1Id);
+                trx.temp.interactions.byPeerId[peerId] = interaction;
+                if (!trx.temp.users.byId[peerId]) {
                     readUserById(peerId, (user, onlineState, lastSeen) => {
-                        this.temp.towers.byId[this.temp.rooms.byId[interaction.roomId]?.towerId].contact = user;
+                        trx.temp.towers.byId[trx.temp.rooms.byId[interaction.roomId]?.towerId].contact = user;
                     });
                 }
-                return this;
+                return trx;
             },
             addInvite: (invite) => {
-                invite.room = this.temp.rooms.byId[invite.roomId];
-                this.temp.invites.byId[invite.roomId] = invite;
-                return this;
+                invite.room = trx.temp.rooms.byId[invite.roomId];
+                trx.temp.invites.byId[invite.roomId] = invite;
+                return trx;
             },
             removeInvite: (roomId) => {
-                delete this.temp.invites.byId[roomId];
-                return this;
+                delete trx.temp.invites.byId[roomId];
+                return trx;
             },
             addActiveCall: (spaceId) => {
-                this.temp.activeCalls.byId[spaceId] = true;
-                return this;
+                trx.temp.activeCalls.byId[spaceId] = true;
+                return trx;
             },
             removeActiveCall: (spaceId) => {
-                delete this.temp.activeCalls.byId[spaceId];
-                return this;
+                delete trx.temp.activeCalls.byId[spaceId];
+                return trx;
             }
         }
+        return trx;
     }
 };
 
@@ -226,6 +227,7 @@ export function MemoryWrapper() {
             modifyState(mem);
             Memory.update = (newState) => modifyState(newState);
             Memory.data = state();
+            console.log(Memory.data);
         });
     }, []);
     return null;

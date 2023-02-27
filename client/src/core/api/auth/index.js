@@ -20,17 +20,17 @@ export function verify(/*auth0AccessToken*/ email, callback) {
                 let newColor = (Math.random() * 10).toString()[0];
                 res.user.avatarBackColor = newColor;
                 Storage.me.saveAvatarBackColor(newColor);
-                Storage.me.saveSessionToken(res.session.token);
+                Storage.auth.saveSessionToken(res.session.token);
                 Storage.me.saveMyUserId(res.user.id);
                 Storage.me.saveFirstName(res.user.firstName);
                 Storage.me.saveLastName(res.user.lastName);
                 Storage.me.saveMyHomeId(res.user.secret.homeId);
-                Storage.me.saveEmail(res.user.secret.email);
+                Storage.auth.saveEmail(res.user.secret.email);
 
                 let trx = Memory.startTrx();
                 res.user.avatarBackColor = newColor;
                 trx.updateMe(res.user);
-                trx.addUser(Memory.data.me);
+                trx.addUser(trx.temp.me);
                 towers.forEach(tower => { Storage.spaces.dbSaveTowerAtOnce(tower); trx.addTower(tower); });
                 rooms.forEach(room => { Storage.spaces.dbSaveRoomAtOnce(room); trx.addRoom(room); });
                 myMemberships.forEach(member => { Storage.spaces.dbSaveMemberAtOnce(member); trx.addMembership(member); });
@@ -67,7 +67,7 @@ export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
 
                 Storage.auth.saveEmail(res.user.secret.email);
                 Storage.me.saveAvatarBackColor(newColor);
-                Storage.me.saveSessionToken(res.session.token);
+                Storage.auth.saveSessionToken(res.session.token);
                 Storage.me.saveMyUserId(res.user.id);
                 Storage.me.saveFirstName(firstName);
                 Storage.me.saveLastName(lastName);
