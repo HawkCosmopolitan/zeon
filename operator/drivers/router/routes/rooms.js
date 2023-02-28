@@ -4,7 +4,7 @@ const { dbReadRooms } = require('../../storage/transactions/read-rooms');
 const { dbUpdateRoom } = require('../../storage/transactions/update-room');
 const { dbDeleteRoom } = require('../../storage/transactions/delete-room');
 
-const errors = require('../../../../constants/errors.json');
+const errors = require('../../../../../constants/errors.json');
 const { dbReadRoomById } = require('../../storage/transactions/read-room-by-id');
 let MemoryDriver = require('../../memory');
 

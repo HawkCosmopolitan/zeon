@@ -1,0 +1,31 @@
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <input type="file" name="inputFile" id="inputFile" />
+</body>
+<script>
+    let inputFile = document.getElementById('inputFile');
+    inputFile.onchange = e => {
+        var data = new FormData()
+        data.append('file', inputFile.files[0]);
+        fetch('http://localhost:3001/files/upload', {
+            method: 'POST',
+            body: data,
+            headers: {
+                'filetype': 'document',
+                'extension': 'pdf',
+                'ispublic': 'true',
+                'userid': '1',
+                'roomid': '1',
+                'ismember': 'true',
+                'size': 100 
+            }
+        });
+    };
+</script>
+
+</html>

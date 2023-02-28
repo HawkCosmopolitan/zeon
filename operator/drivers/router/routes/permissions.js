@@ -3,7 +3,7 @@ const { dbCreateInvite } = require('../../storage/transactions/create-invite');
 const { dbCancelInvite } = require('../../storage/transactions/cancel-invite');
 const { dbAcceptInvite } = require('../../storage/transactions/accept-invite');
 const { dbDeclineInvite } = require('../../storage/transactions/decline-invite');
-const errors = require('../../../../constants/errors.json');
+const errors = require('../../../../../constants/errors.json');
 const { dbModifyPermissions } = require('../../storage/transactions/modify-permissions');
 const { dbFetchPermissions } = require('../../storage/transactions/fetch-permissions');
 

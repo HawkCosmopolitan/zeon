@@ -2,7 +2,7 @@
 const { dbReadInteractions } = require('../../storage/transactions/read-interactions');
 const { dbCreateInteraction } = require('../../storage/transactions/create-interaction');
 
-const errors = require('../../../../constants/errors.json');
+const errors = require('../../../../../constants/errors.json');
 let MemoryDriver = require('../../memory');
 
 module.exports.attachInteractionEvents = (socket) => {

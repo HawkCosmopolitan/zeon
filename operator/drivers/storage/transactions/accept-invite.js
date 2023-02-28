@@ -1,15 +1,15 @@
 
 const mongoose = require('mongoose');
 let { RoomInvite, Member, Room, Tower, Workspace } = require('../schemas/schemas');
-let { isIdEmpty } = require('../../../../shared/utils/numbers');
-const permissions = require('../../../../constants/permissions.json');
-const updates = require('../../../../constants/updates.json');
-const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
+let { isIdEmpty } = require('../../../../../shared/utils/numbers');
+const permissions = require('../../../../../constants/permissions.json');
+const updates = require('../../../../../constants/updates.json');
+const { secureObject, secureAdmins } = require('../../../../../shared/utils/filter');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
 const MemberFactory = require('../factories/member-factory');
-const { makeUniqueId } = require('../../../../shared/utils/id-generator');
+const { makeUniqueId } = require('../../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (RoomInvite === undefined) {

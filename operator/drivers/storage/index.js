@@ -1,5 +1,5 @@
 
-const { setupDatabase } = require('../storage/initiators/main-initiator');
+const { setupDatabase } = require('./initiators/main-initiator');
 const UserFactory = require('./factories/user-factory');
 const TowerFactory = require('./factories/tower-factory');
 const RoomFactory = require('./factories/room-factory');

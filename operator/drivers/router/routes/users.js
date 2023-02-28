@@ -2,7 +2,7 @@
 const { dbReadUsers } = require('../../storage/transactions/read-users');
 const { dbReadUserById } = require('../../storage/transactions/read-user-by-id');
 
-const errors = require('../../../../constants/errors.json');
+const errors = require('../../../../../constants/errors.json');
 
 module.exports.attachUserEvents = (socket) => {
     socket.on('readUsers', async (data) => {

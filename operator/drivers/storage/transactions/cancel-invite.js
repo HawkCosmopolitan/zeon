@@ -1,8 +1,8 @@
 
 const mongoose = require('mongoose');
 let { Tower, Room, RoomInvite } = require('../schemas/schemas');
-let { isIdEmpty } = require('../../../../shared/utils/numbers');
-const updates = require('../../../../constants/updates.json');
+let { isIdEmpty } = require('../../../../../shared/utils/numbers');
+const updates = require('../../../../../constants/updates.json');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
 const TowerFactory = require('../factories/tower-factory');
