@@ -1,4 +1,6 @@
 
+const mongoose = require('mongoose');
+
 class TowerFactory {
     static inst;
     static initialize() {

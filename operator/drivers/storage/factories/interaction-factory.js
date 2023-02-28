@@ -1,4 +1,6 @@
 
+const mongoose = require('mongoose');
+
 class InteractionFactory {
     static inst;
     static initialize() {

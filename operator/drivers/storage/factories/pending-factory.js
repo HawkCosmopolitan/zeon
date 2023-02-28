@@ -1,4 +1,6 @@
 
+const mongoose = require('mongoose');
+
 class PendingFactory {
     static inst;
     static initialize() {

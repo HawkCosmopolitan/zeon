@@ -14,6 +14,7 @@ const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/interaction-factory');
 const { makeUniqueId } = require('../../../../shared/utils/id-generator');
+const MemoryDriver = require('../../memory');
 
 const checkImports = () => {
     if (Pending === undefined) {
@@ -59,6 +60,7 @@ module.exports.dbVerifyUser = async ({ /*auth0AccessToken*/ email }) => {
                     token: uuidv4(),
                     userId: user.id
                 }, session);
+                await MemoryDriver.instance().save(`auth:${userSession.token}`, user.id);
                 await UserFactory.instance().update({ id: user.id }, { $push: { sessionIds: userSession.id } }, session);
                 user = await UserFactory.instance().find({ id: user.id }, session);
                 let memberships = await MemberFactory.instance().findGroup({ userId: user.id }, session);

@@ -1,6 +1,5 @@
 
 const mongoose = require('mongoose');
-let RoomInvite;
 
 class InviteFactory {
     static inst;

@@ -11,8 +11,8 @@ const InviteFactory = require('./factories/invite-factory');
 
 class StorageDriver {
     static inst;
-    static initialize() {
-        return new StorageDriver();
+    static initialize(callback) {
+        return new StorageDriver(callback);
     }
     static instance() {
         return StorageDriver.inst;
@@ -26,7 +26,7 @@ class StorageDriver {
     pendingFactory;
     interactionFactory;
     sessionFactory;
-    constructor() {
+    constructor(callback) {
         StorageDriver.inst = this;
         setupDatabase().then(() => {
             this.userFactory = UserFactory.initialize();
@@ -37,6 +37,7 @@ class StorageDriver {
             this.pendingFactory = PendingFactory.initialize();
             this.interactionFactory = InteractonFactory.initialize();
             this.sessionFactory = SessionFactory.initialize();
+            if (callback) callback();
         });
     }
 }

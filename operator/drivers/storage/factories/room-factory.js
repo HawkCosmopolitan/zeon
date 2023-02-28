@@ -1,5 +1,5 @@
 
-let Room;
+const mongoose = require('mongoose');
 
 class RoomFactory {
     static inst;

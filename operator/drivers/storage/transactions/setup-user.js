@@ -18,6 +18,7 @@ const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/interaction-factory');
 const { makeUniqueId } = require('../../../../shared/utils/id-generator');
+const MemoryDriver = require('../../memory');
 
 const checkImports = () => {
     if (Pending === undefined) {
@@ -73,6 +74,7 @@ module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, la
                 token: uuidv4(),
                 userId: userGenedId,
             }, session);
+            await MemoryDriver.instance().save(`auth:${userSession.token}`, userGenedId);
             let towerGenedId = makeUniqueId();
             let roomGenedId = makeUniqueId();
             user = await UserFactory.instance().create({
@@ -118,6 +120,9 @@ module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, la
                     permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
                 }
             }, session);
+            await MemoryDriver.instance().save(
+                `rights:${member.roomId}/${member.userId}`, JSON.stringify(member.secret.permissions)
+            );
             defaultMembership = await MemberFactory.instance().create({
                 id: makeUniqueId(),
                 userId: user.id,
@@ -127,6 +132,9 @@ module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, la
                     permissions: permissions.DEFAULT_ROOM_ADMIN_PERMISSIONS
                 }
             }, session);
+            await MemoryDriver.instance().save(
+                `rights:${defaultMembership.roomId}/${defaultMembership.userId}`, JSON.stringify(defaultMembership.secret.permissions)
+            );
             pending = await PendingFactory.instance().create({
                 id: makeUniqueId(), email: email, userId: userGenedId
             }, session);

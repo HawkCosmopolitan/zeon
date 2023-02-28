@@ -1,4 +1,6 @@
 
+const mongoose = require('mongoose');
+
 class UserFactory {
     static inst;
     static initialize() {
@@ -25,18 +27,23 @@ class UserFactory {
     async read(offset, count, query) {
         let cursor;
         let collection = mongoose.connection.db.collection(this.ModelName);
-        if ((await collection.count()) - offset >= 0) {
-            if (query) {
-                cursor = collection.find(query).skip(offset).limit(count);
+        if (offset && count && query) {
+            if ((await collection.count()) - offset >= 0) {
+                if (query) {
+                    cursor = collection.find(query).skip(offset).limit(count);
+                } else {
+                    cursor = collection.find({}).skip(offset).limit(count);
+                }
             } else {
-                cursor = collection.find({}).skip(offset).limit(count);
+                if (query) {
+                    cursor = collection.find(query).skip(0).limit(count);
+                } else {
+                    cursor = collection.find({}).skip(0).limit(count);
+                }
             }
+            return await cursor.toArray();
         } else {
-            if (query) {
-                cursor = collection.find(query).skip(0).limit(count);
-            } else {
-                cursor = collection.find({}).skip(0).limit(count);
-            }
+            cursor = collection.find({});
         }
         return await cursor.toArray();
     }

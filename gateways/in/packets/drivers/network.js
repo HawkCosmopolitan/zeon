@@ -19,8 +19,9 @@ class NetworkDriver {
     socketServer;
     app;
     httpServer;
+    sockets = {};
     socketManager = {
-        sockets: {},
+        sockets: this.sockets,
         addSocketToDictionary: (key, socket) => {
             this.sockets[key] = socket;
         },
@@ -49,6 +50,7 @@ class NetworkDriver {
             socket.on('disconnect', () => socket.remoteSocket.close());
             setupResponseReceiver(socket.remoteSocket);
             attachRouter({
+                id: socket.id,
                 on: (key, callback) => socket.on(key, callback),
                 reply: (requestId, answer) => socket.emit('response', { replyTo: requestId, ...answer }),
                 pass: (key, data, callback) => request(socket.remoteSocket, key, data, callback)

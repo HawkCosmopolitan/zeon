@@ -25,18 +25,13 @@ class MemoryDriver {
         if (callback) callback();
     }
     fetch(key, callback) {
-        this.redisClient.get(key).then(function (err, obj) {
-            if (err) {
-                console.log(err);
-                if (callback) callback(undefined);
-                return;
-            }
+        this.redisClient.get(key).then(function (obj) {
             if (!obj) {
                 console.log('key not found');
                 if (callback) callback(undefined);
                 return;
             }
-            if (callback) callback(obj.value);
+            if (callback) callback(obj);
         });
     }
     constructor() {
@@ -71,7 +66,7 @@ class MemoryDriver {
                     secure: true
                 }
             }));
-            app.listen(ports.REDIS_SESSION_PACKETS_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PACKETS_PORT}`) });
+            app.listen(ports.REDIS_SESSION_PACKETS_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PACKETS_PORT}`) }); 
         });
     }
 }

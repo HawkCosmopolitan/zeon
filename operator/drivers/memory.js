@@ -5,6 +5,8 @@ const ports = require('../../constants/ports.json');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const secrets = require('../../constants/secrets.json');
+let SessionFactory = require('./storage/factories/session-factory');
+let MemberFactory = require('./storage/factories/member-factory');
 
 const app = express();
 const cors = require("cors");
@@ -24,24 +26,32 @@ class MemoryDriver {
         await this.redisClient.set(key, value);
     }
     fetch(key, callback) {
-        this.redisClient.get(key).then(function (err, obj) {
-            if (err) {
-                console.log(err);
-                if (callback) callback(undefined);
-                return;
-            }
+        this.redisClient.get(key).then(function (obj) {
             if (!obj) {
                 console.log('key not found');
                 if (callback) callback(undefined);
                 return;
             }
-            if (callback) callback(obj.value);
+            if (callback) callback(obj);
+        });
+    }
+    loadAuthIntoMemory() {
+        SessionFactory.instance().read().then(ss => {
+            ss.forEach(s => {
+                this.save(`auth:${s.token}`, s.userId);
+            });
+        });
+        MemberFactory.instance().read().then(ms => {
+            ms.forEach(m => {
+                this.save(`rights:${m.roomId}/${m.userId}`, JSON.stringify(m.secret.permissions));
+            });
         });
     }
     constructor() {
         MemoryDriver.inst = this;
         this.save = this.save.bind(this);
         this.fetch = this.fetch.bind(this);
+        this.loadAuthIntoMemory = this.loadAuthIntoMemory.bind(this);
         this.redisClient = redis.createClient({
             host: 'localhost',
             port: ports.REDIS_PORT
@@ -71,6 +81,7 @@ class MemoryDriver {
                 }
             }));
             app.listen(ports.REDIS_SESSION_OPERATOR_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_OPERATOR_PORT}`) });
+            this.loadAuthIntoMemory();
         });
     }
 }

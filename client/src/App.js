@@ -8,14 +8,13 @@ export default function App() {
         <div>
             {data.counter.value}
             <button onClick={() => {
-                // api.auth.verify('mohammadi_keyhan@outlook.com', res => {
-                //     if (!res.user) {
-                //         api.auth.setup('mohammadi_keyhan@outlook.com', 'kasper', 'ahmadi', res => {
+                api.auth.verify('mohammadi_keyhan@outlook.com', res => {
+                    if (!res.user) {
+                        api.auth.setup('mohammadi_keyhan@outlook.com', 'kasper', 'ahmadi', res => {
 
-                //         });
-                //     }
-                // });
-                Memory.startTrx().increase().commit();
+                        });
+                    }
+                });
             }}>test !</button>
         </div>
     );

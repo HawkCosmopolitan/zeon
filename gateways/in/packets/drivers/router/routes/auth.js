@@ -19,7 +19,9 @@ module.exports = {
                 socket.userId = userId;
                 socketManager.addSocketToDictionary(socket.userId, socket);
                 console.log(`user logged in with socket id : ${socket.id}`);
-                socket.reply(replyTo, {});
+                socket.reply(replyTo, { success: true });
+            } else {
+                socket.reply(replyTo, { success: false });
             }
         });
     },

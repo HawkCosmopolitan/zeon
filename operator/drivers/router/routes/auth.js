@@ -1,9 +1,7 @@
 
-const { dbCreateUser } = require('../../storage/transactions/create-user');
 const { dbVerifyUser } = require('../../storage/transactions/verify-user');
 const { dbSetupUser } = require('../../storage/transactions/setup-user');
 const errors = require('../../../../constants/errors.json');
-const MemoryDriver = require('../../memory');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {
@@ -40,10 +38,6 @@ module.exports.attachAuthEvents = (socket) => {
             centralTowerHall
         } = r;
         if (success) {
-            Promise.all([
-                MemoryDriver.instance().save(`rights:${room.id}/${user.id}`, JSON.stringify(member.secret.permissions)),
-                MemoryDriver.instance().save(`rights:${centralTowerHall.id}/${user.id}`, JSON.stringify(member.secret.permissions)) 
-            ]);
             socket.reply(data.replyToInternal, {
                 status: 1,
                 session,
