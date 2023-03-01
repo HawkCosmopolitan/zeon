@@ -3,24 +3,24 @@ const { dbReadUsers } = require('../../storage/transactions/read-users');
 const { dbReadUserById } = require('../../storage/transactions/read-user-by-id');
 
 const errors = require('../../../../../constants/errors.json');
+const UserFactory = require('../../storage/factories/user-factory');
 
 module.exports.attachUserEvents = (socket) => {
     socket.on('readUsers', async (data) => {
-        if (socket.user !== undefined) {
-            let { success, users } = await dbReadUsers(data, socket.user.id, socket.roomId);
-            if (success) {
-                socket.reply(data.replyTo, { status: 1, users: users });
-            } else {
-                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
-            }
+        let { success, users } = await dbReadUsers(data, data.userId, data.roomId);
+        if (success) {
+            socket.reply(data.replyTo, { status: 1, users: users });
+        } else {
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('readUserById', async (data) => {
-        let user = getUser(data.targetUserId);
+        let user = await UserFactory.instance().find(data.targetUserId);
         if (user) {
-            let onlineState = isUserOnline(user.id);
+            let onlineState = user.secret.isOnline;
+            let lastSeen = user.sucret.lastSeen;
             if (!onlineState) {
-                socket.reply(data.replyTo, { status: 1, user: user, onlineState: false, lastSeen: lastSeen(user.id) });
+                socket.reply(data.replyTo, { status: 1, user: user, onlineState: false, lastSeen: lastSeen });
             } else {
                 socket.reply(data.replyTo, { status: 1, user: user, onlineState: true });
             }
