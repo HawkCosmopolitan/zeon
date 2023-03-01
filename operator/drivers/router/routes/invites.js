@@ -8,76 +8,66 @@ let MemoryDriver = require('../../memory');
 
 module.exports.attachInviteEvents = (socket) => {
     socket.on('createInvite', async (data) => {
-        if (socket.user !== undefined && socket.rights?.inviteUser) {
-            let { success, invite, update } = await dbCreateInvite(data, socket.user.id);
-            if (success) {
-                socket.reply(data.replyTo, { status: 1, invite: invite });
-                handleUpdate(update);
-            } else {
-                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
-            }
+        let { success, invite, update } = await dbCreateInvite(data, socket.user.id);
+        if (success) {
+            socket.reply(data.replyTo, { status: 1, invite: invite });
+        } else {
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('cancelInvite', async (data) => {
-        if (socket.user !== undefined) {
-            let { success, update } = await dbCancelInvite(data, socket.user.id);
+        let { success, update } = await dbCancelInvite(data, socket.user.id);
+        if (success) {
+            socket.reply(data.replyTo, { status: 1 });
+        } else {
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+        }
+    });
+    socket.on('acceptInvite', async (data) => {
+        dbAcceptInvite(data, socket.user.id, ({
+            success,
+            member,
+            tower,
+            room,
+            rooms,
+            memberships,
+            filespaces,
+            disks,
+            folders,
+            files,
+            documents,
+            blogs,
+            posts,
+            update }) => {
             if (success) {
-                socket.reply(data.replyTo, { status: 1 });
+                MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member.secret.permissions));
+                socket.reply(data.replyTo, {
+                    status: 1,
+                    member,
+                    tower,
+                    room,
+                    rooms,
+                    memberships,
+                    filespaces,
+                    disks,
+                    folders,
+                    files,
+                    documents,
+                    blogs,
+                    posts
+                });
                 handleUpdate(update);
             } else {
                 socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
             }
-        }
-    });
-    socket.on('acceptInvite', async (data) => {
-        if (socket.user !== undefined) {
-            dbAcceptInvite(data, socket.user.id, ({
-                success,
-                member,
-                tower,
-                room,
-                rooms,
-                memberships,
-                filespaces,
-                disks,
-                folders,
-                files,
-                documents,
-                blogs,
-                posts,
-                update }) => {
-                if (success) {
-                    MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member.secret.permissions));
-                    socket.reply(data.replyTo, {
-                        status: 1,
-                        member,
-                        tower,
-                        room,
-                        rooms,
-                        memberships,
-                        filespaces,
-                        disks,
-                        folders,
-                        files,
-                        documents,
-                        blogs,
-                        posts
-                    });
-                    handleUpdate(update);
-                } else {
-                    socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
-                }
-            });
-        }
+        });
     });
     socket.on('declineInvite', async (data) => {
-        if (socket.user !== undefined) {
-            let { success } = await dbDeclineInvite(data, socket.user.id);
-            if (success) {
-                socket.reply(data.replyTo, { status: 1 });
-            } else {
-                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
-            }
+        let { success } = await dbDeclineInvite(data, socket.user.id);
+        if (success) {
+            socket.reply(data.replyTo, { status: 1 });
+        } else {
+            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }
