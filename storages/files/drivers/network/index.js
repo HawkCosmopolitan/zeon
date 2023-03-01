@@ -4,7 +4,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const ports = require('../../../../constants/ports.json');
-const { attachRouter } = require('./router');
+const { attachRouter } = require('../router');
 const io = require('socket.io-client');
 const { request, setupResponseReceiver } = require('../utils/requests');
 
@@ -35,8 +35,8 @@ class NetworkDriver {
         this.app.use(cors());
         this.app.use(bodyParser.json());
         this.httpServer = http.createServer(this.app);
-        this.httpServer.listen(ports.PACKETS_IN_GATEWAY_PORT, () => {
-            console.log(`listening on *:${ports.PACKETS_IN_GATEWAY_PORT}`);
+        this.httpServer.listen(ports.FILES_STORAGE, () => {
+            console.log(`listening on *:${ports.FILES_STORAGE}`);
         });
         this.socketServer = require("socket.io")(this.httpServer, {
             cors: {
@@ -52,8 +52,7 @@ class NetworkDriver {
             attachRouter({
                 id: socket.id,
                 on: (key, callback) => socket.on(key, callback),
-                reply: (requestId, answer) => socket.emit('response', { replyTo: requestId, ...answer }),
-                pass: (key, data, callback) => request(socket.remoteSocket, key, data, callback)
+                reply: (replyToInternal, answer) => socket.emit('response', { replyToInternal: replyToInternal, ...answer }),
             }, this.socketManager);
         });
     }

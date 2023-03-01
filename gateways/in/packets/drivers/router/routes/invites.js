@@ -12,26 +12,32 @@ module.exports = {
                     socket.reply(data.replyTo, res);
                 });
             } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.ACCESS_DENIED });
+                socket.reply(socket, data, { status: 2, errorText: errors.ACCESS_DENIED });
             }
         }
     },
     cancelInvite: async (data) => {
-        data.userId = socket.userId;
-        socket.pass('fetchPermissions', data, res => {
-            socket.reply(data.replyTo, res);
-        });
+        if (socket.userId) {
+            data.userId = socket.userId;
+            socket.pass('fetchPermissions', data, res => {
+                socket.reply(data.replyTo, res);
+            });
+        }
     },
     acceptInvite: async (data) => {
-        data.userId = socket.userId;
-        socket.pass('acceptInvite', data, res => {
-            socket.reply(data.replyTo, res);
-        });
+        if (socket.userId) {
+            data.userId = socket.userId;
+            socket.pass('acceptInvite', data, res => {
+                socket.reply(data.replyTo, res);
+            });
+        }
     },
     declineInvite: async (data) => {
-        data.userId = socket.userId;
-        socket.pass('declineInvite', data, res => {
-            socket.reply(data.replyTo, res);
-        });
+        if (socket.userId) {
+            data.userId = socket.userId;
+            socket.pass('declineInvite', data, res => {
+                socket.reply(data.replyTo, res);
+            });
+        }
     }
 }

@@ -1,7 +1,7 @@
 const { dbDownload, dbPreview, dbCoverAudio } = require('../../database/transactions/download');
 const { dbReadDocById } = require('../../database/transactions/read-doc-by-id');
 const { dbUpload } = require('../../database/transactions/upload');
-const errors = require('../../../../constants/errors.json');
+const errors = require('../../../../../constants/errors.json');
 const express = require('express');
 
 let router = express.Router();

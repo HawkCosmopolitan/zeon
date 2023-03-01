@@ -1,42 +1,19 @@
 
-const { replySocketReq, handleUpdate } = require('../utils');
-
-const { dbReadInteractions } = require('../../../database/transactions/read-interactions');
-const { dbCreateInteraction } = require('../../../database/transactions/create-interaction');
-
-const errors = require('../../../../constants/errors.json');
-const { join, putRoom, indexWorkspace } = require('../pool');
-
-module.exports.attachInteractionEvents = (socket) => {
-    socket.on('createInteraction', async (data) => {
-        if (socket.user !== undefined) {
-            dbCreateInteraction(data, socket.user.id,
-                ({ noAction, success, tower, room, member1, member2, workspace, interaction, contact, messages, update }) => {
-                    if (success) {
-                        putRoom(room);
-                        join(socket.user.id, room.id);
-                        join(data.peerId, room.id);
-                        indexWorkspace(workspace);
-                        for (let i = 0; i < messages.length; i++) {
-                            messages[i].time = Number(messages[i].time);
-                        }
-                        replySocketReq(socket, data, { status: noAction ? 3 : 1, tower, room, member1, member2, workspace, interaction, contact, messages });
-                        handleUpdate(update);
-                    } else {
-                        replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
-                    }
-                });
+module.exports = {
+    createInteraction: async (data) => {
+        if (socket.userId) {
+            data.userId = socket.userId;
+            socket.pass('createInteraction', data, res => {
+                socket.reply(data.replyTo, res);
+            });
         }
-    });
-    socket.on('readInteractions', async (data) => {
-        if (socket.user !== undefined) {
-            let { success, interactions, update } = await dbReadInteractions(data, socket.user.id, socket.roomId);
-            if (success) {
-                replySocketReq(socket, data, { status: 1, interactions: interactions });
-                handleUpdate(update);
-            } else {
-                replySocketReq(socket, data, { status: 2, errorText: errors.DATABASE_ERROR });
-            }
+    },
+    readInteractions: async (data) => {
+        if (socket.userId) {
+            data.userId = socket.userId;
+            socket.pass('readInteractions', data, res => {
+                socket.reply(data.replyTo, res);
+            });
         }
-    });
+    }
 }

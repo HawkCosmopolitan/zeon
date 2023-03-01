@@ -1,12 +1,13 @@
 
-const { setupDatabase } = require('./database/initiators/main-initiator.js');
-const { setupNetwork } = require('./network/initiators/main-initiator.js');
-const { setupGrpcNetwork } = require('./network2/initiators/main-initiator.js');
+const NetworkDriver = require('./drivers/network');
+const MemoryDriver = require('./drivers/memory');
+const StorageDriver = require('./drivers/storage');
+const SecurityDriver = require('./drivers/security');
+const { setupDatabase } = require('./drivers/storage/initiators/main-initiator');
 
-async function main() {
+SecurityDriver.initialize();
+StorageDriver.initialize(() => {
+  MemoryDriver.initialize();
+  NetworkDriver.initialize();
   setupDatabase();
-  setupNetwork();
-  setupGrpcNetwork();
-}
-
-main();
+});
