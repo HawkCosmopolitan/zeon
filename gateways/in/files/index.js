@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const { authRoom, authRoomByQuery } = require('./utils/auth');
 const http = require('http');
-const addresses = require('../constants/addresses.json');
+const ports = require('../../../constants/ports.json');
 const cors = require('cors');
 const { setupDatabase } = require('./database/initiators/main-initiator');
 const httpProxy = require('http-proxy');
@@ -37,7 +37,7 @@ async function main() {
       if (req.headers.endfileupload) {
         req.headers.endfileupload = req.headers.endfileupload;
       }
-      proxy.web(req, res, { target: 'http://' + addresses.FILE_SERVICE + ':' + addresses.FILE_SERVICE_PORT }, e => { console.log(e); });
+      proxy.web(req, res, { target: 'http://localhost:' + ports.FILES_STORAGE }, e => { console.log(e); });
     }
   });
 }

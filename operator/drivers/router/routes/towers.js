@@ -5,7 +5,7 @@ const { dbUpdateTower } = require('../../storage/transactions/update-tower');
 const { dbDeleteTower } = require('../../storage/transactions/delete-tower');
 let MemoryDriver = require('../../memory');
 
-const errors = require('../../../../../constants/errors.json');
+const errors = require('../../../../constants/errors.json');
 
 module.exports.attachTowerEvents = (socket) => {
     socket.on('createTower', async (data) => {

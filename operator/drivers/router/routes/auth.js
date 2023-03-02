@@ -1,7 +1,7 @@
 
 const { dbVerifyUser } = require('../../storage/transactions/verify-user');
 const { dbSetupUser } = require('../../storage/transactions/setup-user');
-const errors = require('../../../../../constants/errors.json');
+const errors = require('../../../../constants/errors.json');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {

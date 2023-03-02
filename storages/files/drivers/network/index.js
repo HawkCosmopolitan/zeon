@@ -7,6 +7,7 @@ const ports = require('../../../../constants/ports.json');
 const { attachRouter } = require('../router');
 const io = require('socket.io-client');
 const { request, setupResponseReceiver } = require('../utils/requests');
+const files = require('./endpoints/files');
 
 class NetworkDriver {
     static inst;
@@ -34,6 +35,7 @@ class NetworkDriver {
         this.app = express();
         this.app.use(cors());
         this.app.use(bodyParser.json());
+        this.app.use('/file', files);
         this.httpServer = http.createServer(this.app);
         this.httpServer.listen(ports.FILES_STORAGE, () => {
             console.log(`listening on *:${ports.FILES_STORAGE}`);

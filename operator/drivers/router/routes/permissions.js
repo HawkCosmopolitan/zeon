@@ -1,5 +1,5 @@
 
-const errors = require('../../../../../constants/errors.json');
+const errors = require('../../../../constants/errors.json');
 const { dbModifyPermissions } = require('../../storage/transactions/modify-permissions');
 const { dbFetchPermissions } = require('../../storage/transactions/fetch-permissions');
 

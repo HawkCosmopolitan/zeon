@@ -1,5 +1,5 @@
 
-const ports = require('../../../constants/ports.json');
+const ports = require('../../constants/ports.json');
 const { attachRouter } = require('./router');
 const bodyParser = require('body-parser');
 const express = require('express');

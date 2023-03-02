@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 let { Room, Member, RoomInvite, Tower } = require('../schemas/schemas');
-const { secureObject, secureAdmins } = require('../../../../../shared/utils/filter');
+const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
 const RoomFactory = require('../factories/room-factory');
@@ -9,7 +9,7 @@ const TowerFactory = require('../factories/tower-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/interaction-factory');
-const { makeUniqueId } = require('../../../../../shared/utils/id-generator');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Member === undefined) {

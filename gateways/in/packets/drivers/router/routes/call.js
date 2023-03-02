@@ -1,7 +1,8 @@
 
 const { io } = require("socket.io-client");
-const addresses = require('../../../../../../constants/addresses.json');
-let { Workspace } = require("../../../database/schemas/schemas");
+const ports = require('../../../../../../constants/ports.json');
+const MemoryDriver = require('../../memory');
+const UpdaterDriver = require('../../updater');
 
 let backward = ['on-user-leave', 'on-audio-turn-off', 'on-screen-turn-off', 'on-video-turn-off', 'on-users-sync', 'on-user-join'];
 let forward = ['leave-call', 'turn-off-video', 'turn-off-screen', 'turn-off-audio', 'join-call'];
@@ -16,32 +17,34 @@ module.exports.getUserActiveCalls = (userId) => {
     }, {});
 }
 
-module.exports.joinCall = (socket, workspaceId) => {
+module.exports.joinCall = (socket, roomId) => {
     let remote = remoteSocketsVideo[socket.id];
-    if (remote !== undefined) {
-        if (socket.user !== undefined) {
-            remote.emit('join-call', { userId: socket.user.id, workspaceId: workspaceId });
-            remote.workspaceId = workspaceId;
+    if (remote) {
+        if (socket.userId) {
+            remote.emit('join-call', { userId: socket.userId, roomId: roomId });
+            remote.roomId = roomId;
         }
     }
 }
 
 module.exports.leaveCall = (socket) => {
     let remote = remoteSocketsVideo[socket.id];
-    if (remote !== undefined) {
-        if (socket.user !== undefined) {
+    if (remote) {
+        if (socket.userId) {
             remote.emit('leave-call', {});
         }
     }
 }
 
 module.exports.attachCallEvents = (socket) => {
-    let remoteVideo = io(`http://${addresses.VIDEO_SERVICE}:${addresses.VIDEO_SERVICE_PORT}`);
-    console.log('opened new remote to ', addresses.VIDEO_SERVICE, ':', addresses.VIDEO_SERVICE_PORT);
+    let remoteVideo = io(`http://localhost:${ports.CALL}`);
+    console.log('opened new remote to ', 'localhost:', ports.CALL);
     remoteSocketsVideo[socket.id] = remoteVideo;
+    remoteVideo.twin = socket;
+    socket.twin = remoteVideo;
     forward.forEach(e => {
         socket.on(e, async (data) => {
-            if (socket.user.id !== undefined && socket.workspaceId !== undefined) {
+            if (socket.userId !== undefined && socket.roomId !== undefined) {
                 remoteVideo.emit(e, data);
             }
         });
@@ -52,29 +55,21 @@ module.exports.attachCallEvents = (socket) => {
             socket.emit(e, data);
         });
     });
-    remoteVideo.on('on-call-create', async ({ workspaceId }) => {
-        activeCalls[workspaceId] = true;
-        if (Workspace === undefined) {
-            Workspace = require("../../../database/schemas/schemas").Workspace;
-        }
-        let workspace = await Workspace.findOne({ id: workspaceId }).exec();
-        if (workspace !== null) {
-            Object.values(getRoomMembers(workspace.roomId)).forEach(socketWrapper => {
-                socketWrapper.socket.emit('on-call-create', { workspaceId });
-            });
-        }
+    remoteVideo.on('on-call-create', async ({ roomId }) => {
+        activeCalls[roomId] = true;
+        MemoryDriver.instance().fetch(`rights:${roomId}/${remoteVideo.twin.userId}`, raw => {
+            if (raw) {
+                UpdaterDriver.instance().handleUpdate(roomId, { type: 'on-call-create', body: { roomId } });
+            }
+        });
     });
-    remoteVideo.on('on-call-destruct', async ({ workspaceId }) => {
-        delete activeCalls[workspaceId];
-        if (Workspace === undefined) {
-            Workspace = require("../../../database/schemas/schemas").Workspace;
-        }
-        let workspace = await Workspace.findOne({ id: workspaceId }).exec();
-        if (workspace !== null) {
-            Object.values(getRoomMembers(workspace.roomId)).forEach(socketWrapper => {
-                socketWrapper.socket.emit('on-call-destruct', { workspaceId });
-            });
-        }
+    remoteVideo.on('on-call-destruct', async ({ roomId }) => {
+        delete activeCalls[roomId];
+        MemoryDriver.instance().fetch(`rights:${roomId}/${remoteVideo.twin.userId}`, raw => {
+            if (raw) {
+                UpdaterDriver.instance().handleUpdate(roomId, { type: 'on-call-destruct', body: { roomId } });
+            }
+        });
     });
     remoteVideo.on('disconnect', () => {
         delete remoteSocketsVideo[socket.id];

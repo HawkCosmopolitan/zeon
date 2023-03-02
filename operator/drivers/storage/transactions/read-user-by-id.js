@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 let { User } = require('../schemas/schemas');
-const { secureObject, secureAdmins } = require('../../../../../shared/utils/filter');
+const { secureObject, secureAdmins } = require('../../../../shared/utils/filter');
 
 const checkImports = () => {
   if (User === undefined) {

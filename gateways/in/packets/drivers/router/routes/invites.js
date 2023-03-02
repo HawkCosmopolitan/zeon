@@ -1,19 +1,20 @@
 
-const { replySocketReq } = require('../utils');
 const errors = require('../../../../../../constants/errors.json');
 
 module.exports = {
     createInvite: async (data) => {
         if (socket.userId) {
-            let permissions = JSON.parse(await MemoryDriver.instance().fetch(`rights:${data.roomId}/${socket.userId}`));
-            if (permissions.inviteUser) {
-                data.userId = socket.userId;
-                socket.pass('createInvite', data, res => {
-                    socket.reply(data.replyTo, res);
-                });
-            } else {
-                socket.reply(socket, data, { status: 2, errorText: errors.ACCESS_DENIED });
-            }
+            MemoryDriver.instance().fetch(`rights:${data.roomId}/${socket.userId}`, raw => {
+                let permissions = JSON.parse(raw);
+                if (permissions.inviteUser) {
+                    data.userId = socket.userId;
+                    socket.pass('createInvite', data, res => {
+                        socket.reply(data.replyTo, res);
+                    });
+                } else {
+                    socket.reply(socket, data, { status: 2, errorText: errors.ACCESS_DENIED });
+                }
+            });
         }
     },
     cancelInvite: async (data) => {

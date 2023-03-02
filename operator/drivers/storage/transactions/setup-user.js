@@ -1,9 +1,9 @@
 
 const mongoose = require('mongoose');
 let { Pending, User, Session, Tower, Room, Member, Workspace } = require('../schemas/schemas');
-let { isEmpty, isNameFieldInvalid } = require('../../../../../shared/utils/strings');
-let defaultAvatars = require('../../../../../constants/avatars.json');
-let permissions = require('../../../../../constants/permissions.json');
+let { isEmpty, isNameFieldInvalid } = require('../../../../shared/utils/strings');
+let defaultAvatars = require('../../../../constants/avatars.json');
+let permissions = require('../../../../constants/permissions.json');
 let { centralTower, centralTowerHall } = require('../initiators/main-initiator');
 const {
     v4: uuidv4,
@@ -17,7 +17,7 @@ const TowerFactory = require('../factories/tower-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/interaction-factory');
-const { makeUniqueId } = require('../../../../../shared/utils/id-generator');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 const MemoryDriver = require('../../memory');
 
 const checkImports = () => {

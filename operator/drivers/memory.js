@@ -1,10 +1,10 @@
 
 const express = require('express');
 const redis = require('redis');
-const ports = require('../../../constants/ports.json');
+const ports = require('../../constants/ports.json');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const secrets = require('../../../constants/secrets.json');
+const secrets = require('../../constants/secrets.json');
 let SessionFactory = require('./storage/factories/session-factory');
 let MemberFactory = require('./storage/factories/member-factory');
 

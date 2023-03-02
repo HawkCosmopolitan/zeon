@@ -1,8 +1,8 @@
 
 const mongoose = require('mongoose');
 let { Tower, Room } = require('../schemas/schemas');
-let { isEmpty, isNameFieldInvalid } = require('../../../../../shared/utils/strings');
-let defaultAvatars = require('../../../../../constants/avatars.json');
+let { isEmpty, isNameFieldInvalid } = require('../../../../shared/utils/strings');
+let defaultAvatars = require('../../../../constants/avatars.json');
 const SessionFactory = require('../factories/session-factory');
 const PendingFactory = require('../factories/pending-factory');
 const InviteFactory = require('../factories/invite-factory');
@@ -11,7 +11,7 @@ const TowerFactory = require('../factories/tower-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/interaction-factory');
-const { makeUniqueId } = require('../../../../../shared/utils/id-generator');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 
 const checkImports = () => {
   if (Tower === undefined) {

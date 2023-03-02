@@ -3,10 +3,11 @@ const express = require('express');
 const app = express();
 const { authRoom, authRoomByQuery } = require('./utils/auth');
 const http = require('http');
-const addresses = require('../constants/addresses.json');
+const addresses = require('../../../constants/ports.json');
 const cors = require('cors');
 const { setupDatabase } = require('./database/initiators/main-initiator');
 const httpProxy = require('http-proxy');
+const ports = require('../../../constants/ports.json');
 app.use(cors());
 app.use(express.urlencoded({
   extended: true
@@ -27,7 +28,7 @@ async function main() {
       req.headers.userid = user.id;
       req.headers.roomid = room.id;
       req.headers.ismember = (isMember ? 'true' : 'false');
-      proxy.web(req, res, { target: 'http://' + addresses.FILE_SERVICE + ':' + addresses.FILE_SERVICE_PORT }, e => { console.log(e); });
+      proxy.web(req, res, { target: 'http://' + 'localhost:' + ports.FILES_STORAGE }, e => { console.log(e); });
     }
   });
   app.get('/file/download-link', async (req, res, next) => {
@@ -37,7 +38,7 @@ async function main() {
       req.headers.roomid = room.id;
       req.headers.ismember = (isMember ? 'true' : 'false');
       req.headers.documentid = req.query.documentid;
-      proxy.web(req, res, { target: 'http://' + addresses.FILE_SERVICE + ':' + addresses.FILE_SERVICE_PORT }, e => { console.log(e); });
+      proxy.web(req, res, { target: 'http://' + 'localhost:' + ports.FILES_STORAGE }, e => { console.log(e); });
     }
   });
   app.get('/file/preview', async (req, res, next) => {
@@ -48,7 +49,7 @@ async function main() {
       req.headers.ismember = (isMember ? 'true' : 'false');
       req.headers.documentid = req.query.documentid;
       req.headers.token = req.query.token;
-      proxy.web(req, res, { target: 'http://' + addresses.FILE_SERVICE + ':' + addresses.FILE_SERVICE_PORT }, e => { console.log(e); });
+      proxy.web(req, res, { target: 'http://' + 'localhost:' + ports.FILES_STORAGE }, e => { console.log(e); });
     }
   });
   app.get('/file/coverAudio', async (req, res, next) => {
@@ -59,12 +60,12 @@ async function main() {
       req.headers.ismember = (isMember ? 'true' : 'false');
       req.headers.documentid = req.query.documentid;
       req.headers.token = req.query.token;
-      proxy.web(req, res, { target: 'http://' + addresses.FILE_SERVICE + ':' + addresses.FILE_SERVICE_PORT }, e => { console.log(e); });
+      proxy.web(req, res, { target: 'http://' + 'localhost:' + ports.FILES_STORAGE }, e => { console.log(e); });
     }
   });
   let server = http.createServer(app);
-  server.listen(addresses.FILE_GATEWAY_PORT, () => {
-    console.log(`listening on *:${addresses.FILE_GATEWAY_PORT}`);
+  server.listen(`localhost:${ports.FILES_OUT_GATEWAY_PORT}`, () => {
+    console.log(`listening on *:${ports.FILES_OUT_GATEWAY_PORT}`);
   });
 }
 

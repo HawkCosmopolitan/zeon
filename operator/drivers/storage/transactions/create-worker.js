@@ -1,8 +1,8 @@
 
 const mongoose = require('mongoose');
 let { Tower, Room, Bot, Worker } = require('../schemas/schemas');
-let { isIdEmpty } = require('../../../global-utils/numbers');
-const defaultAvatars = require('../../../constants/avatars.json');
+let { isIdEmpty } = require('../../../../shared/utils/numbers');
+const defaultAvatars = require('../../../../constants/avatars.json');
 
 const checkImports = () => {
   if (Tower === undefined) {

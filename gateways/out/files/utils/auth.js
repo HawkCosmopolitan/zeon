@@ -1,8 +1,7 @@
 
 const grpc = require("@grpc/grpc-js");
 let { Session, User, Room, Member } = require('../database/schemas/schemas');
-const errors = require('../../constants/errors.json');
-const { read } = require("fs");
+const errors = require('../../../../constants/errors.json');
 
 const checkImports = () => {
     if (Session === undefined) {

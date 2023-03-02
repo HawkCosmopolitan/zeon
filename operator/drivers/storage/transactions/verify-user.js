@@ -13,7 +13,7 @@ const TowerFactory = require('../factories/tower-factory');
 const MemberFactory = require('../factories/member-factory');
 const UserFactory = require('../factories/user-factory');
 const InteractionFactory = require('../factories/interaction-factory');
-const { makeUniqueId } = require('../../../../../shared/utils/id-generator');
+const { makeUniqueId } = require('../../../../shared/utils/id-generator');
 const MemoryDriver = require('../../memory');
 
 const checkImports = () => {
