@@ -16,42 +16,42 @@ module.exports.attachRoomEvents = (socket) => {
             if (member2) {
                 await MemoryDriver.instance().save(`rights:${room.id}/${member2.userId}`, JSON.stringify(member2.secret.permissions));
             }
-            socket.reply(data.replyTo, { status: 1, room: room, member: member, member2: member2 });
+            socket.reply(data.replyToInternal, { status: 1, room: room, member: member, member2: member2 });
             handleUpdate(update);
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('readRooms', async (data) => {
         let { success, rooms } = await dbReadRooms(data, data.userId);
         if (success) {
-            socket.reply(data.replyTo, { status: 1, rooms: rooms });
+            socket.reply(data.replyToInternal, { status: 1, rooms: rooms });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('updateRoom', async (data) => {
         let { success } = await dbUpdateRoom(data, data.userId);
         if (success) {
-            socket.reply(data.replyTo, { status: 1 });
+            socket.reply(data.replyToInternal, { status: 1 });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('deleteRoom', async (data) => {
         let { success } = await dbDeleteRoom(data, data.userId);
         if (success) {
-            socket.reply(data.replyTo, { status: 1 });
+            socket.reply(data.replyToInternal, { status: 1 });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('readRoomById', async (data) => {
         let { success, room, tower } = await dbReadRoomById(data, data.userId);
         if (success) {
-            socket.reply(data.replyTo, { status: 1, room, tower });
+            socket.reply(data.replyToInternal, { status: 1, room, tower });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

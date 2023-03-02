@@ -52,7 +52,10 @@ class NetworkDriver {
             attachRouter({
                 id: socket.id,
                 on: (key, callback) => socket.on(key, callback),
-                reply: (requestId, answer) => socket.emit('response', { replyTo: requestId, ...answer }),
+                reply: (requestId, answer) => {
+                    console.log(requestId, answer);
+                    socket.emit('response', { replyTo: requestId, ...answer });
+                },
                 pass: (key, data, callback) => request(socket.remoteSocket, key, data, callback)
             }, this.socketManager);
         });

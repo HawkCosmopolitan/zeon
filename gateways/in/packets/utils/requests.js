@@ -18,7 +18,6 @@ let triggerQueue = () => {
 module.exports = {
     setupResponseReceiver: (socket) => {
         socket.on('response', data => {
-            console.info(data);
             let callback = requestDictionary[data.replyToInternal];
             if (callback) {
                 callback(data);
@@ -30,6 +29,8 @@ module.exports = {
         data.replyToInternal = makeUniqueId();
         requestDictionary[data.replyToInternal] = callback;
         requestQueue.push({ socket, topic, data });
-        triggerQueue();
+        setTimeout(() => {
+            triggerQueue(); 
+        });
     }
 }

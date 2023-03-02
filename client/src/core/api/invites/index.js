@@ -3,6 +3,7 @@ import { request } from '../../utils/requests';
 import topics from '../../events/topics.json';
 import { Storage } from '../../storage';
 import Bus from '../../events/bus';
+import { Memory } from '../../memory';
 
 export function createInvite(targetUserId, roomId, callback) {
     request('createInvite', { targetUserId, roomId }, async res => {
@@ -26,7 +27,7 @@ export function acceptInvite(inviteId, callback) {
     request('acceptInvite', { inviteId }, async res => {
         if (res.status === 1) {
             let trx = Memory.startTrx();
-            if (!Memory.data.towers.byId[res.tower.id]) {
+            if (!trx.temp.towers.byId[res.tower.id]) {
                 await Storage.spaces.dbSaveTowerAtOnce(res.tower);
                 trx.updateTower(res.tower);
             }
@@ -35,7 +36,7 @@ export function acceptInvite(inviteId, callback) {
             let memberships = res.memberships;
 
             rooms.forEach(room => {
-                if (!Math.data.rooms.byId[room.id]) {
+                if (!trx.temp.rooms.byId[room.id]) {
                     Storage.spaces.dbSaveRoomAtOnce(room);
                     trx.addRoom(room);
                 }

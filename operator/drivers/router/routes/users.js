@@ -9,9 +9,9 @@ module.exports.attachUserEvents = (socket) => {
     socket.on('readUsers', async (data) => {
         let { success, users } = await dbReadUsers(data, data.userId, data.roomId);
         if (success) {
-            socket.reply(data.replyTo, { status: 1, users: users });
+            socket.reply(data.replyToInternal, { status: 1, users: users });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('readUserById', async (data) => {
@@ -20,12 +20,12 @@ module.exports.attachUserEvents = (socket) => {
             let onlineState = user.secret.isOnline;
             let lastSeen = user.sucret.lastSeen;
             if (!onlineState) {
-                socket.reply(data.replyTo, { status: 1, user: user, onlineState: false, lastSeen: lastSeen });
+                socket.reply(data.replyToInternal, { status: 1, user: user, onlineState: false, lastSeen: lastSeen });
             } else {
-                socket.reply(data.replyTo, { status: 1, user: user, onlineState: true });
+                socket.reply(data.replyToInternal, { status: 1, user: user, onlineState: true });
             }
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

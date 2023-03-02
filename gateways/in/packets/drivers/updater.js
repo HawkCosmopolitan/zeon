@@ -19,13 +19,13 @@ class UpdaterDriver {
     constructor() {
         UpdaterDriver.inst = this;
         this.handleUpdate = this.handleUpdate.bind(this);
-        amqp.connect('amqp://localhost', function (error0, con) {
-            if (error0) throw error0;
-            UpdaterDriver.inst.connection = con;
-            UpdaterDriver.inst.connection.createChannel(function (error1, channel) {
-                if (error1) throw error1;
-            });
-        });
+        // amqp.connect('amqp://localhost', function (error0, con) {
+        //     if (error0) throw error0;
+        //     UpdaterDriver.inst.connection = con;
+        //     UpdaterDriver.inst.connection.createChannel(function (error1, channel) {
+        //         if (error1) throw error1;
+        //     });
+        // });
     }
 }
 

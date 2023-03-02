@@ -79,3 +79,13 @@ export function readRoomById(roomId, callback) {
         }
     });
 }
+
+let spaces = {
+    createTower,
+    readTowers,
+    createRoom,
+    readRooms,
+    readRoomById
+}
+
+export default spaces;

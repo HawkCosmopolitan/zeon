@@ -8,17 +8,17 @@ module.exports.attachPermissionsEvents = (socket) => {
         let { success, update } = await dbModifyPermissions(data, socket.user.id);
         if (success) {
             await MemoryDriver.instance().save(`rights:${data.roomId}/${data.targetUserId}`, data.permissions);
-            socket.reply(data.replyTo, { status: 1 });
+            socket.reply(data.replyToInternal, { status: 1 });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('fetchPermissions', async (data) => {
         let { success, permissions } = await dbFetchPermissions(data, data.userId);
         if (success) {
-            socket.reply(data.replyTo, { status: 1, permissions: permissions });
+            socket.reply(data.replyToInternal, { status: 1, permissions: permissions });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

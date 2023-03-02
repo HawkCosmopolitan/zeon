@@ -13,5 +13,6 @@
     "ROOM_DELETED": "room_deleted",
     "INTERACTION_CREATED": "interaction_created",
     "FILE_TRANSFER_DONE": "file_transfer_done",
-    "CORE_INITIALIZED": "core_initialized"
+    "CORE_INITIALIZED": "core_initialized",
+    "FILE_TRANSFER_PROGRESS": "file_transfer_progress"
 }

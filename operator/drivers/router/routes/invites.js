@@ -10,17 +10,17 @@ module.exports.attachInviteEvents = (socket) => {
     socket.on('createInvite', async (data) => {
         let { success, invite, update } = await dbCreateInvite(data, socket.user.id);
         if (success) {
-            socket.reply(data.replyTo, { status: 1, invite: invite });
+            socket.reply(data.replyToInternal, { status: 1, invite: invite });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('cancelInvite', async (data) => {
         let { success, update } = await dbCancelInvite(data, socket.user.id);
         if (success) {
-            socket.reply(data.replyTo, { status: 1 });
+            socket.reply(data.replyToInternal, { status: 1 });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
     socket.on('acceptInvite', async (data) => {
@@ -41,7 +41,7 @@ module.exports.attachInviteEvents = (socket) => {
             update }) => {
             if (success) {
                 MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member.secret.permissions));
-                socket.reply(data.replyTo, {
+                socket.reply(data.replyToInternal, {
                     status: 1,
                     member,
                     tower,
@@ -58,16 +58,16 @@ module.exports.attachInviteEvents = (socket) => {
                 });
                 handleUpdate(update);
             } else {
-                socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+                socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         });
     });
     socket.on('declineInvite', async (data) => {
         let { success } = await dbDeclineInvite(data, socket.user.id);
         if (success) {
-            socket.reply(data.replyTo, { status: 1 });
+            socket.reply(data.replyToInternal, { status: 1 });
         } else {
-            socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+            socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
     });
 }

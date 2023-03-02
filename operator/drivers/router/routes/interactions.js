@@ -15,9 +15,9 @@ module.exports.attachInteractionEvents = (socket) => {
                             MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member1.secret.permissions)),
                             MemoryDriver.instance().save(`rights:${room.id}/${data.peerId}`, JSON.stringify(member2.secret.permissions))
                         ]);
-                        socket.reply(data.replyTo, { status: noAction ? 3 : 1, tower, room, member1, member2, interaction, contact, messages });
+                        socket.reply(data.replyToInternal, { status: noAction ? 3 : 1, tower, room, member1, member2, interaction, contact, messages });
                     } else {
-                        socket.reply(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+                        socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
                     }
                 });
         }
@@ -26,10 +26,10 @@ module.exports.attachInteractionEvents = (socket) => {
         if (socket.user !== undefined) {
             let { success, interactions, update } = await dbReadInteractions(data, socket.user.id, socket.roomId);
             if (success) {
-                replySocketReq(data.replyTo, { status: 1, interactions: interactions });
+                replySocketReq(data.replyToInternal, { status: 1, interactions: interactions });
                 handleUpdate(update);
             } else {
-                replySocketReq(data.replyTo, { status: 2, errorText: errors.DATABASE_ERROR });
+                replySocketReq(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
             }
         }
     });

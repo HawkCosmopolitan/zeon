@@ -1,17 +1,14 @@
 
-import { dbFindInteractionByPeerId, dbSaveInteractionAtOnce, dbUpdateInteraction } from '../../storage/interactions';
-import PubSub from 'pubsub-js';
-import { dbFetchRoomWorkspaces, dbFindRoomById, dbSaveMemberAtOnce, dbSaveRoomAtOnce, dbSaveTowerAtOnce, dbSaveWorkspaceAtOnce } from '../../storage/spaces';
 import { request } from '../../utils/requests';
 import topics from '../../events/topics.json';
-import { dbFindUserById, dbSaveUserAtOnce } from '../../storage/users';
-import { blogsDict, centralHeader, filespacesDict, homeHeader, interactionsDict, me, membershipsDict, membershipsDictByTowerId, Memory, messagesDict, roomsDict, roomsDictById, sampleImages, towersDictById, towersList, usersDict, workspacesDict, workspacesDictById } from '../../memory';
-import { dbSaveMessageAtOnce } from '../../storage/messenger';
+import { dbFindUserById } from '../../storage/users';
 import { Storage } from '../../storage';
 import Bus from '../../events/bus';
+import { Memory } from '../../memory';
 
 export function createInteraction(peerId, callback) {
-    let inter = Memory.data.interactions.byPeerId[peerId];
+    let trx = Memory.startTrx();
+    let inter = trx.temp.interactions.byPeerId[peerId];
     if (!inter) {
         request('createInteraction', { peerId }, async res => {
             if (res.status === 1 || res.status === 3) {
@@ -33,7 +30,6 @@ export function createInteraction(peerId, callback) {
                 Storage.users.dbSaveUserAtOnce(res.contact);
                 Storage.interactions.dbSaveInteractionAtOnce(res.interaction);
 
-                let trx = Memory.startTrx();
                 trx.addTower(res.tower);
                 trx.addRoom(res.room);
                 trx.addUser(res.contact);
@@ -48,7 +44,7 @@ export function createInteraction(peerId, callback) {
         });
     } else {
         if (callback !== undefined) {
-            callback(inter, Memory.data.rooms.byId[inter.roomId], Memory.data.users.byId[peerId]);
+            callback(inter, trx.temp.rooms.byId[inter.roomId], trx.temp.users.byId[peerId]);
         }
     }
 }

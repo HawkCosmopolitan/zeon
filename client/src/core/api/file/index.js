@@ -4,12 +4,10 @@ import { dbSaveDocument, dbSavePreview } from '../../storage/file';
 import { dbSaveData, dbFetchData } from '../../storage/data';
 import { dbFetchDocById } from '../../storage/file';
 import config from '../../config.json';
-import axios from 'axios';
-import { publish } from '../../bus';
-import uiEvents from '../../../config/ui-events.json';
 import { request } from '../../utils/requests';
 import topics from '../../events/topics.json';
-import { docsDictById, me, membershipsDict } from '../../memory';
+import { Memory } from '../../memory';
+import Bus from '../../events/bus';
 
 function formatBytes(bytes, decimals = 2) {
     if (!+bytes) return '0 Bytes'
@@ -48,14 +46,14 @@ export let uploadFile = async (tag, file, roomId, isPublic, callback) => {
                 'body': CHUNK
             });
             const progress = chunk * 100 / (totalChunks - 1);
-            publish(uiEvents.FILE_TRANSFER_PROGRESS, { tag, progress, current: formatBytes((chunk + 1) * CHUNK_SIZE), total: totalString });
+            Bus.publish(topics.FILE_TRANSFER_PROGRESS, { tag, progress, current: formatBytes((chunk + 1) * CHUNK_SIZE), total: totalString });
             response = await response.json();
             if (chunk >= totalChunks - 1) {
                 dbSaveDocument(response.document);
                 dbSavePreview(response.preview);
-                docsDictById[response.document.id] = response.document;
+                Memory.startTrx().temp.docs.byId[response.document.id] = response.document;
                 if (callback) callback(response);
-                publish(topics.FILE_TRANSFER_DONE, { tag: tag, response: response });
+                Bus.publish(topics.FILE_TRANSFER_DONE, { tag: tag, response: response });
             } else {
                 documentId = response.documentId;
             }
@@ -171,7 +169,7 @@ export function readDocById(documentId, roomId, callback) {
     request('readDocById', { documentId, roomId }, async res => {
         if (res.status === 1) {
             await dbSaveDocument(res.document);
-            docsDictById[res.document.id] = res.document;
+            Memory.startTrx().temp.docs.byId[res.document.id] = res.document;
             if (callback !== undefined) callback(res.document);
         }
     });

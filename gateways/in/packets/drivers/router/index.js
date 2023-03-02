@@ -1,5 +1,7 @@
 
 let auth = require('./routes/auth');
+let towers = require('./routes/towers');
+let rooms = require('./routes/rooms');
 
 const attachRoute = (socket, socketManager, route) => {
     for (let routeKey in route) {
@@ -13,5 +15,7 @@ module.exports = {
     attachRoute: attachRoute,
     attachRouter: (socket, socketManager) => {
         attachRoute(socket, socketManager, auth);
+        attachRoute(socket, socketManager, towers);
+        attachRoute(socket, socketManager, rooms);
     }
 }

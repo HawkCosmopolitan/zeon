@@ -58,6 +58,7 @@ module.exports.createTower = async ({ title, avatarId, isPublic }, userId) => {
       title: 'hall',
       avatarId: defaultAvatars.HALL_DEFAULT_AVATAR_ID,
       floor: 'hall',
+      towerId: tower.id,
       secret: {
         adminIds: [
           userId
