@@ -14,24 +14,39 @@ class UpdaterDriver {
     channel;
     async assertQueue(queueId) {
         return new Promise(resolve => {
-            this.channel.assertQueue(`queue_${queueId}`, {
+            this.channel.assertQueue(queueId, {
                 durable: true
             }, () => {
                 resolve();
             });
         })
     }
-    async joinExchangeToExchange(exchangeId1, exchangeId2) {
+    async assertExchange(exchangeId) {
         return new Promise(resolve => {
-            this.channel.exchangeBind()
+            this.channel.assertExchange(
+                exchangeId,
+                'fanout',
+                { durable: true },
+                () => {
+                    resolve();
+                });
+        })
+    }
+    async joinQueueToExchange(queueId, exchangeId) {
+        Promise.all([this.assertQueue(queueId), this.assertExchange(exchangeId)]);
+        return new Promise(resolve => {
+            this.channel.bindQueue(queueId, exchangeId, `${queueId}:${exchangeId}`, undefined, () => {
+                resolve();
+            });
         });
     }
     async handleUpdate(broadcastType, update) {
         if (broadcastType === broadcastTypes.ROOM || broadcastType === broadcastTypes.TOWER) {
-            let exchange = this.connection.exchange(`exchange_${update.roomId}`, { type: 'direct', durable: 'true' });
-            exchange.publish('*', JSON.stringify(update), function (err, result) {
-                console.log(err, result);
-            });
+            await this.assertExchange(`exchange_${update.roomId}`);
+            this.channel.publish(`exchange_${update.roomId}`, '', Buffer.from(JSON.stringify(update)));
+        } else if (broadcastType === broadcastTypes.TOWER) {
+            await this.assertExchange(`exchange_${update.towerId}`);
+            this.channel.publish(`exchange_${update.towerId}`, '', Buffer.from(JSON.stringify(update)));
         } else if (broadcastType === broadcastTypes.USER) {
             await this.assertQueue(`queue_${update.userId}`);
             this.channel.sendToQueue(`queue_${update.userId}`, Buffer.from(JSON.stringify(update)));
