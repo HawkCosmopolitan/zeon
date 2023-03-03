@@ -6,10 +6,11 @@ const { dbDeclineInvite } = require('../../storage/transactions/decline-invite')
 const errors = require('../../../../constants/errors.json');
 let MemoryDriver = require('../../memory');
 const broadcastTypes = require('../../updater/broadcast-types.json');
+const UpdaterDriver = require('../../updater');
 
 module.exports.attachInviteEvents = (socket) => {
     socket.on('createInvite', async (data) => {
-        let { success, invite, update } = await dbCreateInvite(data, socket.user.id);
+        let { success, invite, update } = await dbCreateInvite(data, data.userId);
         if (success) {
             socket.reply(data.replyToInternal, { status: 1, invite: invite });
             UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
@@ -18,7 +19,7 @@ module.exports.attachInviteEvents = (socket) => {
         }
     });
     socket.on('cancelInvite', async (data) => {
-        let { success, update } = await dbCancelInvite(data, socket.user.id);
+        let { success, update } = await dbCancelInvite(data, data.userId);
         if (success) {
             socket.reply(data.replyToInternal, { status: 1 });
             UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
@@ -27,23 +28,18 @@ module.exports.attachInviteEvents = (socket) => {
         }
     });
     socket.on('acceptInvite', async (data) => {
-        dbAcceptInvite(data, socket.user.id, ({
+        dbAcceptInvite(data, data.userId, ({
             success,
             member,
             tower,
             room,
             rooms,
             memberships,
-            filespaces,
-            disks,
-            folders,
-            files,
-            documents,
-            blogs,
-            posts,
             update }) => {
             if (success) {
-                MemoryDriver.instance().save(`rights:${room.id}/${socket.user.id}`, JSON.stringify(member.secret.permissions));
+                MemoryDriver.instance().save(`rights:${room.id}/${data.userId}`, JSON.stringify(member.secret.permissions));
+                UpdaterDriver.instance().joinQueueToExchange(`queue_${member.userId}`, `exchange_${room.id}`),
+                UpdaterDriver.instance().joinQueueToExchange(`queue_${member.userId}`, `exchange_${tower.id}`),
                 socket.reply(data.replyToInternal, {
                     status: 1,
                     member,
@@ -66,7 +62,7 @@ module.exports.attachInviteEvents = (socket) => {
         });
     });
     socket.on('declineInvite', async (data) => {
-        let { success } = await dbDeclineInvite(data, socket.user.id);
+        let { success } = await dbDeclineInvite(data, data.userId);
         if (success) {
             socket.reply(data.replyToInternal, { status: 1 });
         } else {

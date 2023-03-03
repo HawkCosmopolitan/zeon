@@ -113,7 +113,7 @@ export function attachUpdateListeners() {
         Bus.publish(updates.USER_JOINED_ROOM, { user: data.user, roomId: data.roomId });
     };
     stompClient.subscribe(`/queue/queue_${Memory.startTrx().temp.me.id}`, message => {
-        console.log(`Received: ${message.body}`);
+        console.log(`Received: ${message}`);
         let data = JSON.parse(message.body);
         Bus.publish(updates.NEW_NOTIF, data);
         let callback = updatesDictionary[data.type];

@@ -5,10 +5,6 @@ import { authenticate } from './core/api/auth';
 import { Memory, useMemory } from "./core/memory";
 
 export default function App() {
-    let data = useMemory().state();
-    useEffect(() => {
-
-    }, []);
     return (
         <div>
             <button onClick={() => {
@@ -23,8 +19,10 @@ export default function App() {
                 });
             }}>auth !</button>
             <button onClick={() => {
-                api.spaces.createTower('test room', -1, true, res => {
-                    console.log(res);
+                api.spaces.createTower('test tower', -1, true, resTower => {
+                    api.spaces.createRoom('test room', -1, true, resTower.id, 'main', resRoom => {
+
+                    })
                 });
             }}>space !</button>
         </div>

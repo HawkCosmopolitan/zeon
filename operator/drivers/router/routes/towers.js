@@ -4,6 +4,7 @@ const { dbReadTowers } = require('../../storage/transactions/read-towers');
 const { dbUpdateTower } = require('../../storage/transactions/update-tower');
 const { dbDeleteTower } = require('../../storage/transactions/delete-tower');
 let MemoryDriver = require('../../memory');
+let UpdaterDriver = require('../../updater');
 
 const errors = require('../../../../constants/errors.json');
 
@@ -11,7 +12,11 @@ module.exports.attachTowerEvents = (socket) => {
     socket.on('createTower', async (data) => {
         let { success, tower, room, member } = await dbCreateTower(data, data.userId);
         if (success) {
-            await MemoryDriver.instance().save(`rights:${room.id}/${data.userId}`, JSON.stringify(member.secret.permissions));
+            Promise.all([
+                MemoryDriver.instance().save(`rights:${room.id}/${data.userId}`, JSON.stringify(member.secret.permissions)),
+                UpdaterDriver.instance().joinQueueToExchange(`queue_${data.userId}`, `exchange_${room.id}`),
+                UpdaterDriver.instance().joinQueueToExchange(`queue_${data.userId}`, `exchange_${tower.id}`)
+            ]);
             socket.reply(data.replyToInternal, { status: 1, tower: tower, room: room, member: member });
         } else {
             socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });

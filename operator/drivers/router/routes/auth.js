@@ -2,6 +2,7 @@
 const { dbVerifyUser } = require('../../storage/transactions/verify-user');
 const { dbSetupUser } = require('../../storage/transactions/setup-user');
 const errors = require('../../../../constants/errors.json');
+const UpdaterDriver = require('../../updater');
 
 module.exports.attachAuthEvents = (socket) => {
     socket.on('verifyUser', async (data) => {
@@ -38,6 +39,8 @@ module.exports.attachAuthEvents = (socket) => {
             centralTowerHall
         } = r;
         if (success) {
+            await UpdaterDriver.instance().joinQueueToExchange(`queue_${member.userId}`, `exchange_${room.id}`);
+            await UpdaterDriver.instance().joinQueueToExchange(`queue_${member.userId}`, `exchange_${room.towerId}`);
             socket.reply(data.replyToInternal, {
                 status: 1,
                 session,
