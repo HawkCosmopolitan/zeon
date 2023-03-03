@@ -15,3 +15,10 @@ export function fetchPermissions(targetUserId, roomId, callback) {
         }
     });
 }
+
+let permissions = {
+    modifyPermissions,
+    fetchPermissions
+};
+
+export default permissions;

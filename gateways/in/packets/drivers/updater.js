@@ -10,22 +10,29 @@ class UpdaterDriver {
         return UpdaterDriver.inst;
     }
     connection;
+    channel;
+    assertQueue(userId) {
+        this.channel.assertQueue(`queue_${userId}`, {
+            durable: true
+        });
+    }
     handleUpdate(roomId, update) {
-        let exchange = this.connection.exchange(`updates:${roomId}`, { type: 'direct', durable: 'true' });
-        exchange.publish('*', JSON.stringify(update), function (err,result) {
-            console.log(err,result);
+        let exchange = this.connection.exchange(`exchange_${roomId}`, { type: 'direct', durable: 'true' });
+        exchange.publish('*', JSON.stringify(update), function (err, result) {
+            console.log(err, result);
         });
     }
     constructor() {
         UpdaterDriver.inst = this;
         this.handleUpdate = this.handleUpdate.bind(this);
-        // amqp.connect('amqp://localhost', function (error0, con) {
-        //     if (error0) throw error0;
-        //     UpdaterDriver.inst.connection = con;
-        //     UpdaterDriver.inst.connection.createChannel(function (error1, channel) {
-        //         if (error1) throw error1;
-        //     });
-        // });
+        amqp.connect('amqp://localhost', function (error0, con) {
+            if (error0) throw error0;
+            UpdaterDriver.inst.connection = con;
+            UpdaterDriver.inst.connection.createChannel(function (error1, channel) {
+                if (error1) throw error1;
+                UpdaterDriver.inst.channel = channel;
+            });
+        });
     }
 }
 

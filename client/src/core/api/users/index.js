@@ -31,3 +31,10 @@ export function readUsers(callback, offset, count, query) {
         }
     });
 }
+
+let users = {
+    readUserById,
+    readUsers
+};
+
+export default users;

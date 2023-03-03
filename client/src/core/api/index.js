@@ -10,7 +10,13 @@ import users from './users';
 
 let api = {
     auth,
+    call,
+    file,
+    interactions,
+    invites,
+    permissions,
     spaces,
+    users
 };
 
 export default api;

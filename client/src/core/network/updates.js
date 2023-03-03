@@ -6,6 +6,7 @@ import { readRoomById } from "../api/spaces";
 import formatDate from "../utils/date-formatter";
 import Bus from "../events/bus";
 import { Storage } from "../storage";
+import { stompClient } from './rabbitmq';
 
 let updatesDictionary = {};
 
@@ -111,16 +112,27 @@ export function attachUpdateListeners() {
         done();
         Bus.publish(updates.USER_JOINED_ROOM, { user: data.user, roomId: data.roomId });
     };
-    socket.on('update', data => {
-        console.log(data);
+    stompClient.subscribe(`/queue/queue_${Memory.startTrx().temp.me.id}`, message => {
+        console.log(`Received: ${message.body}`);
+        let data = JSON.parse(message.body);
         Bus.publish(updates.NEW_NOTIF, data);
-        if (data !== null) {
-            let callback = updatesDictionary[data.type];
-            if (callback) {
-                callback(data, () => {
-                    socket.emit('notifyUpdated', { updateId: data.id });
-                });
-            }
+        let callback = updatesDictionary[data.type];
+        if (callback) {
+            callback(data, () => {
+                socket.emit('notifyUpdated', { updateId: data.id });
+            });
         }
     });
+    // socket.on('update', data => {
+    //     console.log(data);
+    //     Bus.publish(updates.NEW_NOTIF, data);
+    //     if (data !== null) {
+    //         let callback = updatesDictionary[data.type];
+    //         if (callback) {
+    //             callback(data, () => {
+    //                 socket.emit('notifyUpdated', { updateId: data.id });
+    //             });
+    //         }
+    //     }
+    // });
 }

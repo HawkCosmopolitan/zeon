@@ -4,5 +4,6 @@
     "FILE_IN_GATEWAY": "http://localhost:3002",
     "FILE_OUT_GATEWAY": "http://localhost:3003",
     "UPDATE_GATEWAY": "http://localhost:3004",
-    "CALL_PEERER": "localhost:3005"
+    "CALL_PEERER": "localhost:3005",
+    "WEBSTOMP_GATEWAY": "ws://localhost:15674/ws"
 }

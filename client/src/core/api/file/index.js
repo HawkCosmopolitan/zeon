@@ -174,3 +174,16 @@ export function readDocById(documentId, roomId, callback) {
         }
     });
 }
+
+let file = {
+    uploadFile,
+    downloadFile,
+    generatePreviewLink,
+    downloadPreview,
+    generateCoverLink,
+    downloadAudioCover,
+    generateFileLink,
+    readDocById
+};
+
+export default file;

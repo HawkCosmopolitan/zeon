@@ -70,3 +70,13 @@ export function declineInvite(inviteId, callback) {
 export function readMyInvites(callback) {
     if (callback !== undefined) callback(Object.values(Memory.data.invites.byId));
 }
+
+let invites = {
+    createInvite,
+    cancelInvite,
+    acceptInvite,
+    declineInvite,
+    readMyInvites
+};
+
+export default invites;

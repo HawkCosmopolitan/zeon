@@ -60,3 +60,10 @@ export function readInteractions(callback) {
         }
     });
 }
+
+let interactions = {
+    createInteraction,
+    readInteractions
+};
+
+export default interactions;

@@ -20,3 +20,13 @@ export function turnScreenOff() {
 export function turnAudioOff() {
     socket.emit('turn-off-audio', {});
 }
+
+let call = {
+    joinCall,
+    leaveCall,
+    turnVideoOff,
+    turnScreenOff,
+    turnAudioOff
+};
+
+export default call;
