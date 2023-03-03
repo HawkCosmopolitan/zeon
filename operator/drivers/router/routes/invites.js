@@ -5,12 +5,14 @@ const { dbAcceptInvite } = require('../../storage/transactions/accept-invite');
 const { dbDeclineInvite } = require('../../storage/transactions/decline-invite');
 const errors = require('../../../../constants/errors.json');
 let MemoryDriver = require('../../memory');
+const broadcastTypes = require('../../updater/broadcast-types.json');
 
 module.exports.attachInviteEvents = (socket) => {
     socket.on('createInvite', async (data) => {
         let { success, invite, update } = await dbCreateInvite(data, socket.user.id);
         if (success) {
             socket.reply(data.replyToInternal, { status: 1, invite: invite });
+            UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
         } else {
             socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
@@ -19,6 +21,7 @@ module.exports.attachInviteEvents = (socket) => {
         let { success, update } = await dbCancelInvite(data, socket.user.id);
         if (success) {
             socket.reply(data.replyToInternal, { status: 1 });
+            UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
         } else {
             socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }
@@ -56,7 +59,7 @@ module.exports.attachInviteEvents = (socket) => {
                     blogs,
                     posts
                 });
-                handleUpdate(update);
+                UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
             } else {
                 socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
             }

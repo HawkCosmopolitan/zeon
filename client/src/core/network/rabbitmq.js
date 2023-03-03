@@ -8,7 +8,6 @@ export let setupWebStomp = async () => {
     return new Promise(resolve => {
         let webStompChecker = setInterval(() => {
             let WebStompClient = window.WebStompClient;
-            console.log(WebStompClient);
             const client = new WebStompClient({
                 brokerURL: config.WEBSTOMP_GATEWAY,
                 onConnect: () => {

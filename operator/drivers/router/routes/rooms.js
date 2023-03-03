@@ -7,6 +7,7 @@ const { dbDeleteRoom } = require('../../storage/transactions/delete-room');
 const errors = require('../../../../constants/errors.json');
 const { dbReadRoomById } = require('../../storage/transactions/read-room-by-id');
 let MemoryDriver = require('../../memory');
+const broadcastTypes = require('../../updater/broadcast-types.json');
 
 module.exports.attachRoomEvents = (socket) => {
     socket.on('createRoom', async (data) => {
@@ -17,7 +18,7 @@ module.exports.attachRoomEvents = (socket) => {
                 await MemoryDriver.instance().save(`rights:${room.id}/${member2.userId}`, JSON.stringify(member2.secret.permissions));
             }
             socket.reply(data.replyToInternal, { status: 1, room: room, member: member, member2: member2 });
-            handleUpdate(update);
+            UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
         } else {
             socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
         }

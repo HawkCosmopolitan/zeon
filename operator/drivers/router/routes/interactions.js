@@ -3,7 +3,9 @@ const { dbReadInteractions } = require('../../storage/transactions/read-interact
 const { dbCreateInteraction } = require('../../storage/transactions/create-interaction');
 
 const errors = require('../../../../constants/errors.json');
-let MemoryDriver = require('../../memory');
+const MemoryDriver = require('../../memory');
+const UpdaterDriver = require('../../updater');
+const broadcastTypes = require('../../updater/broadcast-types.json');
 
 module.exports.attachInteractionEvents = (socket) => {
     socket.on('createInteraction', async (data) => {
@@ -16,6 +18,7 @@ module.exports.attachInteractionEvents = (socket) => {
                             MemoryDriver.instance().save(`rights:${room.id}/${data.peerId}`, JSON.stringify(member2.secret.permissions))
                         ]);
                         socket.reply(data.replyToInternal, { status: noAction ? 3 : 1, tower, room, member1, member2, interaction, contact, messages });
+                        UpdaterDriver.instance().handleUpdate(broadcastTypes.USER, update);
                     } else {
                         socket.reply(data.replyToInternal, { status: 2, errorText: errors.DATABASE_ERROR });
                     }
