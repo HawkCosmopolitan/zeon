@@ -23,17 +23,17 @@ module.exports.dbDownload = async ({ documentId, res }, userId, roomId, isMember
     let doc = await Document.findOne({ id: documentId }).exec();
     if (doc !== null) {
       if (doc.isPublic || (isMember && doc.roomIds.includes(roomId))) {
-        //res.sendFile(process.cwd() + "/" + folders.FILES + "/" + documentId);
-        if (s3Client === undefined) {
-          s3Client = require('../drivers/main-driver').s3Client;
-        }
-        const bucketParams = {
-          Bucket: config.AWS_FILES_BUCKET_NAME,
-          Key: documentId,
-        };
-        const data = await s3Client.send(new GetObjectCommand(bucketParams));
-        const inputStream = data.Body;
-        inputStream.pipe(res);
+        res.sendFile(process.cwd() + "/" + folders.FILES + "/" + documentId);
+        // if (s3Client === undefined) {
+        //   s3Client = require('../drivers/main-driver').s3Client;
+        // }
+        // const bucketParams = {
+        //   Bucket: config.AWS_FILES_BUCKET_NAME,
+        //   Key: documentId,
+        // };
+        // const data = await s3Client.send(new GetObjectCommand(bucketParams));
+        // const inputStream = data.Body;
+        // inputStream.pipe(res);
         success = true;
       } else {
         console.error('access denied');

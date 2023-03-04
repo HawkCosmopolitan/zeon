@@ -76,24 +76,24 @@ module.exports.dbUpload = async ({ req, res, fileType, isPublic, extension, docu
         receivedSize += Buffer.byteLength(chunk);
         if (receivedSize >= Number(req.headers['content-length'])) {
           if (endFileUpload === true) {
-            if (s3Client === undefined) {
-              s3Client = require('../drivers/main-driver').s3Client;
-            }
-            const params = {
-              Bucket: config.AWS_FILES_BUCKET_NAME,
-              Key: document.id,
-              Body: fs.createReadStream(process.cwd() + "/" + folders.FILES + "/" + document.id)
-            };
-            const parallelUploads3 = new Upload({
-              client: s3Client,
-              params: params
-            });
-            parallelUploads3.on("httpUploadProgress", (progress) => {
-              console.log(progress);
-            });
-            await parallelUploads3.done();
+            // if (s3Client === undefined) {
+            //   s3Client = require('../drivers/main-driver').s3Client;
+            // }
+            // const params = {
+            //   Bucket: config.AWS_FILES_BUCKET_NAME,
+            //   Key: document.id,
+            //   Body: fs.createReadStream(process.cwd() + "/" + folders.FILES + "/" + document.id)
+            // };
+            // const parallelUploads3 = new Upload({
+            //   client: s3Client,
+            //   params: params
+            // });
+            // parallelUploads3.on("httpUploadProgress", (progress) => {
+            //   console.log(progress);
+            // });
+            // await parallelUploads3.done();
             generatePreview(document, preview, extension, async ({ duration, width, height }) => {
-              fs.rm(process.cwd() + "/" + folders.FILES + "/" + document.id, async () => {
+              //fs.rm(process.cwd() + "/" + folders.FILES + "/" + document.id, async () => {
                 if (duration || (width && height)) {
                   const session = await mongoose.startSession();
                   session.startTransaction();
@@ -109,7 +109,7 @@ module.exports.dbUpload = async ({ req, res, fileType, isPublic, extension, docu
                 }
                 res.send({ status: "success", document: document, preview: preview });
                 callback({ success: true });
-              });
+              //});
             });
           } else {
             res.send({ status: "success", documentId: document.id });

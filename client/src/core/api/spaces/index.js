@@ -53,6 +53,7 @@ export function createRoom(title, avatarId, isPublic, towerId, floor, callback) 
             trx.commit();
 
             PubSub.publish(topics.ROOM_CREATED, { room: res.room, member: res.member });
+            if (callback !== undefined) callback(res.room);
         }
     });
 }

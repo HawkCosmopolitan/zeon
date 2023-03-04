@@ -45,6 +45,9 @@ let createMemory = () => ({
     activeCalls: {
         bySpaceId: {}
     },
+    docs: {
+        byId: {}
+    },
     counter: counterWrapper
 });
 
