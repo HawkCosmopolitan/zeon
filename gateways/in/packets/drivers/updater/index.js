@@ -41,7 +41,7 @@ class UpdaterDriver {
         });
     }
     async handleUpdate(broadcastType, update) {
-        if (broadcastType === broadcastTypes.ROOM || broadcastType === broadcastTypes.TOWER) {
+        if (broadcastType === broadcastTypes.ROOM) {
             await this.assertExchange(`exchange_${update.roomId}`);
             this.channel.publish(`exchange_${update.roomId}`, '', Buffer.from(JSON.stringify(update)));
         } else if (broadcastType === broadcastTypes.TOWER) {

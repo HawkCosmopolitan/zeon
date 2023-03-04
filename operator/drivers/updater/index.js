@@ -12,43 +12,31 @@ class UpdaterDriver {
     }
     connection;
     channel;
-    async assertQueue(queueId) {
-        return new Promise(resolve => {
-            this.channel.assertQueue(queueId, {
-                durable: true
-            }, () => {
-                resolve();
-            });
-        })
-    }
-    async assertExchange(exchangeId) {
-        return new Promise(resolve => {
-            this.channel.assertExchange(
-                exchangeId,
-                'fanout',
-                { durable: true },
-                () => {
-                    resolve();
-                });
-        })
-    }
-    async joinQueueToExchange(queueId, exchangeId) {
-        Promise.all([this.assertQueue(queueId), this.assertExchange(exchangeId)]);
-        return new Promise(resolve => {
-            this.channel.bindQueue(queueId, exchangeId, `${queueId}:${exchangeId}`, undefined, () => {
-                resolve();
-            });
+    assertQueue(queueId) {
+        this.channel.assertQueue(queueId, {
+            durable: true
         });
     }
+    assertExchange(exchangeId) {
+        this.channel.assertExchange(
+            exchangeId,
+            'fanout',
+            { durable: true });
+    }
+    async joinQueueToExchange(queueId, exchangeId) {
+        this.assertQueue(queueId);
+        this.assertExchange(exchangeId);
+        this.channel.bindQueue(queueId, exchangeId, '');
+    }
     async handleUpdate(broadcastType, update) {
-        if (broadcastType === broadcastTypes.ROOM || broadcastType === broadcastTypes.TOWER) {
-            await this.assertExchange(`exchange_${update.roomId}`);
+        if (broadcastType === broadcastTypes.ROOM) {
+            this.assertExchange(`exchange_${update.roomId}`);
             this.channel.publish(`exchange_${update.roomId}`, '', Buffer.from(JSON.stringify(update)));
         } else if (broadcastType === broadcastTypes.TOWER) {
-            await this.assertExchange(`exchange_${update.towerId}`);
+            this.assertExchange(`exchange_${update.towerId}`);
             this.channel.publish(`exchange_${update.towerId}`, '', Buffer.from(JSON.stringify(update)));
         } else if (broadcastType === broadcastTypes.USER) {
-            await this.assertQueue(`queue_${update.userId}`);
+            this.assertQueue(`queue_${update.userId}`);
             this.channel.sendToQueue(`queue_${update.userId}`, Buffer.from(JSON.stringify(update)));
         }
     }
@@ -57,6 +45,7 @@ class UpdaterDriver {
         this.handleUpdate = this.handleUpdate.bind(this);
         this.joinQueueToExchange = this.joinQueueToExchange.bind(this);
         this.assertQueue = this.assertQueue.bind(this);
+        this.assertExchange = this.assertExchange.bind(this);
         amqp.connect('amqp://localhost', function (error0, con) {
             if (error0) throw error0;
             UpdaterDriver.inst.connection = con;

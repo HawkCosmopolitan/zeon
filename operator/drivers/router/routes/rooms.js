@@ -16,11 +16,9 @@ module.exports.attachRoomEvents = (socket) => {
         if (success) {
             await MemoryDriver.instance().save(`rights:${room.id}/${member.userId}`, JSON.stringify(member.secret.permissions));
             await UpdaterDriver.instance().joinQueueToExchange(`queue_${member.userId}`, `exchange_${room.id}`);
-            await UpdaterDriver.instance().joinQueueToExchange(`queue_${member.userId}`, `exchange_${room.towerId}`);
             if (member2) {
                 await MemoryDriver.instance().save(`rights:${room.id}/${member2.userId}`, JSON.stringify(member2.secret.permissions));
                 await UpdaterDriver.instance().joinQueueToExchange(`queue_${member2.userId}`, `exchange_${room.id}`);
-                await UpdaterDriver.instance().joinQueueToExchange(`queue_${member2.userId}`, `exchange_${room.towerId}`);
             }
             socket.reply(data.replyToInternal, { status: 1, room: room, member: member, member2: member2 });
             UpdaterDriver.instance().handleUpdate(broadcastTypes.TOWER, update);

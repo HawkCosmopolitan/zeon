@@ -237,8 +237,10 @@ export function MemoryWrapper() {
     const { state, modifyState } = useMemory();
     useEffect(() => {
         Memory.data = state;
-        Memory.update = (newState) => modifyState({...createMemory(), ...newState});
-        setupMemory().then(Memory.update);
+        Memory.update = (newState) => modifyState({ ...createMemory(), ...newState });
+        setupMemory().then(data => {
+            Memory.update(data);
+        });
     }, []);
     return null;
 }
