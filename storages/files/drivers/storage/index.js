@@ -1,14 +1,15 @@
 
 class StorageDriver {
     static inst;
-    static initialize() {
-        return new StorageDriver();
+    static initialize(callback) {
+        return new StorageDriver(callback);
     }
     static instance() {
         return StorageDriver.inst;
     }
-    constructor() {
+    constructor(callback) {
         StorageDriver.inst = this;
+        callback();
     }
 }
 

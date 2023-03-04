@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,8 +15,10 @@
     "@grpc/grpc-js": "^1.6.7",
     "@grpc/proto-loader": "^0.6.13",
     "body-parser": "^1.19.0",
+    "connect-redis": "^7.0.0",
     "cors": "^2.8.5",
     "express": "^4.18.1",
+    "express-session": "^1.17.3",
     "formidable": "^2.0.1",
     "get-audio-duration": "^3.1.1",
     "image-size": "^1.0.2",
@@ -24,8 +27,11 @@
     "node-fetch": "^3.2.10",
     "pdf2pic": "^2.1.4",
     "readline-sync": "^1.4.10",
+    "redis": "^4.6.5",
     "sharp": "^0.30.7",
     "simple-thumbnail": "^1.6.5",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
     "xmlhttprequest": "^1.8.0"
   }
 }

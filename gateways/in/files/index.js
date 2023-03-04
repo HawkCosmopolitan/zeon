@@ -40,6 +40,10 @@ async function main() {
       proxy.web(req, res, { target: 'http://localhost:' + ports.FILES_STORAGE }, e => { console.log(e); });
     }
   });
+  let server = http.createServer(app);
+  server.listen(`localhost:${ports.FILES_IN_GATEWAY_PORT}`, () => {
+    console.log(`listening on *:${ports.FILES_IN_GATEWAY_PORT}`);
+  });
 }
 
 main();

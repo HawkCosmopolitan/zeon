@@ -1,6 +1,6 @@
 {
-    "FILES": "database/data/files",
-    "PREVIEWS": "database/data/previews",
-    "TEMP": "database/data/temp",
-    "PDF_PAGES": "database/data/pdf-pages"
+    "FILES": "data/files",
+    "PREVIEWS": "data/previews",
+    "TEMP": "data/temp",
+    "PDF_PAGES": "data/pdf-pages"
 }

@@ -1,6 +1,5 @@
-const { dbDownload, dbPreview, dbCoverAudio } = require('../../database/transactions/download');
-const { dbReadDocById } = require('../../database/transactions/read-doc-by-id');
-const { dbUpload } = require('../../database/transactions/upload');
+const { dbDownload, dbPreview, dbCoverAudio } = require('../../storage/transactions/download');
+const { dbUpload } = require('../../storage/transactions/upload');
 const errors = require('../../../../../constants/errors.json');
 const express = require('express');
 

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const config = require('../../../database/config/config.json');
+const config = require('../config/config.json');
 const { S3Client, CreateBucketCommand } = require("@aws-sdk/client-s3");
 const addresses = require('../../../../../constants/addresses.json');
 

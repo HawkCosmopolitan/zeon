@@ -1,5 +1,5 @@
 
-let auth = require('./routes/auth');
+let docs = require('./routes/docs');
 
 const attachRoute = (socket, socketManager, route) => {
     for (let routeKey in route) {
@@ -12,6 +12,6 @@ const attachRoute = (socket, socketManager, route) => {
 module.exports = {
     attachRoute: attachRoute,
     attachRouter: (socket, socketManager) => {
-        attachRoute(socket, socketManager, auth);
+        attachRoute(socket, socketManager, docs);
     }
 }

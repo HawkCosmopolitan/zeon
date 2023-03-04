@@ -5,8 +5,6 @@ const http = require('http');
 const cors = require('cors');
 const ports = require('../../../../constants/ports.json');
 const { attachRouter } = require('../router');
-const io = require('socket.io-client');
-const { request, setupResponseReceiver } = require('../utils/requests');
 const files = require('./endpoints/files');
 
 class NetworkDriver {
@@ -37,9 +35,6 @@ class NetworkDriver {
         this.app.use(bodyParser.json());
         this.app.use('/file', files);
         this.httpServer = http.createServer(this.app);
-        this.httpServer.listen(ports.FILES_STORAGE, () => {
-            console.log(`listening on *:${ports.FILES_STORAGE}`);
-        });
         this.socketServer = require("socket.io")(this.httpServer, {
             cors: {
                 origin: "*"
@@ -47,15 +42,14 @@ class NetworkDriver {
         });
         this.socketServer.on('connection', (socket) => {
             console.log('a socket connected');
-            let remoteSocket = io(`http://localhost:${ports.OPERATOR_PORT}`);
-            socket.remoteSocket = remoteSocket;
-            socket.on('disconnect', () => socket.remoteSocket.close());
-            setupResponseReceiver(socket.remoteSocket);
             attachRouter({
                 id: socket.id,
                 on: (key, callback) => socket.on(key, callback),
                 reply: (replyToInternal, answer) => socket.emit('response', { replyToInternal: replyToInternal, ...answer }),
             }, this.socketManager);
+        });
+        this.httpServer.listen(ports.FILES_STORAGE, () => {
+            console.log(`listening on *:${ports.FILES_STORAGE}`);
         });
     }
 }
