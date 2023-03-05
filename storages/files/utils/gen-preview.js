@@ -52,7 +52,6 @@ module.exports.generatePreview = (document, preview, extension, done) => {
                 const finalPreviewPath = process.cwd() + "/" + folders.PREVIEWS + "/" + preview.id;
                 fs.renameSync(rawPreviewPath, finalPreviewPath);
                 sizeOf(finalPreviewPath, function (err, dimensions) {
-                    console.log(dimensions.width, dimensions.height);
                     done({ width: dimensions.width, height: dimensions.height });
                 });
             });

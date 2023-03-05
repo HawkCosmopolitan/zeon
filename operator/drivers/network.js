@@ -1,5 +1,5 @@
 
-const ports = require('../../constants/ports.json');
+const addresses = require('../../constants/addresses.json');
 const { attachRouter } = require('./router');
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -23,8 +23,8 @@ class NetworkDriver {
         this.app.use(cors());
         this.app.use(bodyParser.json());
         this.httpServer = http.createServer(this.app);
-        this.httpServer.listen(ports.OPERATOR_PORT, () => {
-            console.log(`listening on *:${ports.OPERATOR_PORT}`);
+        this.httpServer.listen(addresses.OPERATOR_PORT, () => {
+            console.log(`listening on *:${addresses.OPERATOR_PORT}`);
         });
         this.socketServer = require("socket.io")(this.httpServer, {
             cors: {

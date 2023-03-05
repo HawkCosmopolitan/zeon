@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const ports = require('../../../../constants/ports.json');
+const addresses = require('../../../../constants/addresses.json');
 const { attachRouter } = require('../router');
 const files = require('./endpoints/files');
 
@@ -48,8 +48,8 @@ class NetworkDriver {
                 reply: (replyToInternal, answer) => socket.emit('response', { replyToInternal: replyToInternal, ...answer }),
             }, this.socketManager);
         });
-        this.httpServer.listen(ports.FILES_STORAGE, () => {
-            console.log(`listening on *:${ports.FILES_STORAGE}`);
+        this.httpServer.listen(addresses.FILES_STORAGE_PORT, () => {
+            console.log(`listening on *:${addresses.FILES_STORAGE_PORT}`);
         });
     }
 }

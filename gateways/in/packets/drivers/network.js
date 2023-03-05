@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const ports = require('../../../../constants/ports.json');
+const addresses = require('../../../../constants/addresses.json');
 const { attachRouter } = require('./router');
 const io = require('socket.io-client');
 const { request, setupResponseReceiver } = require('../utils/requests');
@@ -35,8 +35,8 @@ class NetworkDriver {
         this.app.use(cors());
         this.app.use(bodyParser.json());
         this.httpServer = http.createServer(this.app);
-        this.httpServer.listen(ports.PACKETS_IN_GATEWAY_PORT, () => {
-            console.log(`listening on *:${ports.PACKETS_IN_GATEWAY_PORT}`);
+        this.httpServer.listen(addresses.PACKETS_IN_GATEWAY_PORT, () => {
+            console.log(`listening on *:${addresses.PACKETS_IN_GATEWAY_PORT}`);
         });
         this.socketServer = require("socket.io")(this.httpServer, {
             cors: {
@@ -45,7 +45,7 @@ class NetworkDriver {
         });
         this.socketServer.on('connection', (socket) => {
             console.log('a socket connected');
-            let remoteSocket = io(`http://localhost:${ports.OPERATOR_PORT}`);
+            let remoteSocket = io(addresses.OPERATOR_PATH);
             socket.remoteSocket = remoteSocket;
             socket.on('disconnect', () => socket.remoteSocket.close());
             setupResponseReceiver(socket.remoteSocket);

@@ -1,7 +1,7 @@
 
 const express = require('express');
 const redis = require('redis');
-const ports = require('../../../../constants/ports.json');
+const addresses = require('../../../../constants/addresses.json');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const secrets = require('../../../../constants/secrets.json');
@@ -40,7 +40,7 @@ class MemoryDriver {
         this.fetch = this.fetch.bind(this);
         this.redisClient = redis.createClient({
             host: 'localhost',
-            port: ports.REDIS_PORT
+            port: addresses.REDIS_PORT
         });
         this.redisClient.connect().then(() => {
             this.redisClient.on('error', function (err) {
@@ -66,7 +66,7 @@ class MemoryDriver {
                     secure: true
                 }
             }));
-            app.listen(ports.REDIS_SESSION_PACKETS_PORT, () => { console.log(`server is listening on ${ports.REDIS_SESSION_PACKETS_PORT}`) }); 
+            app.listen(addresses.REDIS_SESSION_PACKETS_PORT, () => { console.log(`server is listening on ${addresses.REDIS_SESSION_PACKETS_PORT}`) }); 
         });
     }
 }
