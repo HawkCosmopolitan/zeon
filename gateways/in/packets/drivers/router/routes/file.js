@@ -1,8 +1,3 @@
-const { authRoom } = require('../../../utils/auth');
-const { replySocketReq } = require('../utils');
-const addresses = require('../../../../constants/addresses.json');
-const errors = require('../../../../constants/errors.json');
-let { Member } = require('../../../database/schemas/schemas');
 
 module.exports = {
     readDocById: async (socket, data, socketManager) => {

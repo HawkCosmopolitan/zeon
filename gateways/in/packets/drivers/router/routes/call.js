@@ -1,8 +1,8 @@
 
 const { io } = require("socket.io-client");
-const ports = require('../../../../../../constants/ports.json');
 const MemoryDriver = require('../../memory');
 const UpdaterDriver = require('../../updater');
+const addresses = require('../../../../../../constants/addresses.json');
 
 let backward = ['on-user-leave', 'on-audio-turn-off', 'on-screen-turn-off', 'on-video-turn-off', 'on-users-sync', 'on-user-join'];
 let forward = ['leave-call', 'turn-off-video', 'turn-off-screen', 'turn-off-audio', 'join-call'];
@@ -37,8 +37,7 @@ module.exports.leaveCall = (socket) => {
 }
 
 module.exports.attachCallEvents = (socket) => {
-    let remoteVideo = io(`http://localhost:${ports.CALL}`);
-    console.log('opened new remote to ', 'localhost:', ports.CALL);
+    let remoteVideo = io(addresses.CALL_PATH);
     remoteSocketsVideo[socket.id] = remoteVideo;
     remoteVideo.twin = socket;
     socket.twin = remoteVideo;
