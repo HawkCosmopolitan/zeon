@@ -7,6 +7,7 @@ import invites from './invites';
 import permissions from './permissions';
 import spaces from './spaces';
 import users from './users';
+import shell from './shell';
 
 let api = {
     auth,
@@ -16,7 +17,8 @@ let api = {
     invites,
     permissions,
     spaces,
-    users
+    users,
+    shell
 };
 
 export default api;

@@ -6,7 +6,8 @@ const cors = require('cors');
 const addresses = require('../../../../constants/addresses.json');
 const { attachRouter } = require('./router');
 const io = require('socket.io-client');
-const { request, setupResponseReceiver } = require('../utils/requests');
+const { request, setupResponseReceiver, requestService } = require('../utils/requests');
+const { services } = require('./router/shell');
 
 class NetworkDriver {
     static inst;
@@ -47,16 +48,23 @@ class NetworkDriver {
             console.log('a socket connected');
             let remoteSocket = io(addresses.OPERATOR_PATH);
             socket.remoteSocket = remoteSocket;
-            socket.on('disconnect', () => socket.remoteSocket.close());
             setupResponseReceiver(socket.remoteSocket);
+            socket.on('disconnect', () => socket.remoteSocket.close());
+            socket.services = {};
+            for (let serviceKey in services) {
+                let serviceSocket = io(services[serviceKey].address);
+                setupResponseReceiver(serviceSocket);
+                socket.services[serviceKey] = serviceSocket;
+            }
+            socket.on('disconnect', () => Object.values(socket.services).forEach(s => s.close()));
             attachRouter({
                 id: socket.id,
                 on: (key, callback) => socket.on(key, callback),
                 reply: (requestId, answer) => {
-                    console.log(requestId, answer);
                     socket.emit('response', { replyTo: requestId, ...answer });
                 },
-                pass: (key, data, callback) => request(socket.remoteSocket, key, data, callback)
+                pass: (key, data, callback) => request(socket.remoteSocket, key, data, callback),
+                passToService: (serviceKey, key, data, callback) => request(socket.services[serviceKey], key, data, callback)
             }, this.socketManager);
         });
     }

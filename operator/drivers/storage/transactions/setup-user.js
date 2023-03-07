@@ -74,7 +74,6 @@ module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, la
                 token: uuidv4(),
                 userId: userGenedId,
             }, session);
-            await MemoryDriver.instance().save(`auth:${userSession.token}`, userGenedId);
             let towerGenedId = makeUniqueId();
             let roomGenedId = makeUniqueId();
             user = await UserFactory.instance().create({

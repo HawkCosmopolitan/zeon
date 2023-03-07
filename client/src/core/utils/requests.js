@@ -18,15 +18,13 @@ let triggerQueue = () => {
 };
 
 export let setupResponseReceiver = () => {
-    setTimeout(() => {
-        socket.on('response', data => {
-            console.info(data);
-            let callback = requestDictionary[data.replyTo];
-            if (callback !== undefined) {
-                callback(data);
-                delete requestDictionary[data.replyTo];
-            }
-        });
+    socket.on('response', data => {
+        console.info(data);
+        let callback = requestDictionary[data.replyTo];
+        if (callback !== undefined) {
+            callback(data);
+            delete requestDictionary[data.replyTo];
+        }
     });
 };
 

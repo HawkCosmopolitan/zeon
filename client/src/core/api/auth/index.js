@@ -98,25 +98,30 @@ export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
     });
 }
 
-export function authenticate() {
+export function authenticate(callback) {
     console.log('authenticating...');
     request('authenticate', { token: Memory.data().token }, async response => {
         console.log('authenticated.');
         Bus.publish(topics.AUTHENTICATED, {});
+        if (callback) callback();
     });
 }
 
-export function teleport(spaceId) {
-    console.log('entering room...');
+export function teleport(spaceId, callback) {
+    console.log('teleporting...');
     if (Memory.data().towers.byId[spaceId]) {
         Storage.auth.saveCurrentTowerId(spaceId);
         request('teleport', { spaceId: spaceId }, response => {
+            console.log('teleported.');
             Bus.publish(topics.TELEPORTED_TO_TOWER, { towerId: spaceId });
+            if (callback) callback();
         });
     } else {
         Storage.auth.saveCurrentRoomId(spaceId);
         request('teleport', { spaceId: spaceId }, response => {
+            console.log('teleported.');
             Bus.publish(topics.TELEPORTED_TO_ROOM, { roomId: spaceId });
+            if (callback) callback();
         });
     }
 }

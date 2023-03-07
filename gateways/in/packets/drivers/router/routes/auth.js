@@ -25,10 +25,10 @@ module.exports = {
             }
         });
     },
-    teleport: (socket, { roomId, replyTo }, socketManager) => {
-        SecurityDriver.instance().teleport(socket.userId, roomId, rights => {
+    teleport: (socket, { spaceId, replyTo }, socketManager) => {
+        SecurityDriver.instance().teleport(socket.userId, spaceId, rights => {
             socket.rights = rights;
-            socket.roomId = roomId;
+            socket.roomId = spaceId;
             socket.reply(replyTo, {});
         });
     }

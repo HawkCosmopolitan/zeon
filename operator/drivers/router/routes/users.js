@@ -15,10 +15,10 @@ module.exports.attachUserEvents = (socket) => {
         }
     });
     socket.on('readUserById', async (data) => {
-        let user = await UserFactory.instance().find(data.targetUserId);
+        let user = await UserFactory.instance().find({ id: data.targetUserId });
         if (user) {
             let onlineState = user.secret.isOnline;
-            let lastSeen = user.sucret.lastSeen;
+            let lastSeen = user.secret.lastSeen;
             if (!onlineState) {
                 socket.reply(data.replyToInternal, { status: 1, user: user, onlineState: false, lastSeen: lastSeen });
             } else {

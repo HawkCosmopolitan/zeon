@@ -10,16 +10,14 @@ import { setupResponseReceiver } from '../utils/requests';
 export let socket;
 
 export let setupSocket = () => {
-    setTimeout(() => {
-        socket = io(config.PACKET_GATEWAY);
-        attachUpdateListeners();
-        socket.on("connect", () => {
-            authenticate();
-            Bus.publish(updates.CONNECTED, {});
-        });
-        socket.on("disconnect", () => {
-            Bus.publish(updates.DISCONNECTED, {});
-        });
-        setupResponseReceiver();
+    socket = io(config.PACKET_GATEWAY);
+    attachUpdateListeners();
+    socket.on("connect", () => {
+        authenticate();
+        Bus.publish(updates.CONNECTED, {});
     });
+    socket.on("disconnect", () => {
+        Bus.publish(updates.DISCONNECTED, {});
+    });
+    setupResponseReceiver();
 };
