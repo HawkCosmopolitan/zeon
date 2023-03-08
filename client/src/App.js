@@ -40,8 +40,8 @@ export default function App() {
                 });
             }}>teleport to center !</button>
             <button onClick={() => {
-                api.shell.echo('hello echo god !', res => {
-
+                api.shell.echo('hello echo god !').then(res => {
+                    console.log(res);
                 });
             }}>echo !</button>
         </div>

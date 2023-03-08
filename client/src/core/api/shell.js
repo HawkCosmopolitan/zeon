@@ -1,9 +1,20 @@
 
 import { request } from '../utils/requests';
+import Crypto from '../crypto';
+import { Storage } from '../storage';
 
-export function echo(text, callback) {
-    request('use-service', { key: 'echo-service', action: 'echo', body: { text: text } }, (res) => {
-        if (callback) callback(res);
+export async function echo(text) {
+    return new Promise(async resolve => {
+        request('use-service', {
+            key: 'echo-service',
+            action: 'echo',
+            body: {
+                text: await Crypto.instance().prepareMessage(Storage.me.fetchMyUserId(), text)
+            }
+        }, async res => {
+            res.text = await Crypto.instance().openMesage(Storage.me.fetchMyUserId(), res.text);
+            resolve(res);
+        });
     });
 }
 
