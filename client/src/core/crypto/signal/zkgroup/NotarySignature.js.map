@@ -1,0 +1,1 @@
+{"version":3,"file":"NotarySignature.js","sourceRoot":"","sources":["../../ts/zkgroup/NotarySignature.ts"],"names":[],"mappings":";AAAA,EAAE;AACF,6CAA6C;AAC7C,yCAAyC;AACzC,EAAE;;AAEF,oDAA6C;AAE7C,MAAqB,eAAgB,SAAQ,mBAAS;IAIpD,YAAY,QAAgB;QAC1B,KAAK,CAAC,QAAQ,EAAE,eAAe,CAAC,WAAW,CAAC,eAAe,CAAC,IAAI,CAAC,CAAC,CAAC;IACrE,CAAC;;AANH,kCAOC;AALQ,oBAAI,GAAG,EAAE,CAAC"}

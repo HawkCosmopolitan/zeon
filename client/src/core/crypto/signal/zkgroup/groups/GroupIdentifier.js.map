@@ -1,0 +1,1 @@
+{"version":3,"file":"GroupIdentifier.js","sourceRoot":"","sources":["../../../ts/zkgroup/groups/GroupIdentifier.ts"],"names":[],"mappings":";AAAA,EAAE;AACF,6CAA6C;AAC7C,yCAAyC;AACzC,EAAE;;AAEF,qDAA8C;AAE9C,MAAqB,eAAgB,SAAQ,mBAAS;IAIpD,YAAY,QAAgB;QAC1B,KAAK,CAAC,QAAQ,EAAE,eAAe,CAAC,WAAW,CAAC,eAAe,CAAC,IAAI,CAAC,CAAC,CAAC;IACrE,CAAC;;AANH,kCAOC;AALQ,oBAAI,GAAG,EAAE,CAAC"}
