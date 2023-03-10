@@ -7,10 +7,19 @@ import formatDate from "../utils/date-formatter";
 import Bus from "../events/bus";
 import { Storage } from "../storage";
 import { stompClient } from './rabbitmq';
+import Crypto from '../crypto';
 
 let updatesDictionary = {};
 
 export function attachUpdateListeners() {
+    
+    socket.on('onExchangePubKeys', ({ requesterId, roomId, peerPubKey }) => {
+        Crypto.instance().answerDH(peerPubKey, myPublicKey => {
+            socket.emit('answerExchangePubKeys', { pubKey: myPublicKey, requesterId, roomId });
+        }, secret => {
+
+        });
+    });
 
     socket.on('on-contact-online-state-change', ({ userId, onlineState, lastSeen }) => {
         let user = Memory.data.users.byId[userId];

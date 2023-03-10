@@ -11,9 +11,7 @@ export default class Crypto {
     }
     async configure() {
         this.startDH((myPubKey, peerPubKeyReady) => {
-            this.answerDH(myPubKey, peerPubKeyReady, secret => {
-                console.log('bob secret is', secret);
-            });
+            
         }, secret => {
             console.log('alice secret is', secret);
         });

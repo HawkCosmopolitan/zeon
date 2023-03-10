@@ -28,6 +28,9 @@ class NetworkDriver {
         },
         removeSocketFromDictionary: (key) => {
             delete this.sockets[key];
+        },
+        volatileUpdate: (key, update) => {
+            this.sockets[key]?.emit(update.type, update);
         }
     }
     constructor() {
