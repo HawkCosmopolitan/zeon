@@ -10,11 +10,7 @@ export default class Crypto {
         return Crypto.inst;
     }
     async configure() {
-        this.startDH((myPubKey, peerPubKeyReady) => {
-            
-        }, secret => {
-            console.log('alice secret is', secret);
-        });
+        
     }
     async openMesage(senderId, msg) {
 
