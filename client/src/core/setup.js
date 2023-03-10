@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { setupSocket } from './network/socket';
 import { setupWebStomp } from './network/rabbitmq';
 import { setupDB } from './storage/setup';
@@ -20,7 +21,6 @@ export class Core extends Component {
     }
     constructor(props) {
         super(props);
-        alert('test');
         this.loadCore = this.loadCore.bind(this);
     }
     componentDidMount() {

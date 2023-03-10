@@ -9,7 +9,7 @@ export async function echo(text) {
             key: 'echo-service',
             action: 'echo',
             body: {
-                text: await Crypto.instance().prepareMessage(Storage.me.fetchMyUserId(), text)
+                text: await Crypto.instance().packageMessage(Storage.me.fetchMyUserId(), text)
             }
         }, async res => {
             res.text = await Crypto.instance().openMesage(Storage.me.fetchMyUserId(), res.text);
