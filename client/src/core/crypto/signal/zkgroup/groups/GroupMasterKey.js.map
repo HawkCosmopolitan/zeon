@@ -1,1 +1,0 @@
-{"version":3,"file":"GroupMasterKey.js","sourceRoot":"","sources":["../../../ts/zkgroup/groups/GroupMasterKey.ts"],"names":[],"mappings":";AAAA,EAAE;AACF,6CAA6C;AAC7C,yCAAyC;AACzC,EAAE;;AAEF,qDAA8C;AAE9C,MAAqB,cAAe,SAAQ,mBAAS;IAInD,YAAY,QAAgB;QAC1B,KAAK,CAAC,QAAQ,EAAE,cAAc,CAAC,WAAW,CAAC,cAAc,CAAC,IAAI,CAAC,CAAC,CAAC;IACnE,CAAC;;AANH,iCAOC;AALQ,mBAAI,GAAG,EAAE,CAAC"}
