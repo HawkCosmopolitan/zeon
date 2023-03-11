@@ -13,7 +13,7 @@ export function exchangePubKeys(roomId, userId, pubKey, callback) {
 }
 
 let crypto = {
-    authenticate
+    exchangePubKeys
 };
 
 export default crypto;

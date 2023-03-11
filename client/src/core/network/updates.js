@@ -14,7 +14,7 @@ let updatesDictionary = {};
 export function attachUpdateListeners() {
     
     socket.on('onExchangePubKeys', ({ requesterId, roomId, peerPubKey }) => {
-        Crypto.instance().answerDH(peerPubKey, myPublicKey => {
+        Crypto.instance().answerDH(roomId, requesterId, peerPubKey, myPublicKey => {
             socket.emit('answerExchangePubKeys', { pubKey: myPublicKey, requesterId, roomId });
         }, secret => {
 

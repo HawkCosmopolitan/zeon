@@ -1,6 +1,7 @@
 
 import auth from './auth';
 import call from './call';
+import crypto from './crypto';
 import file from './file';
 import interactions from './interactions';
 import invites from './invites';
@@ -12,6 +13,7 @@ import shell from './shell';
 let api = {
     auth,
     call,
+    crypto,
     file,
     interactions,
     invites,
