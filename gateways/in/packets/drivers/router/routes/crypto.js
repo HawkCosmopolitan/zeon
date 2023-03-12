@@ -1,4 +1,6 @@
 
+const SecurityDriver = require('../../security');
+
 let pendingExchangeRequests = {}
 
 module.exports = {
@@ -22,5 +24,9 @@ module.exports = {
         let { requesterId, roomId, pubKey } = data;
         let userId = socket.userId;
         pendingExchangeRequests[`${roomId}_${userId}_${requesterId}`]?.callback(pubKey);
+    },
+    saveMyPublicKey: (socket, data, socketManager) => {
+        SecurityDriver.instance().savePublicKey(socket.userId, data.publicKey);
+        socket.reply(data.replyTo, { peerPubKey: peerPubKey });
     },
 }

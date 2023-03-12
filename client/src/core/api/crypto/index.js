@@ -12,8 +12,17 @@ export function exchangePubKeys(roomId, userId, pubKey, callback) {
     });
 }
 
+export function saveMyKeyPair(pubKey, priKey, callback) {
+    request('saveMyPublicKey', { publicKey: pubKey }, () => {
+        localStorage.setItem('myPublicKey', pubKey);
+        localStorage.setItem('myPrivateKey', priKey);
+        if (callback) callback();
+    });
+}
+
 let crypto = {
-    exchangePubKeys
+    exchangePubKeys,
+    saveMyKeyPair
 };
 
 export default crypto;

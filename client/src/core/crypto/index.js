@@ -2,6 +2,8 @@
 import CryptoBrowser from 'crypto-browserify';
 import api from '../api';
 
+let rsa = forge.pki.rsa;
+
 export default class Crypto {
     static inst;
     static setupCrypto() {
@@ -27,6 +29,19 @@ export default class Crypto {
     }
     async packageMessage(receiverId, msg) {
 
+    }
+    generateKeyPair(onResult) {
+        rsa.generateKeyPair({ bits: 2048, workers: 2 }, function (err, keypair) {
+            let priKey = keypair.privateKey;
+            let pubKey = keypair.publicKey;
+            onResult([pubKey, priKey]);
+        });
+    }
+    encryptTextByKeyPair(pubKey, payload) {
+        return pubKey.encrypt(Buffer.from(payload));
+    }
+    decryptTextByKeyPair(priKey, cipher) {
+        return priKey.decrypt(cipher);
     }
     async startDH(roomId, userId, exchangePubKeys, onResult) {
         let dh1 = CryptoBrowser.getDiffieHellman('modp1');
@@ -55,6 +70,9 @@ export default class Crypto {
         this.configure = this.configure.bind(this);
         this.startDH = this.startDH.bind(this);
         this.answerDH = this.answerDH.bind(this);
+        this.generateKeyPair = this.generateKeyPair.bind(this);
+        this.encryptTextByKeyPair = this.encryptTextByKeyPair.bind(this);
+        this.decryptTextByKeyPair = this.decryptTextByKeyPair.bind(this);
         this.configure();
     }
 }
