@@ -1,4 +1,5 @@
 
+import Crypto from '../../crypto';
 import Bus from '../../events/bus';
 import topics from '../../events/topics.json';
 import { Memory } from '../../memory';
@@ -19,8 +20,10 @@ export function createTower(title, avatarId, isPublic, callback) {
             trx.addMembership(res.member);
             trx.commit();
 
-            if (callback !== undefined) callback(res.tower, res.room, res.member);
-            Bus.publish(topics.TOWER_CREATED, { tower: res.tower, room: res.room, member: res.member });
+            Crypto.instance().refreshRoomKey(res.room.id).then(() => {
+                if (callback !== undefined) callback(res.tower, res.room, res.member);
+                Bus.publish(topics.TOWER_CREATED, { tower: res.tower, room: res.room, member: res.member });
+            });
         }
     });
 }
@@ -52,8 +55,10 @@ export function createRoom(title, avatarId, isPublic, towerId, floor, callback) 
             trx.addMembership(res.member);
             trx.commit();
 
-            Bus.publish(topics.ROOM_CREATED, { room: res.room, member: res.member });
-            if (callback !== undefined) callback(res.room);
+            Crypto.instance().refreshRoomKey(res.room.id).then(() => {
+                Bus.publish(topics.ROOM_CREATED, { room: res.room, member: res.member });
+                if (callback !== undefined) callback(res.room);
+            });
         }
     });
 }

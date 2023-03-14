@@ -5,7 +5,7 @@ import { Storage } from '../../storage';
 import Bus from '../../events/bus';
 import { Memory } from '../../memory';
 import api from '../../api';
-import SecurityDriver from '../../crypto';
+import Crypto from '../../crypto';
 
 export function verify(/*auth0AccessToken*/ email, callback) {
     request('verifyUser', { /*auth0AccessToken: auth0AccessToken*/ email }, res => {
@@ -40,10 +40,12 @@ export function verify(/*auth0AccessToken*/ email, callback) {
                 interactions.forEach(interaction => { Storage.interactions.dbSaveInteractionAtOnce(interaction); trx.addInteraction(interaction); });
                 trx.commit();
 
-                SecurityDriver.instance().generateKeyPair((keyPair) => {
+                Crypto.instance().generateKeyPair((keyPair) => {
                     api.crypto.saveMyKeyPair(keyPair[0], keyPair[1], () => {
-                        if (callback !== undefined) callback(res);
-                        Bus.publish(topics.SETUP_DONE, {});
+                        Crypto.instance().refreshRoomKey(res.room.id).then(() => {
+                            if (callback !== undefined) callback(res);
+                            Bus.publish(topics.SETUP_DONE, {});
+                        });
                     });
                 });
             } else {
@@ -96,10 +98,12 @@ export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
                 trx.addMembership(defaultMembership);
                 trx.commit();
 
-                SecurityDriver.instance().generateKeyPair((keyPair) => {
+                Crypto.instance().generateKeyPair((keyPair) => {
                     api.crypto.saveMyKeyPair(keyPair[0], keyPair[1], () => {
-                        if (callback !== undefined) callback(res);
-                        Bus.publish(topics.SETUP_DONE, {});
+                        Crypto.instance().refreshRoomKey(res.room.id).then(() => {
+                            if (callback !== undefined) callback(res);
+                            Bus.publish(topics.SETUP_DONE, {});
+                        });
                     });
                 });
             }

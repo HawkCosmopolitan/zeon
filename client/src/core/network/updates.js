@@ -123,6 +123,9 @@ export function attachUpdateListeners() {
         trx.addUser(data.user);
         trx.addMembership(data.member);
         trx.commit();
+        if (trx.temp.rooms.byId[data.member.roomId].secret.adminIds.includes(trx.temp.me.id)) {
+            Crypto.instance().refreshRoomKey(data.member.roomId);
+        }
         done();
         Bus.publish(updates.USER_JOINED_ROOM, { user: data.user, roomId: data.roomId });
     };

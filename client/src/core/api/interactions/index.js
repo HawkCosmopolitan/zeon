@@ -5,6 +5,7 @@ import { dbFindUserById } from '../../storage/users';
 import { Storage } from '../../storage';
 import Bus from '../../events/bus';
 import { Memory } from '../../memory';
+import Crypto from '../../crypto';
 
 export function createInteraction(peerId, callback) {
     let trx = Memory.startTrx();
@@ -38,8 +39,10 @@ export function createInteraction(peerId, callback) {
                 trx.addMembership(res.member2);
                 trx.commit();
 
-                if (callback !== undefined) callback(res.interaction, res.room, res.contact);
-                Bus.publish(topics.INTERACTION_CREATED, { interaction: res.interaction, room: res.room, contact: res.contact });
+                Crypto.instance().refreshRoomKey(res.room.id).then(() => {
+                    if (callback !== undefined) callback(res.interaction, res.room, res.contact);
+                    Bus.publish(topics.INTERACTION_CREATED, { interaction: res.interaction, room: res.room, contact: res.contact });
+                });
             }
         });
     } else {
