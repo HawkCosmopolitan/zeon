@@ -54,7 +54,12 @@ export function attachUpdateListeners() {
         Memory.startTrx().removeActiveCall(data.spaceId).commit();
         Bus.publish(updates.ON_CALL_DESTRUCT, data);
     });
-
+    
+    updatesDictionary[updates.ROOM_KEY_REFERESHED] = async (data, done) => {
+        let { encryptedKey, salt, roomId } = data;
+        Crypto.instance().notifyNewRoomKey(roomId, encryptedKey, salt);
+        done();
+    };
     updatesDictionary[updates.PERMISSIONS_MODIFIED] = async (data, done) => {
         let { member } = data;
         Storage.spaces.dbUpdateMemberById(member.id, member);

@@ -30,6 +30,7 @@
     "NEW_POST": "postCreated",
     "POST_UPDATED": "postUpdated",
     "NEW_ROOM": "roomCreated",
+    "ROOM_KEY_REFERESHED": "RoomKeyRefereshed",
 
     "ON_ACTIVE_CALLS_SYNC": "on-active-calls-syncc",
     "ON_CALL_CREATE": "on-call-create",

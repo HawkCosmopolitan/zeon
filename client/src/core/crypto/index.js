@@ -46,7 +46,7 @@ export default class Crypto {
         return key;
     }
     notifyNewRoomKey(roomId, key, salt) {
-        this.updateRoomKey(roomId, key, salt);
+        this.updateRoomKey(roomId, this.decryptTextByKeyPair(this.getMyKeyPair().privateKey, key), salt);
     }
     async refreshRoomKey(roomId) {
         return new Promise(resolve => {
@@ -70,10 +70,18 @@ export default class Crypto {
         var encrypted = CryptoJS.AES.encrypt(payload, key);
         return { salt: salt, payload: encrypted };
     }
+    updateMyKeyPair(priKey, pubKey) {
+        localStorage.setItem('myKeyPair', JSON.stringify({ privateKey: priKey, publicKey: pubKey }));
+    }
+    getMyKeyPair() {
+        return JSON.parse(localStorage.setItem('myKeyPair'));
+    }
     generateKeyPair(onResult) {
+        let updateMyKeyPair = this.updateMyKeyPair;
         rsa.generateKeyPair({ bits: 2048, workers: 2 }, function (err, keypair) {
             let priKey = keypair.privateKey;
             let pubKey = keypair.publicKey;
+            updateMyKeyPair(priKey, publicKey);
             onResult([pubKey, priKey]);
         });
     }
