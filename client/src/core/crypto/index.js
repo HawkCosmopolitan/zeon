@@ -1,5 +1,6 @@
 
 import CryptoBrowser from 'crypto-browserify';
+import CryptoJS from 'crypto-js';
 import api from '../api';
 
 let rsa = forge.pki.rsa;
@@ -12,23 +13,41 @@ export default class Crypto {
     static instance() {
         return Crypto.inst;
     }
-    secrets = {}
+    secrets = {};
     async configure() {
-
+        this.securifyRoom('hall');
+        let { salt, payload } = this.packageMessage('hall', 'hello world !');
+        let myMessage = this.openMesage('hall', { payload, salt });
+        console.log(myMessage);
     }
-    async makeSafeChannelToUser(roomId, userId) {
-        return new Promise(resolve => {
-            this.startDH(roomId, userId, api.crypto.exchangePubKeys, () => {
-                console.log('safe channel created.');
-                resolve();
-            });
-        });
+    generateNewDerivedKey(roomId) {
+        let roomSecret = localStorage.getItem(roomId);
+        if (!roomSecret) {
+            roomSecret = forge.random.getBytesSync(128);
+            localStorage.setItem(`currentRoomSecret:${roomId}`, roomSecret);
+        }
+        var salt = forge.random.getBytesSync(128);
+        var key = forge.pkcs5.pbkdf2(roomSecret, salt, 1000, 16);
+        return [key, salt];
     }
-    async openMesage(senderId, msg) {
-
+    updateRoomKey(roomId, key, salt) {
+        localStorage.setItem(`currentRoomKey:${roomId}`, JSON.stringify({ key, salt }));
     }
-    async packageMessage(receiverId, msg) {
-
+    securifyRoom(roomId) {
+        let [key, salt] = this.generateNewDerivedKey(roomId);
+        this.updateRoomKey(roomId, key, salt);
+    }
+    notifyNewRoomKey(roomId, key, salt) {
+        this.updateRoomKey(roomId, key, salt);
+    }
+    openMesage(roomId, data) {
+        let key = JSON.parse(localStorage.getItem(`currentRoomKey:${roomId}`)).key;
+        return CryptoJS.AES.decrypt(data.payload, key).toString(CryptoJS.enc.Utf8);
+    }
+    packageMessage(roomId, payload) {
+        let { key, salt } = JSON.parse(localStorage.getItem(`currentRoomKey:${roomId}`));
+        var encrypted = CryptoJS.AES.encrypt(payload, key);
+        return { salt: salt, payload: encrypted };
     }
     generateKeyPair(onResult) {
         rsa.generateKeyPair({ bits: 2048, workers: 2 }, function (err, keypair) {
@@ -65,6 +84,7 @@ export default class Crypto {
     }
     constructor() {
         Crypto.inst = this;
+        this.securifyRoom = this.securifyRoom.bind(this);
         this.openMesage = this.openMesage.bind(this);
         this.packageMessage = this.packageMessage.bind(this);
         this.configure = this.configure.bind(this);

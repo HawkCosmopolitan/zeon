@@ -20,9 +20,16 @@ export function saveMyKeyPair(pubKey, priKey, callback) {
     });
 }
 
+export function propagateNewRoomKey(roomId, keys, callback) {
+    request('propagateNewRoomKey', { roomId, keys }, () => {
+        if (callback) callback();
+    });
+}
+
 let crypto = {
     exchangePubKeys,
-    saveMyKeyPair
+    saveMyKeyPair,
+    propagateNewRoomKey
 };
 
 export default crypto;
