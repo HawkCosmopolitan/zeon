@@ -29,7 +29,9 @@ module.exports = {
     },
     saveMyPublicKey: (socket, data, socketManager) => {
         SecurityDriver.instance().savePublicKey(socket.userId, data.publicKey);
-        socket.reply(data.replyTo, { success: true, peerPubKey: peerPubKey });
+        socket.pass('saveMyPublicKey', data, res => {
+            socket.reply(data.replyTo, { success: true });
+        });
     },
     propagateNewRoomKey: (socket, data, socketManager) => {
         let { keyPack, roomId, salt } = data;

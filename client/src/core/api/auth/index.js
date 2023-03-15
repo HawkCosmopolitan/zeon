@@ -39,15 +39,6 @@ export function verify(/*auth0AccessToken*/ email, callback) {
                 allMemberships.forEach(member => { Storage.spaces.dbSaveMemberAtOnce(member); trx.addMembership(member); });
                 interactions.forEach(interaction => { Storage.interactions.dbSaveInteractionAtOnce(interaction); trx.addInteraction(interaction); });
                 trx.commit();
-
-                Crypto.instance().generateKeyPair((keyPair) => {
-                    api.crypto.saveMyKeyPair(keyPair[0], keyPair[1], () => {
-                        Crypto.instance().refreshRoomKey(res.room.id).then(() => {
-                            if (callback !== undefined) callback(res);
-                            Bus.publish(topics.SETUP_DONE, {});
-                        });
-                    });
-                });
             } else {
                 if (callback !== undefined) callback(res);
                 Bus.publish(topics.VERIFIED, {});
@@ -57,57 +48,59 @@ export function verify(/*auth0AccessToken*/ email, callback) {
 }
 
 export function setup(/*accessToken,*/ email, firstName, lastName, callback) {
-    request('setupUser', { /*auth0AccessToken: accessToken,*/ email, firstName: firstName, lastName: lastName }, res => {
-        if (res.status === 1) {
-            if (res.session !== undefined) {
+    Crypto.instance().generateKeyPair((keyPair) => {
+        let publicKey = keyPair[0];
+        let privateKey = keyPair[1];
+        localStorage.setItem('myPublicKey', publicKey);
+        localStorage.setItem('myPrivateKey', privateKey);
+        request('setupUser', { /*auth0AccessToken: accessToken,*/ email, firstName: firstName, lastName: lastName, publicKey: publicKey }, res => {
+            if (res.status === 1) {
+                if (res.session !== undefined) {
 
-                let defaultMembership = res.defaultMembership;
-                let centralTower = res.centralTower;
-                let centralTowerHall = res.centralTowerHall;
+                    let defaultMembership = res.defaultMembership;
+                    let centralTower = res.centralTower;
+                    let centralTowerHall = res.centralTowerHall;
 
-                res.user.email = res.user.secret.email;
-                res.user.firstName = firstName;
-                res.user.lastName = lastName;
-                res.user.homeId = res.user.secret.homeId;
+                    res.user.email = res.user.secret.email;
+                    res.user.firstName = firstName;
+                    res.user.lastName = lastName;
+                    res.user.homeId = res.user.secret.homeId;
 
-                let newColor = (Math.random() * 10).toString()[0];
-                res.user.avatarBackColor = newColor;
+                    let newColor = (Math.random() * 10).toString()[0];
+                    res.user.avatarBackColor = newColor;
 
-                Storage.auth.saveEmail(res.user.secret.email);
-                Storage.me.saveAvatarBackColor(newColor);
-                Storage.auth.saveSessionToken(res.session.token);
-                Storage.me.saveMyUserId(res.user.id);
-                Storage.me.saveFirstName(firstName);
-                Storage.me.saveLastName(lastName);
-                Storage.me.saveMyHomeId(res.user.secret.homeId);
-                Storage.spaces.dbSaveTowerAtOnce(res.tower);
-                Storage.spaces.dbSaveRoomAtOnce(res.room);
-                Storage.spaces.dbSaveMemberAtOnce(res.member);
-                Storage.spaces.dbSaveTowerAtOnce(centralTower);
-                Storage.spaces.dbSaveRoomAtOnce(centralTowerHall);
-                Storage.spaces.dbSaveMemberAtOnce(defaultMembership);
+                    Storage.auth.saveEmail(res.user.secret.email);
+                    Storage.me.saveAvatarBackColor(newColor);
+                    Storage.auth.saveSessionToken(res.session.token);
+                    Storage.me.saveMyUserId(res.user.id);
+                    Storage.me.saveFirstName(firstName);
+                    Storage.me.saveLastName(lastName);
+                    Storage.me.saveMyHomeId(res.user.secret.homeId);
+                    Storage.spaces.dbSaveTowerAtOnce(res.tower);
+                    Storage.spaces.dbSaveRoomAtOnce(res.room);
+                    Storage.spaces.dbSaveMemberAtOnce(res.member);
+                    Storage.spaces.dbSaveTowerAtOnce(centralTower);
+                    Storage.spaces.dbSaveRoomAtOnce(centralTowerHall);
+                    Storage.spaces.dbSaveMemberAtOnce(defaultMembership);
 
-                let trx = Memory.startTrx();
-                trx.updateToken(res.session.token);
-                trx.updateMe(res.user);
-                trx.addTower(res.tower);
-                trx.addRoom(res.room);
-                trx.addMembership(res.member);
-                trx.addTower(centralTower);
-                trx.addRoom(centralTowerHall);
-                trx.addMembership(defaultMembership);
-                trx.commit();
+                    let trx = Memory.startTrx();
+                    trx.updateToken(res.session.token);
+                    trx.updateMe(res.user);
+                    trx.addTower(res.tower);
+                    trx.addRoom(res.room);
+                    trx.addMembership(res.member);
+                    trx.addTower(centralTower);
+                    trx.addRoom(centralTowerHall);
+                    trx.addMembership(defaultMembership);
+                    trx.commit();
 
-                Crypto.instance().generateKeyPair((keyPair) => {
-                    api.crypto.saveMyKeyPair(keyPair[0], keyPair[1], () => {
-                        Crypto.instance().refreshRoomKey(res.room.id).then(() => {
-                            if (callback !== undefined) callback(res);
-                            Bus.publish(topics.SETUP_DONE, {});
-                        });
+                    Crypto.instance().refreshRoomKey(res.room.id).then(() => {
+                        if (callback !== undefined) callback(res);
+                        Bus.publish(topics.SETUP_DONE, {});
                     });
-                });
+                }
             }
-        }
+        });
     });
 }
 

@@ -12,16 +12,16 @@ export function exchangePubKeys(roomId, userId, pubKey, callback) {
     });
 }
 
-export function saveMyKeyPair(pubKey, priKey, callback) {
-    request('saveMyPublicKey', { publicKey: pubKey }, () => {
-        localStorage.setItem('myPublicKey', pubKey);
-        localStorage.setItem('myPrivateKey', priKey);
+export function saveMyKeyPair(pubKeyStr, priKeyStr, callback) {
+    request('saveMyPublicKey', { publicKey: pubKeyStr }, () => {
+        localStorage.setItem('myPublicKey', pubKeyStr);
+        localStorage.setItem('myPrivateKey', priKeyStr);
         if (callback) callback();
     });
 }
 
-export function propagateNewRoomKey(roomId, keys, callback) {
-    request('propagateNewRoomKey', { roomId, keys }, () => {
+export function propagateNewRoomKey(roomId, keyPack, callback) {
+    request('propagateNewRoomKey', { roomId, keyPack }, () => {
         if (callback) callback();
     });
 }

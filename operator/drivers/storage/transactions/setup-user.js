@@ -50,7 +50,7 @@ const checkImports = () => {
     }
 }
 
-module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, lastName }) => {
+module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, lastName, publicKey }) => {
     if (isEmpty(firstName)) {
         console.error('first name can not be empty');
         return { success: false };
@@ -80,6 +80,7 @@ module.exports.dbSetupUser = async ({ email, /*auth0AccessToken,*/ firstName, la
                 id: userGenedId,
                 firstName: firstName,
                 lastName: lastName,
+                publicKey: publicKey,
                 secret: {
                     email: email,
                     homeId: towerGenedId,

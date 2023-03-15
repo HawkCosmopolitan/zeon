@@ -15,13 +15,19 @@ export default class Crypto {
         return Crypto.inst;
     }
     secrets = {};
+    priKey;
+    pubKey;
     async configure() {
-        
+        let myKeyPair = this.getMyKeyPair();
+        if (myKeyPair) {
+            this.priKey = myKeyPair.privateKey;
+            this.pubKey = myKeyPair.publicKey;
+        }
     }
     updateRoomSecret(roomId, roomSecret) {
         localStorage.setItem(`currentRoomSecret:${roomId}`, roomSecret);
     }
-    getRoomSecret() {
+    getRoomSecret(roomId) {
         return localStorage.getItem(`currentRoomSecret:${roomId}`);
     }
     generateNewDerivedKey(roomId) {
@@ -50,11 +56,15 @@ export default class Crypto {
     }
     async refreshRoomKey(roomId) {
         return new Promise(resolve => {
+            let trx = Memory.startTrx();
             let key = this.securifyRoom(roomId);
-            let memberships = Memory.startTrx().temp.memberships.dictPerRoom[roomId];
+            let memberships = trx.temp.memberships.dictPerRoom[roomId];
             let keyPack = {};
             Object.values(memberships).forEach(m => {
-                keyPack[me.userId] = this.encryptTextByKeyPair(Memory.startTrx().temp.users.byId[m.userId].publicKey, key);
+                let user = trx.temp.users.byId[m.userId];
+                if (user) {
+                    keyPack[trx.temp.me.userId] = this.encryptTextByKeyPair(user.publicKey, key);
+                }
             });
             api.crypto.propagateNewRoomKey(roomId, keyPack, () => {
                 resolve();
@@ -74,22 +84,29 @@ export default class Crypto {
         localStorage.setItem('myKeyPair', JSON.stringify({ privateKey: priKey, publicKey: pubKey }));
     }
     getMyKeyPair() {
-        return JSON.parse(localStorage.setItem('myKeyPair'));
+        let myKeyPairRaw = localStorage.getItem('myKeyPair');
+        if (myKeyPairRaw && (myKeyPairRaw !== null)) {
+            return JSON.parse(myKeyPairRaw);
+        } else {
+            return undefined;
+        }
     }
     generateKeyPair(onResult) {
-        let updateMyKeyPair = this.updateMyKeyPair;
+        let that = this;
         rsa.generateKeyPair({ bits: 2048, workers: 2 }, function (err, keypair) {
-            let priKey = keypair.privateKey;
-            let pubKey = keypair.publicKey;
-            updateMyKeyPair(priKey, publicKey);
-            onResult([pubKey, priKey]);
+            that.priKey = keypair.privateKey;
+            that.pubKey = keypair.publicKey;
+            let priKeyStr = forge.pki.privateKeyToPem(that.priKey);
+            let pubKeyStr = forge.pki.publicKeyToPem(that.pubKey);
+            that.updateMyKeyPair(priKeyStr, pubKeyStr);
+            onResult([pubKeyStr, priKeyStr]);
         });
     }
-    encryptTextByKeyPair(pubKey, payload) {
-        return pubKey.encrypt(Buffer.from(payload));
+    encryptTextByKeyPair(payload) {
+        return this.pubKey.encrypt(Buffer.from(payload));
     }
-    decryptTextByKeyPair(priKey, cipher) {
-        return priKey.decrypt(cipher);
+    decryptTextByKeyPair(cipher) {
+        return this.priKey.decrypt(cipher);
     }
     async startDH(roomId, userId, exchangePubKeys, onResult) {
         let dh1 = CryptoBrowser.getDiffieHellman('modp1');

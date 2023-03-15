@@ -12,6 +12,7 @@ module.exports.defineSchemas = () => {
         id: String,
         firstName: String,
         lastName: String,
+        publicKey: String,
         secret: Schema.Types.Mixed
     }), 'User');
     module.exports.Interaction = mongoose.model('Interaction', new Schema({

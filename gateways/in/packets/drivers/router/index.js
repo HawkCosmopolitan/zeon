@@ -1,6 +1,7 @@
 
 let auth = require('./routes/auth');
 let call = require('./routes/call');
+let crypto = require('./routes/crypto');
 let file = require('./routes/file');
 let interactions = require('./routes/interactions');
 let invites = require('./routes/invites');
@@ -23,6 +24,7 @@ module.exports = {
     attachRouter: (socket, socketManager) => {
         attachRoute(socket, socketManager, auth);
         attachRoute(socket, socketManager, call);
+        attachRoute(socket, socketManager, crypto);
         attachRoute(socket, socketManager, file);
         attachRoute(socket, socketManager, interactions);
         attachRoute(socket, socketManager, invites);
