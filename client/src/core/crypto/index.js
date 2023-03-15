@@ -1,6 +1,7 @@
 
 import CryptoBrowser from 'crypto-browserify';
 import CryptoJS from 'crypto-js';
+import CryptoENC from 'crypto-js/enc-utf8';
 import api from '../api';
 import { Memory } from '../memory';
 
@@ -28,7 +29,12 @@ export default class Crypto {
         localStorage.setItem(`currentRoomSecret:${roomId}`, roomSecret);
     }
     getRoomSecret(roomId) {
-        return localStorage.getItem(`currentRoomSecret:${roomId}`);
+        let secret = localStorage.getItem(`currentRoomSecret:${roomId}`);
+        if (secret && (secreet !== null)) {
+            return secret;
+        } else {
+            return undefined;
+        }
     }
     generateNewDerivedKey(roomId) {
         let roomSecret = this.getRoomSecret(roomId);
@@ -44,7 +50,8 @@ export default class Crypto {
         localStorage.setItem(`currentRoomKey:${roomId}`, JSON.stringify({ key, salt }));
     }
     getRoomKey(roomId) {
-        return JSON.parse(localStorage.getItem(`currentRoomKey:${roomId}`));
+        let key = localStorage.getItem(`currentRoomKey:${roomId}`);
+        return JSON.parse(key);
     }
     securifyRoom(roomId) {
         let [key, salt] = this.generateNewDerivedKey(roomId);
@@ -70,15 +77,6 @@ export default class Crypto {
                 resolve();
             });
         });
-    }
-    openMesage(roomId, data) {
-        let key = this.getRoomKey(roomId).key;
-        return CryptoJS.AES.decrypt(data.payload, key).toString(CryptoJS.enc.Utf8);
-    }
-    packageMessage(roomId, payload) {
-        let { key, salt } = this.getRoomKey(roomId);
-        var encrypted = CryptoJS.AES.encrypt(payload, key);
-        return { salt: salt, payload: encrypted };
     }
     updateMyKeyPair(priKey, pubKey) {
         localStorage.setItem('myKeyPair', JSON.stringify({ privateKey: priKey, publicKey: pubKey }));
@@ -127,6 +125,15 @@ export default class Crypto {
         myPubKeyReady(dh1.getPublicKey());
         this.secrets[`${roomId}_${userId}`] = pub1;
         onResult(pub1);
+    }
+    openMesage(roomId, data) {
+        let key = this.getRoomKey(roomId).key;
+        return CryptoJS.AES.decrypt(data.payload.toString(), key).toString(CryptoENC);
+    }
+    packageMessage(roomId, payload) {
+        let { key, salt } = this.getRoomKey(roomId);
+        var encrypted = CryptoJS.AES.encrypt(payload, key).toString();
+        return { salt: salt, payload: encrypted };
     }
     constructor() {
         Crypto.inst = this;
