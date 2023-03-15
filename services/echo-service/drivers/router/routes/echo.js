@@ -6,7 +6,7 @@ module.exports.attachEchoEvents = (socket) => {
             replyTo: data.replyTo,
             status: 1,
             text: data.body.text,
-            update: { type: 'echoUpdate', roomId: data.roomId, text: data.text }
+            update: { type: 'echoUpdate', roomId: data.body.roomId, text: data.body.text }
         });
     });
 }

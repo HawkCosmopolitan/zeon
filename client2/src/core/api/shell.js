@@ -1,7 +1,6 @@
 
 import { request } from '../utils/requests';
 import Crypto from '../crypto';
-import { Storage } from '../storage';
 import { Memory } from '../memory';
 
 export async function echo(text) {
