@@ -4,10 +4,8 @@ import Crypto from '../crypto';
 import { Storage } from '../storage';
 import { Memory } from '../memory';
 
-export async function echo(text) {
+export async function echo(roomId, text) {
     return new Promise(async resolve => {
-        let trx = Memory.startTrx();
-        let roomId = trx.temp.rooms.listPerTower['CENTRAL_TOWER'][0].id;
         if (Crypto.instance().isRoomSecure(roomId)) {
             request('use-service', {
                 key: 'echo-service',

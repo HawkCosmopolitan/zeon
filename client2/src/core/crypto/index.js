@@ -21,8 +21,8 @@ export default class Crypto {
     async configure() {
         let myKeyPair = this.getMyKeyPair();
         if (myKeyPair) {
-            this.priKey = myKeyPair.privateKey;
-            this.pubKey = myKeyPair.publicKey;
+            this.priKey = forge.pki.privateKeyFromPem(atob(myKeyPair.privateKey));
+            this.pubKey = forge.pki.publicKeyFromPem(atob(myKeyPair.publicKey));
         }
     }
     updateRoomSecret(roomId, roomSecret) {
@@ -44,6 +44,7 @@ export default class Crypto {
         }
         var salt = forge.random.getBytesSync(128);
         var key = forge.pkcs5.pbkdf2(roomSecret, salt, 1000, 16);
+        console.log(key);
         return [key, salt];
     }
     updateRoomKey(roomId, key, salt) {
@@ -59,7 +60,7 @@ export default class Crypto {
         return key;
     }
     notifyNewRoomKey(roomId, key, salt) {
-        this.updateRoomKey(roomId, this.decryptTextByKeyPair(this.getMyKeyPair().privateKey, key), salt);
+        this.updateRoomKey(roomId, this.decryptTextByKeyPair(key), salt);
     }
     async refreshRoomKey(roomId) {
         return new Promise(resolve => {
@@ -70,7 +71,7 @@ export default class Crypto {
             Object.values(memberships).forEach(m => {
                 let user = trx.temp.users.byId[m.userId];
                 if (user) {
-                    keyPack[trx.temp.me.userId] = this.encryptTextByKeyPair(user.publicKey, key);
+                    keyPack[user.id] = this.encryptTextByOtherKeyPair(user.id, key);
                 }
             });
             api.crypto.propagateNewRoomKey(roomId, keyPack, () => {
@@ -94,8 +95,8 @@ export default class Crypto {
         rsa.generateKeyPair({ bits: 2048, workers: 2 }, function (err, keypair) {
             that.priKey = keypair.privateKey;
             that.pubKey = keypair.publicKey;
-            let priKeyStr = forge.pki.privateKeyToPem(that.priKey);
-            let pubKeyStr = forge.pki.publicKeyToPem(that.pubKey);
+            let priKeyStr = btoa(forge.pki.privateKeyToPem(that.priKey));
+            let pubKeyStr = btoa(forge.pki.publicKeyToPem(that.pubKey));
             that.updateMyKeyPair(priKeyStr, pubKeyStr);
             onResult([pubKeyStr, priKeyStr]);
         });
@@ -105,6 +106,9 @@ export default class Crypto {
     }
     decryptTextByKeyPair(cipher) {
         return this.priKey.decrypt(cipher);
+    }
+    encryptTextByOtherKeyPair(userId, payload) {
+        return forge.pki.publicKeyFromPem(atob(Memory.startTrx().temp.users.byId[userId].publicKey)).encrypt(payload);
     }
     async startDH(roomId, userId, exchangePubKeys, onResult) {
         let dh1 = CryptoBrowser.getDiffieHellman('modp1');
@@ -155,6 +159,7 @@ export default class Crypto {
         this.generateKeyPair = this.generateKeyPair.bind(this);
         this.encryptTextByKeyPair = this.encryptTextByKeyPair.bind(this);
         this.decryptTextByKeyPair = this.decryptTextByKeyPair.bind(this);
+        this.encryptTextByOtherKeyPair = this.encryptTextByOtherKeyPair.bind(this);
         this.isRoomSecure = this.isRoomSecure.bind(this);
         this.configure();
     }

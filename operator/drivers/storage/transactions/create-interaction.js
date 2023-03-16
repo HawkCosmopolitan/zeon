@@ -118,7 +118,6 @@ module.exports.dbCreateInteraction = async ({ peerId }, userId, callback) => {
                         interaction,
                         contact: secureObject(me, 'secret'),
                         userId: peerId,
-                        messages: []//[serviceMessage]
                     },
                     tower,
                     room,

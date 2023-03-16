@@ -16,9 +16,9 @@ export default function App() {
     return (
         <div>
             <button onClick={() => {
-                api.auth.verify('kasper', res => {
+                api.auth.verify('10', res => {
                     if (!res.user) {
-                        api.auth.setup('kasper', 'kasper', 'ahmadi', res => {
+                        api.auth.setup('10', '10', 'ahmadi', res => {
                             authenticate(afterAuthentication);
                         });
                     } else {

@@ -16,9 +16,9 @@ export default function App() {
     return (
         <div>
             <button onClick={() => {
-                api.auth.verify('keyhan', res => {
+                api.auth.verify('9', res => {
                     if (!res.user) {
-                        api.auth.setup('keyhan', 'keyhan', 'ahmadi', res => {
+                        api.auth.setup('9', '9', 'ahmadi', res => {
                             authenticate(afterAuthentication);
                         });
                     } else {
@@ -35,12 +35,17 @@ export default function App() {
                 });
             }}>space !</button>
             <button onClick={() => {
-                api.auth.teleport(Memory.startTrx().temp.rooms.listPerTower['CENTRAL_TOWER'][0].id, () => {
+                api.interactions.createInteraction('e69cf59b10e10c50b7d812e533e40e45', (interaction, room, contact) => {
+                    myRoom = room;
+                });
+            }}>interact !</button>
+            <button onClick={() => {
+                api.auth.teleport(myRoom.id, () => {
 
                 });
-            }}>teleport to center !</button>
+            }}>teleport !</button>
             <button onClick={() => {
-                api.shell.echo('hello echo god !').then(res => {
+                api.shell.echo(myRoom.id, 'hello echo god !').then(res => {
                     console.log(res);
                 });
             }}>echo !</button>

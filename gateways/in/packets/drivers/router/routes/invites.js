@@ -2,7 +2,7 @@
 const errors = require('../../../../../../constants/errors.json');
 
 module.exports = {
-    createInvite: async (data) => {
+    createInvite: async (socket, data, socketManager) => {
         if (socket.userId) {
             MemoryDriver.instance().fetch(`rights:${data.roomId}/${socket.userId}`, raw => {
                 let permissions = JSON.parse(raw);
@@ -17,7 +17,7 @@ module.exports = {
             });
         }
     },
-    cancelInvite: async (data) => {
+    cancelInvite: async (socket, data, socketManager) => {
         if (socket.userId) {
             data.userId = socket.userId;
             socket.pass('fetchPermissions', data, res => {
@@ -25,7 +25,7 @@ module.exports = {
             });
         }
     },
-    acceptInvite: async (data) => {
+    acceptInvite: async (socket, data, socketManager) => {
         if (socket.userId) {
             data.userId = socket.userId;
             socket.pass('acceptInvite', data, res => {
@@ -33,7 +33,7 @@ module.exports = {
             });
         }
     },
-    declineInvite: async (data) => {
+    declineInvite: async (socket, data, socketManager) => {
         if (socket.userId) {
             data.userId = socket.userId;
             socket.pass('declineInvite', data, res => {

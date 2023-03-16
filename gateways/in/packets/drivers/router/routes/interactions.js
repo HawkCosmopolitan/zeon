@@ -1,6 +1,6 @@
 
 module.exports = {
-    createInteraction: async (data) => {
+    createInteraction: async (socket, data, socketManager) => {
         if (socket.userId) {
             data.userId = socket.userId;
             socket.pass('createInteraction', data, res => {
@@ -8,7 +8,7 @@ module.exports = {
             });
         }
     },
-    readInteractions: async (data) => {
+    readInteractions: async (socket, data, socketManager) => {
         if (socket.userId) {
             data.userId = socket.userId;
             socket.pass('readInteractions', data, res => {

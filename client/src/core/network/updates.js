@@ -12,7 +12,7 @@ import Crypto from '../crypto';
 let updatesDictionary = {};
 
 export function attachUpdateListeners() {
-    
+
     socket.on('onExchangePubKeys', ({ requesterId, roomId, peerPubKey }) => {
         Crypto.instance().answerDH(roomId, requesterId, peerPubKey, myPublicKey => {
             socket.emit('answerExchangePubKeys', { pubKey: myPublicKey, requesterId, roomId });
@@ -54,7 +54,7 @@ export function attachUpdateListeners() {
         Memory.startTrx().removeActiveCall(data.spaceId).commit();
         Bus.publish(updates.ON_CALL_DESTRUCT, data);
     });
-    
+
     updatesDictionary[updates.ROOM_KEY_REFERESHED] = async (data, done) => {
         let { encryptedKey, salt, roomId } = data;
         Crypto.instance().notifyNewRoomKey(roomId, encryptedKey, salt);
@@ -129,6 +129,14 @@ export function attachUpdateListeners() {
         done();
         Bus.publish(updates.USER_JOINED_ROOM, { user: data.user, roomId: data.roomId });
     };
+    updatesDictionary['echoUpdate'] = async (data, done) => {
+        if (Crypto.instance().isRoomSecure(data.roomId)) {
+            alert(await Crypto.instance().openMesage(data.roomId, data.text));
+        } else {
+            alert(data.text);
+        }
+        done();
+    }
     stompClient.subscribe(`/queue/queue_${Storage.me.fetchMyUserId()}`, message => {
         console.log(`Received: ${message.body}`);
         let data = JSON.parse(message.body);
