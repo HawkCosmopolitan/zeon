@@ -68,14 +68,18 @@ module.exports.dbVerifyUser = async ({ /*auth0AccessToken*/ email }) => {
                 let rooms = await RoomFactory.instance().findGroup({ 'id': { $in: memberships.map(m => m.roomId) } }, session);
                 let allMemberships = await MemberFactory.instance().findGroup({ roomId: { $in: rooms.map(r => r.id) } }, session);
                 let interactions = await InteractionFactory.instance().findGroup({ $or: [{ user1Id: user.id }, { user2Id: user.id }] }, session);
-                towers.forEach(tower => {
+                for (let i = 0; i < towers.length; i++) {
+                    let tower = towers[i];
                     if (tower.secret.isContact) {
                         let user1Id = tower.secret.adminIds[0];
                         let user2Id = tower.secret.adminIds[1];
                         let target = (user1Id === user.id) ? user2Id : user1Id;
                         tower.contactId = target;
-                        tower.contact = getUser(target);
+                        tower.contact = await UserFactory.instance().find({ id: target }, session);
                     }
+                }
+                towers.forEach(tower => {
+                    
                 });
                 await session.commitTransaction();
                 session.endSession();
