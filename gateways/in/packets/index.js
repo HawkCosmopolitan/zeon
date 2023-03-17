@@ -20,3 +20,12 @@ addService({
         needAuthorization: true,
     }
 });
+
+addService({
+    key: 'messenger-service',
+    address: 'http://localhost:5002',
+    'createTextMessage': {
+        needAuthentication: true,
+        needAuthorization: true,
+    }
+});
